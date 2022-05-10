@@ -1,0 +1,10 @@
+{
+  "name": "lollygag",
+  "version": "1.0.0",
+  "description": "A static site generator.",
+  "main": "index.js",
+  "repository": "https://github.com/jegwastaken/lollygag.git",
+  "author": "John Romeral",
+  "license": "MIT",
+  "private": true
+}

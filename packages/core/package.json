@@ -1,0 +1,48 @@
+{
+  "name": "@lollygag/core",
+  "version": "0.0.1",
+  "description": "The core Lollygag package.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "John Romeral",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jegwastaken/lollygag.git",
+    "directory": "packages/core"
+  },
+  "scripts": {
+    "prestart": "rimraf dist",
+    "start": "tsc -d -w",
+    "prebuild": "rimraf dist",
+    "build": "tsc -d",
+    "prepublishOnly": "yarn build",
+    "eslint:panadero": "npx install-peerdeps --dev eslint-config-panadero",
+    "prettier": "prettier --write .",
+    "eslint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "format": "yarn prettier && yarn eslint"
+  },
+  "dependencies": {
+    "@types/mmmagic": "^0.4.30",
+    "@types/rimraf": "^3.0.2",
+    "chalk": "^4.1.2",
+    "front-matter": "^4.0.2",
+    "mmmagic": "^0.5.3",
+    "rimraf": "^3.0.2"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.27.0",
+    "@typescript-eslint/parser": "^2.27.0",
+    "eslint": "^6.8.0",
+    "eslint-config-panadero": "0.0.4",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-react": "^7.19.0",
+    "eslint-plugin-react-hooks": "^3.0.0",
+    "prettier": "^2.0.4",
+    "typescript": "^3.8.3"
+  }
+}

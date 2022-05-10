@@ -1,0 +1,19 @@
+# Logs
+*.log*
+
+# Dep dirs
+node_modules/
+vendor/
+
+# IDEs
+.idea/
+.vscode/
+
+# Etcetera
+.env
+*.bak*
+
+# Project
+.ext/
+plugins/*
+*.tsbuildinfo
