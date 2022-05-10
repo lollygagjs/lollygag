@@ -1,0 +1,10 @@
+import { RaggedyAny, RaggedyObject } from '.';
+export declare function fullExtname(filePath: string): string;
+export declare function changeExtname(filePath: string, newExtension: string): string;
+export declare function changeFullExtname(filePath: string, newExtension: string): string;
+export declare function addParentToPath(parent: string, path: string): string;
+export declare function removeParentFromPath(parent: string, path: string): string;
+export declare type TObjectFunctionCallback = (value: RaggedyAny, key: string, object: RaggedyObject) => RaggedyAny;
+export declare function foreachObject(obj: RaggedyObject, callback: TObjectFunctionCallback): void;
+export declare function mapObject(obj: RaggedyObject, callback: TObjectFunctionCallback): RaggedyObject;
+export declare function filterObject(obj: RaggedyObject, callback: TObjectFunctionCallback): RaggedyObject;
