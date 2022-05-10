@@ -16,11 +16,7 @@
   },
   "scripts": {
     "build": "rimraf dist && tsc -d",
-    "start": "rimraf dist && tsc -d -w",
-    "eslint:panadero": "npx install-peerdeps --dev eslint-config-panadero",
-    "prettier": "prettier --write .",
-    "eslint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
-    "format": "yarn prettier && yarn eslint"
+    "start": "rimraf dist && tsc -d -w"
   },
   "dependencies": {
     "@types/mmmagic": "^0.4.30",
@@ -31,15 +27,6 @@
     "rimraf": "^3.0.2"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^2.27.0",
-    "@typescript-eslint/parser": "^2.27.0",
-    "eslint": "^6.8.0",
-    "eslint-config-panadero": "0.0.4",
-    "eslint-plugin-import": "^2.20.2",
-    "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-react": "^7.19.0",
-    "eslint-plugin-react-hooks": "^3.0.0",
-    "prettier": "^2.0.4",
-    "typescript": "^3.8.3"
+    "typescript": "^4.6.4"
   }
 }
