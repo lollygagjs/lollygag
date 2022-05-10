@@ -15,11 +15,8 @@
     "directory": "packages/core"
   },
   "scripts": {
-    "prestart": "rimraf dist",
-    "start": "tsc -d -w",
-    "prebuild": "rimraf dist",
-    "build": "tsc -d",
-    "prepublishOnly": "yarn build",
+    "start": "rimraf dist && tsc -d -w",
+    "build": "rimraf dist && tsc -d",
     "eslint:panadero": "npx install-peerdeps --dev eslint-config-panadero",
     "prettier": "prettier --write .",
     "eslint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
