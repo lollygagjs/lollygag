@@ -1,0 +1,25 @@
+{
+  "name": "@lollygag/{{workerName}}",
+  "version": "0.0.1",
+  "description": "Worker for Lollygag.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "John Romeral",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jegwastaken/lollygag.git",
+    "directory": "packages/{{workerName}}"
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc -d",
+    "start": "rimraf dist && tsc -d -w"
+  },
+  "dependencies": {
+    "@lollygag/core": "^1.0.0",
+    "@types/node": "^17.0.31"
+  }
+}
