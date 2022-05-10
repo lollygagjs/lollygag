@@ -9,7 +9,7 @@ const path_1 = require("path");
 const markdown_it_1 = __importDefault(require("markdown-it"));
 const core_1 = require("@lollygag/core");
 function processMarkdown(content, options, data) {
-    return markdown_it_1.default(options).render(content || '', data);
+    return (0, markdown_it_1.default)(options || {}).render(content || '', data);
 }
 exports.processMarkdown = processMarkdown;
 function markdown(options) {
@@ -22,10 +22,12 @@ function markdown(options) {
                 ...['.md', '.html'],
                 ...((options === null || options === void 0 ? void 0 : options.targetExtnames) || []),
             ];
-            if (!targetExtnames.includes(path_1.extname(file.path))) {
+            if (!targetExtnames.includes((0, path_1.extname)(file.path))) {
                 continue;
             }
-            file.path = core_1.changeExtname(file.path, (options === null || options === void 0 ? void 0 : options.newExtname) || '.html');
+            if ((options === null || options === void 0 ? void 0 : options.newExtname) !== false) {
+                file.path = (0, core_1.changeExtname)(file.path, (options === null || options === void 0 ? void 0 : options.newExtname) || '.html');
+            }
             const data = Object.assign(Object.assign({}, lollygag._config), file);
             const mdOptions = Object.assign({ html: true }, options === null || options === void 0 ? void 0 : options.markdownOptions);
             file.content = processMarkdown(file.content || '', mdOptions, data);

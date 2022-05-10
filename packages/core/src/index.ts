@@ -46,12 +46,12 @@ export type TWorker = (
     lollygag: Lollygag
 ) => void | Promise<void>;
 
-class Lollygag {
+export class Lollygag {
     constructor(
         private __config: IConfig = {
             generator: 'Lollygag',
             year: new Date().getFullYear(),
-            permalinks: true,
+            permalinks: false,
         },
         private __in: string = 'files',
         private __out: string = 'public',
@@ -128,7 +128,7 @@ class Lollygag {
 
     private getFiles(globPattern = join(this._in, '/**/*')): Promise<string[]> {
         return new Promise((resolve, reject) => {
-            glob(globPattern, {nodir: true}, (err, files) => {
+            glob(globPattern, {nodir: true, dot: true}, (err, files) => {
                 if(err) reject(err);
                 else resolve(files);
             });

@@ -4,7 +4,7 @@ import md, {Options} from 'markdown-it';
 import {changeExtname, IConfig, IFile, TWorker} from '@lollygag/core';
 
 export interface IMarkdownOptions {
-    newExtname?: string;
+    newExtname?: string | false;
     targetExtnames?: string[];
     markdownOptions?: Options;
 }
@@ -13,10 +13,10 @@ export type TTemplateData = IConfig & IFile;
 
 export function processMarkdown(
     content: string,
-    options: Options,
-    data: TTemplateData
+    options?: Options,
+    data?: TTemplateData
 ): string {
-    return md(options).render(content || '', data);
+    return md(options || {}).render(content || '', data);
 }
 
 export default function markdown(options?: IMarkdownOptions): TWorker {
@@ -35,10 +35,12 @@ export default function markdown(options?: IMarkdownOptions): TWorker {
                 continue;
             }
 
-            file.path = changeExtname(
-                file.path,
-                options?.newExtname || '.html'
-            );
+            if(options?.newExtname !== false) {
+                file.path = changeExtname(
+                    file.path,
+                    options?.newExtname || '.html'
+                );
+            }
 
             const data = {...lollygag._config, ...file};
 

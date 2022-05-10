@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -14,12 +18,12 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
 var __exportStar = (this && this.__exportStar) || function(m, exports) {
-    for (var p in m) if (p !== "default" && !exports.hasOwnProperty(p)) __createBinding(exports, m, p);
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -34,6 +38,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Lollygag = void 0;
 const fs_1 = __importStar(require("fs"));
 const console_1 = require("console");
 const path_1 = require("path");
@@ -50,19 +55,19 @@ class Lollygag {
     constructor(__config = {
         generator: 'Lollygag',
         year: new Date().getFullYear(),
-        permalinks: true,
+        permalinks: false,
     }, __in = 'files', __out = 'public', __files = [], __workers = []) {
         this.__config = __config;
         this.__in = __in;
         this.__out = __out;
         this.__files = __files;
         this.__workers = __workers;
-        console_1.log('Hello from Lollygag!');
+        (0, console_1.log)('Hello from Lollygag!');
     }
     config(config) {
         const c = config;
         if (c.subdir)
-            c.subdir = path_1.join('/', c.subdir).replace(/\/$/, '');
+            c.subdir = (0, path_1.join)('/', c.subdir).replace(/\/$/, '');
         this.__config = Object.assign(Object.assign({}, this._config), c);
         return this;
     }
@@ -84,7 +89,7 @@ class Lollygag {
         return this.__out;
     }
     subdir(dir) {
-        this.__config.subdir = path_1.join('/', dir).replace(/\/$/, '');
+        this.__config.subdir = (0, path_1.join)('/', dir).replace(/\/$/, '');
         return this;
     }
     get _subdir() {
@@ -114,9 +119,9 @@ class Lollygag {
             });
         });
     }
-    getFiles(globPattern = path_1.join(this._in, '/**/*')) {
+    getFiles(globPattern = (0, path_1.join)(this._in, '/**/*')) {
         return new Promise((resolve, reject) => {
-            glob_1.default(globPattern, { nodir: true }, (err, files) => {
+            (0, glob_1.default)(globPattern, { nodir: true, dot: true }, (err, files) => {
                 if (err)
                     reject(err);
                 else
@@ -133,7 +138,7 @@ class Lollygag {
                 return fs_1.promises
                     .readFile(file, { encoding: 'utf-8' })
                     .then((fileContent) => {
-                    const fmResult = front_matter_1.default(fileContent);
+                    const fmResult = (0, front_matter_1.default)(fileContent);
                     return Object.assign({ path: file, content: fmResult.body, mimetype: fileMimetype, stats: fileStats }, fmResult.attributes);
                 });
             }
@@ -143,8 +148,8 @@ class Lollygag {
     }
     write(files) {
         const promises = files.map((file) => __awaiter(this, void 0, void 0, function* () {
-            const filePath = path_1.join(this._out, helpers_1.removeParentFromPath(this._in, file.path));
-            const fileDir = path_1.dirname(filePath);
+            const filePath = (0, path_1.join)(this._out, (0, helpers_1.removeParentFromPath)(this._in, file.path));
+            const fileDir = (0, path_1.dirname)(filePath);
             if (!fs_1.default.existsSync(fileDir)) {
                 yield fs_1.promises.mkdir(fileDir, { recursive: true });
             }
@@ -162,9 +167,9 @@ class Lollygag {
     }
     permalinks(files) {
         const promises = files.map((file) => __awaiter(this, void 0, void 0, function* () {
-            if (path_1.extname(file.path) === '.html'
-                && path_1.basename(file.path) !== 'index.html') {
-                return Object.assign(Object.assign({}, file), { path: path_1.join(path_1.dirname(file.path), helpers_1.changeExtname(path_1.basename(file.path), ''), 'index.html') });
+            if ((0, path_1.extname)(file.path) === '.html'
+                && (0, path_1.basename)(file.path) !== 'index.html') {
+                return Object.assign(Object.assign({}, file), { path: (0, path_1.join)((0, path_1.dirname)(file.path), (0, helpers_1.changeExtname)((0, path_1.basename)(file.path), ''), 'index.html') });
             }
             return file;
         }));
@@ -172,54 +177,55 @@ class Lollygag {
     }
     build(options) {
         return __awaiter(this, void 0, void 0, function* () {
-            console_1.time('Total build time');
-            const defaultGlobPattern = path_1.join(this._in, '/**/*');
+            (0, console_1.time)('Total build time');
+            const defaultGlobPattern = (0, path_1.join)(this._in, '/**/*');
             const opts = Object.assign({ fullBuild: false, globPattern: defaultGlobPattern }, options);
             if (opts.fullBuild) {
                 opts.globPattern = defaultGlobPattern;
-                console_1.time(`Deleted \`${this._out}\` directory`);
-                yield new Promise((resolve, reject) => rimraf_1.default(this._out, (err) => {
+                (0, console_1.time)(`Deleted \`${this._out}\` directory`);
+                yield new Promise((resolve, reject) => (0, rimraf_1.default)(this._out, (err) => {
                     if (err)
                         reject(err);
                     else
                         resolve(0);
                 }));
-                console_1.timeEnd(`Deleted \`${this._out}\` directory`);
+                (0, console_1.timeEnd)(`Deleted \`${this._out}\` directory`);
             }
-            console_1.time('Getting files');
+            (0, console_1.time)('Getting files');
             const fileList = yield this.getFiles(opts.globPattern);
-            console_1.timeEnd('Getting files');
-            console_1.time('Parsing files');
-            const fileObjects = this._files.filter((file) => minimatch_1.default(file.path, opts.globPattern || defaultGlobPattern));
+            (0, console_1.timeEnd)('Getting files');
+            (0, console_1.time)('Parsing files');
+            const fileObjects = this._files.filter((file) => (0, minimatch_1.default)(file.path, opts.globPattern || defaultGlobPattern));
             const parsedFiles = [
                 ...fileObjects,
                 ...(yield this.parseFiles(fileList)),
             ];
-            console_1.timeEnd('Parsing files');
+            (0, console_1.timeEnd)('Parsing files');
             yield this._workers.reduce((possiblePromise, worker) => __awaiter(this, void 0, void 0, function* () {
                 const workerName = worker.name || 'unknown worker';
                 yield Promise.resolve(possiblePromise);
-                console_1.time(`Running ${workerName}`);
+                (0, console_1.time)(`Running ${workerName}`);
                 yield worker(parsedFiles, this);
-                console_1.timeEnd(`Running ${workerName}`);
+                (0, console_1.timeEnd)(`Running ${workerName}`);
             }), Promise.resolve());
             let toWrite = parsedFiles;
             if (this._config.permalinks) {
-                console_1.time('Building permalinks');
+                (0, console_1.time)('Building permalinks');
                 toWrite = yield this.permalinks(parsedFiles);
-                console_1.timeEnd('Building permalinks');
+                (0, console_1.timeEnd)('Building permalinks');
             }
-            console_1.time('Writing files');
+            (0, console_1.time)('Writing files');
             yield this.write(toWrite);
-            console_1.timeEnd('Writing files');
-            console_1.timeEnd('Total build time');
+            (0, console_1.timeEnd)('Writing files');
+            (0, console_1.timeEnd)('Total build time');
         });
     }
 }
+exports.Lollygag = Lollygag;
 process.on('unhandledRejection', (err) => {
     const msg = 'Build failed...';
     const dashes = '----------------------------------------';
-    console_1.log(chalk_1.red(`${dashes}\n${msg}\n${dashes}`));
-    console_1.error(err);
+    (0, console_1.log)((0, chalk_1.red)(`${dashes}\n${msg}\n${dashes}`));
+    (0, console_1.error)(err);
 });
 exports.default = Lollygag;
