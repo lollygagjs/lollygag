@@ -1,0 +1,35 @@
+{
+  "name": "@lollygag/livedev",
+  "version": "0.0.1",
+  "description": "Live development server worker for Lollygag.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "John Romeral",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jegwastaken/lollygag.git",
+    "directory": "packages/livedev"
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc -d",
+    "start": "rimraf dist && tsc -d -w"
+  },
+  "dependencies": {
+    "@lollygag/core": "*",
+    "@types/livereload": "^0.9.2",
+    "@types/node": "^17.0.31",
+    "@types/serve-handler": "^6.1.1",
+    "chalk": "^4.1.2",
+    "chokidar": "^3.5.3",
+    "livereload": "^0.9.3",
+    "minimatch": "^5.0.1",
+    "serve-handler": "^6.1.3"
+  },
+  "devDependencies": {
+    "typescript": "^4.6.4"
+  }
+}
