@@ -1,0 +1,18 @@
+# Logs
+*.log*
+
+# Dep dirs
+node_modules/
+
+# IDEs
+.idea/
+.vscode/
+
+# Etcetera
+.env
+*.bak*
+
+# Project
+.ext/
+.timestamp
+*.tsbuildinfo
