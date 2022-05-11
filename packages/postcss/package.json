@@ -1,0 +1,32 @@
+{
+  "name": "@lollygag/postcss",
+  "version": "0.0.1",
+  "description": "PostCSS worker for Lollygag.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "John Romeral",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jegwastaken/lollygag.git",
+    "directory": "packages/postcss"
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc -d",
+    "start": "rimraf dist && tsc -d -w"
+  },
+  "dependencies": {
+    "@lollygag/core": "*",
+    "@types/node": "^17.0.31"
+  },
+  "devDependencies": {
+    "postcss": "^8.4.13",
+    "typescript": "^4.6.4"
+  },
+  "peerDependencies": {
+    "postcss": "^8.3.11"
+  }
+}
