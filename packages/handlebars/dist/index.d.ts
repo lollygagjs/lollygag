@@ -1,5 +1,5 @@
 import Handlebars from 'handlebars';
-import { IConfig, IFile, TWorker } from '@lollygag/core';
+import { IConfig, IFile, TFileHandler, TWorker } from '@lollygag/core';
 export { Handlebars };
 export interface IHandlebarsOptions {
     newExtname?: string | false;
@@ -10,7 +10,7 @@ export interface IHandlebarsOptions {
 export declare type TTemplateData = IConfig & IFile;
 export interface IProcessHandlebarsOptions {
     runtimeOptions?: RuntimeOptions;
-    compilerOptions?: CompileOptions;
+    compileOptions?: CompileOptions;
 }
-export declare function processHandlebars(content: string, options?: IProcessHandlebarsOptions, data?: TTemplateData): string;
+export declare const handleHandlebars: TFileHandler;
 export default function handlebars(options?: IHandlebarsOptions): TWorker;

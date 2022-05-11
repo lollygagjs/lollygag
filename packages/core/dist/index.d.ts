@@ -22,6 +22,7 @@ export interface IBuildOptions {
     fullBuild?: boolean;
     globPattern?: string;
 }
+export declare type TFileHandler = (content: string, options?: unknown, data?: IConfig & IFile) => string;
 export declare type TWorker = (files: IFile[], lollygag: Lollygag) => void | Promise<void>;
 export default class Lollygag {
     private __config;

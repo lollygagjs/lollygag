@@ -1,7 +1,17 @@
 /* eslint-disable no-continue */
 import {extname} from 'path';
 import Handlebars from 'handlebars';
-import {changeExtname, IConfig, IFile, TWorker} from '@lollygag/core';
+
+import {
+    changeExtname,
+    IConfig,
+    IFile,
+    TFileHandler,
+    TWorker,
+} from '@lollygag/core';
+
+Handlebars.registerHelper('orDefault', (prop, defaultValue) =>
+    (prop ? prop : defaultValue));
 
 export {Handlebars};
 
@@ -16,19 +26,21 @@ export type TTemplateData = IConfig & IFile;
 
 export interface IProcessHandlebarsOptions {
     runtimeOptions?: RuntimeOptions;
-    compilerOptions?: CompileOptions;
+    compileOptions?: CompileOptions;
 }
 
-export function processHandlebars(
-    content: string,
-    options?: IProcessHandlebarsOptions,
-    data?: TTemplateData
-): string {
-    return Handlebars.compile(content, options?.compilerOptions)(
+export const handleHandlebars: TFileHandler = (
+    content,
+    options?,
+    data?
+): string => {
+    const o = options as IProcessHandlebarsOptions | undefined;
+
+    return Handlebars.compile(content, o?.compileOptions)(
         data,
-        options?.runtimeOptions
+        o?.runtimeOptions
     );
-}
+};
 
 export default function handlebars(options?: IHandlebarsOptions): TWorker {
     return function handlebarsWorker(this: TWorker, files, lollygag): void {
@@ -55,7 +67,7 @@ export default function handlebars(options?: IHandlebarsOptions): TWorker {
 
             const data = {...lollygag._config, ...file};
 
-            file.content = processHandlebars(file.content || '', options, data);
+            file.content = handleHandlebars(file.content || '', options, data);
         }
     };
 }

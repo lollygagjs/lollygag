@@ -41,8 +41,15 @@ export interface IBuildOptions {
     globPattern?: string;
 }
 
+export type TFileHandler = (
+    content: string,
+    options?: unknown,
+    data?: IConfig & IFile
+) => string;
+
 export type TWorker = (
     files: IFile[],
+    // eslint-disable-next-line no-use-before-define
     lollygag: Lollygag
 ) => void | Promise<void>;
 

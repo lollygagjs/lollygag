@@ -1,36 +1,74 @@
 /* eslint-disable no-continue */
-import {extname} from 'path';
-import {changeExtname, IConfig, IFile, RaggedyObject, TWorker} from '@lollygag/core';
+import {extname, join} from 'path';
+import {changeExtname, TFileHandler, TWorker} from '@lollygag/core';
+import {handleHandlebars} from '@lollygag/handlebars';
+import {existsSync, readFileSync} from 'fs';
 
-export interface IOptions {
+export interface ITemplatesOptions {
     newExtname?: string | false;
     targetExtnames?: string[];
-    options?: RaggedyObject;
+    templatesDirectory?: string;
+    defaultTemplate?: string;
+    handler?: TFileHandler;
+    handlerOptions?: unknown;
 }
 
-export type TTemplateData = IConfig & IFile;
+let template = `<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  {{#if description}}
+    <meta name="description" content="{{description}}" />
+  {{/if}}
+  <meta name="viewport" content="device-width, initial-scale=1.0" />
+  <meta name="generator" content="{{orDefault generator 'Lollygag'}}" />
+  <title>{{orDefault sitename "Lollygag"}}{{#if title}}
+      &mdash;
+      {{title}}{{/if}}</title>
+</head>
+<body>
+  <div id="container">
+    <header>
+      <div class="branding">
+        <a href="{{subdir}}/">{{orDefault sitename "Lollygag"}}</a>
+      </div>
+    </header>
+    <main>
+      <article>
+        {{#if title}}<h1 class="title">{{title}}</h1>{{/if}}
+        {{#if content}}
+          <div class="content">{{{content}}}</div>
+        {{/if}}
+      </article>
+    </main>
+    <footer>
+      <p class="copyright-notice">&copy;
+        {{year}}
+        <a href="{{subdir}}/">{{orDefault sitename "Lollygag"}}</a>. All
+        rights reserved</p>
+    </footer>
+  </div>
+</body>
+</html>`;
 
-export function _templates(
-    content: string,
-    options: IOptions,
-    data: TTemplateData
-): string {
-    console.log(content);
-    console.log(options);
-    console.log(data);
-
-    return '';
-}
-
-export function templates(options?: IOptions): TWorker {
+export function templates(options?: ITemplatesOptions): TWorker {
     return function templatesWorker(this: TWorker, files, lollygag): void {
         if(!files) return;
+
+        const handler = options?.handler || handleHandlebars;
+
+        const templatesDirectory = options?.templatesDirectory || 'templates';
+        const defaultTemplate = options?.defaultTemplate || 'index.hbs';
+        const pathToDefaultTemplate = join(templatesDirectory, defaultTemplate);
+
+        if(existsSync(pathToDefaultTemplate)) {
+            template = readFileSync(pathToDefaultTemplate, {encoding: 'utf-8'});
+        }
 
         for(let i = 0; i < files.length; i++) {
             const file = files[i];
 
             const targetExtnames = [
-                ...['.html'],
+                ...['.hbs', '.html'],
                 ...(options?.targetExtnames || []),
             ];
 
@@ -45,9 +83,18 @@ export function templates(options?: IOptions): TWorker {
                 );
             }
 
+            if(file.template && file.template !== defaultTemplate) {
+                if(existsSync(join(templatesDirectory, file.template))) {
+                    template = readFileSync(
+                        join(templatesDirectory, file.template),
+                        {encoding: 'utf-8'}
+                    );
+                }
+            }
+
             const data = {...lollygag._config, ...file};
 
-            file.content = _templates(file.content || '', options, data);
+            file.content = handler(template, options?.handlerOptions, data);
         }
     };
 }

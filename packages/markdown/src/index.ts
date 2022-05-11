@@ -1,7 +1,7 @@
 /* eslint-disable no-continue */
 import {extname} from 'path';
 import md, {Options} from 'markdown-it';
-import {changeExtname, IConfig, IFile, TWorker} from '@lollygag/core';
+import {changeExtname, TFileHandler, TWorker} from '@lollygag/core';
 
 export interface IMarkdownOptions {
     newExtname?: string | false;
@@ -9,15 +9,11 @@ export interface IMarkdownOptions {
     markdownOptions?: Options;
 }
 
-export type TTemplateData = IConfig & IFile;
-
-export function processMarkdown(
-    content: string,
-    options?: Options,
-    data?: TTemplateData
-): string {
-    return md(options || {}).render(content || '', data);
-}
+export const handleMarkdown: TFileHandler = (
+    content,
+    options?,
+    data?
+): string => md((options as Options) || {}).render(content || '', data);
 
 export default function markdown(options?: IMarkdownOptions): TWorker {
     return function markdownWorker(this: TWorker, files, lollygag): void {
@@ -49,7 +45,7 @@ export default function markdown(options?: IMarkdownOptions): TWorker {
                 ...options?.markdownOptions,
             };
 
-            file.content = processMarkdown(file.content || '', mdOptions, data);
+            file.content = handleMarkdown(file.content || '', mdOptions, data);
         }
     };
 }

@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@lollygag/core@^1.0.0":
+"@lollygag/core@*":
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/@lollygag/core/-/core-0.0.2.tgz#b4b6f608e15f1006911fbf9043abe29fb5308671"
   integrity sha512-6T/UXdE0DhMOEkfHQXvCZYykD9a3j0b7qnytsBbNb95HzKHqfa8CiHBABdMKL4xSxmqb8HxEy2G4MpIIAprzxQ==

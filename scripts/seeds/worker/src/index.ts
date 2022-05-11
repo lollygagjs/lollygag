@@ -12,8 +12,8 @@ export type TTemplateData = IConfig & IFile;
 
 export function _{{workerName}}(
     content: string,
-    options: IOptions,
-    data: TTemplateData
+    options?: IOptions,
+    data?: TTemplateData
 ): string {
     console.log(content);
     console.log(options);

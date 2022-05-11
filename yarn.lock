@@ -450,10 +450,10 @@ escape-string-regexp@^4.0.0:
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-4.0.0.tgz#14ba83a5d373e3d311e5afca29cf5bfad965bf34"
   integrity sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==
 
-eslint-config-panadero@0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/eslint-config-panadero/-/eslint-config-panadero-0.0.5.tgz#019efa1cc087c5e56b07ca1ca59df6d7f473cbd8"
-  integrity sha512-JObufJxJpeVls6XuRcZK9P4G3L5VG3jAcNgaAkMOi8NBR3/EbfHOFUKZQmS8HZCJugWav+4Y13szAUamN2ktqQ==
+eslint-config-panadero@0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/eslint-config-panadero/-/eslint-config-panadero-0.0.6.tgz#f280043c153ed5835161b45517abe55769634fbd"
+  integrity sha512-ZFYJicXqQdFiqD+02hvFDQXsb5Hu99z4RCMnl4OGUkpjJ0Sq2Bg6wlVMky/PZaYL3pfxi8zE7ltDMCYHbZvR6g==
   dependencies:
     confusing-browser-globals "^1.0.11"
 
