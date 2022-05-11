@@ -1,20 +1,18 @@
 /* eslint-disable no-continue */
 import {extname} from 'path';
-import {changeExtname, IConfig, IFile, RaggedyObject, TWorker} from '@lollygag/core';
+import {changeExtname, TFileHandler, TWorker} from '@lollygag/core';
 
 export interface IOptions {
     newExtname?: string | false;
     targetExtnames?: string[];
-    options?: RaggedyObject;
+    options?: any;
 }
 
-export type TTemplateData = IConfig & IFile;
-
-export function _{{workerName}}(
-    content: string,
-    options?: IOptions,
-    data?: TTemplateData
-): string {
+export const handle{{workerName}}: TFileHandler = (
+    content,
+    options?,
+    data?
+): string => {
     console.log(content);
     console.log(options);
     console.log(data);
@@ -22,7 +20,7 @@ export function _{{workerName}}(
     return '';
 }
 
-export function {{workerName}}(options?: IOptions): TWorker {
+export default function {{workerName}}(options?: IOptions): TWorker {
     return function {{workerName}}Worker(this: TWorker, files, lollygag): void {
         if(!files) return;
 
@@ -47,9 +45,7 @@ export function {{workerName}}(options?: IOptions): TWorker {
 
             const data = {...lollygag._config, ...file};
 
-            file.content = _{{workerName}}(file.content || '', options, data);
+            file.content = handle{{workerName}}(file.content || '', options, data);
         }
     };
 }
-
-export default {{workerName}};

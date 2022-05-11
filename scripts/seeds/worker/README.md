@@ -1,3 +1,3 @@
 # @lollygag/{{workerName}}
 
-Worker for Lollygag.
+{{properName}} worker for Lollygag.

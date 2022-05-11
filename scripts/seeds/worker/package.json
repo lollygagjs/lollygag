@@ -1,7 +1,7 @@
 {
   "name": "@lollygag/{{workerName}}",
   "version": "0.0.1",
-  "description": "Worker for Lollygag.",
+  "description": "{{properName}} worker for Lollygag.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "author": "John Romeral",

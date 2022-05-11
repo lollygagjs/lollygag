@@ -12,6 +12,16 @@ if(!workerName) {
     process.exit(0);
 }
 
+const properNameIndex = process.argv.indexOf('--properName');
+
+let properNameValue;
+
+if(properNameIndex > -1) {
+    properNameValue = process.argv[properNameIndex + 1];
+}
+
+const properName = properNameValue || workerName;
+
 const indir = resolve(__dirname, './seeds/worker');
 const outdir = resolve(__dirname, `../packages/${workerName}`);
 
@@ -20,11 +30,8 @@ if(existsSync(outdir)) {
     process.exit(0);
 }
 
-console.log(indir);
-console.log(outdir);
-
 new Lollygag()
-    .config({workerName})
+    .config({workerName, properName})
     .in(indir)
     .out(outdir)
     .do(
