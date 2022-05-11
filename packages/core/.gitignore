@@ -3,7 +3,6 @@
 
 # Dep dirs
 node_modules/
-vendor/
 
 # IDEs
 .idea/
@@ -15,5 +14,5 @@ vendor/
 
 # Project
 .ext/
-plugins/*
+.timestamp
 *.tsbuildinfo

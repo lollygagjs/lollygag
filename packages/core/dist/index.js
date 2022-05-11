@@ -38,7 +38,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Lollygag = void 0;
 const fs_1 = __importStar(require("fs"));
 const console_1 = require("console");
 const path_1 = require("path");
@@ -221,11 +220,10 @@ class Lollygag {
         });
     }
 }
-exports.Lollygag = Lollygag;
+exports.default = Lollygag;
 process.on('unhandledRejection', (err) => {
     const msg = 'Build failed...';
     const dashes = '----------------------------------------';
     (0, console_1.log)((0, chalk_1.red)(`${dashes}\n${msg}\n${dashes}`));
     (0, console_1.error)(err);
 });
-exports.default = Lollygag;

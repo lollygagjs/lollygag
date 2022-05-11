@@ -23,7 +23,7 @@ export interface IBuildOptions {
     globPattern?: string;
 }
 export declare type TWorker = (files: IFile[], lollygag: Lollygag) => void | Promise<void>;
-export declare class Lollygag {
+export default class Lollygag {
     private __config;
     private __in;
     private __out;
@@ -49,4 +49,3 @@ export declare class Lollygag {
     private permalinks;
     build(options?: IBuildOptions): Promise<void>;
 }
-export default Lollygag;

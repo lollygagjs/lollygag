@@ -1,7 +1,7 @@
 const {existsSync} = require('fs');
 const {resolve, relative} = require('path');
-const {Lollygag} = require('../packages/core');
-const {handlebars} = require('../packages/handlebars');
+const {default: Lollygag} = require('../packages/core');
+const {default: handlebars} = require('../packages/handlebars');
 
 const workerName = process.argv[2];
 const scriptPath = relative(process.cwd(), __filename);

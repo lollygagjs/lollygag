@@ -30,7 +30,7 @@ export function processHandlebars(
     );
 }
 
-export function handlebars(options?: IHandlebarsOptions): TWorker {
+export default function handlebars(options?: IHandlebarsOptions): TWorker {
     return function handlebarsWorker(this: TWorker, files, lollygag): void {
         if(!files) return;
 
@@ -59,5 +59,3 @@ export function handlebars(options?: IHandlebarsOptions): TWorker {
         }
     };
 }
-
-export default handlebars;

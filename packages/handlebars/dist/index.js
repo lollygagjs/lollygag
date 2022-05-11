@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handlebars = exports.processHandlebars = exports.Handlebars = void 0;
+exports.processHandlebars = exports.Handlebars = void 0;
 /* eslint-disable no-continue */
 const path_1 = require("path");
 const handlebars_1 = __importDefault(require("handlebars"));
@@ -34,5 +34,4 @@ function handlebars(options) {
         }
     };
 }
-exports.handlebars = handlebars;
 exports.default = handlebars;

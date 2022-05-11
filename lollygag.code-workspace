@@ -1,17 +1,20 @@
 {
-  "folders": [
-    {
-      "path": "."
-    },
-    {
-      "path": "packages/core"
-    },
-    {
-      "path": "packages/markdown"
-    },
-    {
-      "path": "packages/handlebars"
-    }
-  ],
-  "settings": {}
+    "folders": [
+        {
+            "path": "."
+        },
+        {
+            "path": "packages/core"
+        },
+        {
+            "path": "packages/markdown"
+        },
+        {
+            "path": "packages/handlebars"
+        },
+        {
+            "path": "packages/templates"
+        }
+    ],
+    "settings": {}
 }
