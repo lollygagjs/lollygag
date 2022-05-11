@@ -181,14 +181,14 @@ class Lollygag {
             const opts = Object.assign({ fullBuild: false, globPattern: defaultGlobPattern }, options);
             if (opts.fullBuild) {
                 opts.globPattern = defaultGlobPattern;
-                (0, console_1.time)(`Deleted \`${this._out}\` directory`);
+                (0, console_1.time)(`Deleted '${this._out}' directory`);
                 yield new Promise((resolve, reject) => (0, rimraf_1.default)(this._out, (err) => {
                     if (err)
                         reject(err);
                     else
                         resolve(0);
                 }));
-                (0, console_1.timeEnd)(`Deleted \`${this._out}\` directory`);
+                (0, console_1.timeEnd)(`Deleted '${this._out}' directory`);
             }
             (0, console_1.time)('Files collected');
             const fileList = yield this.getFiles(opts.globPattern);

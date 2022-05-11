@@ -54,7 +54,7 @@ function templates(options) {
             template = (0, fs_1.readFileSync)(templatePath, { encoding: 'utf-8' });
         }
         else {
-            console.log(`File '${templatePath}' not found. Using built-in template as default.`);
+            console.log(`NOTICE: File '${templatePath}' not found. Using built-in template as default.`);
         }
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
@@ -75,7 +75,7 @@ function templates(options) {
                     template = (0, fs_1.readFileSync)(templatePath, { encoding: 'utf-8' });
                 }
                 else {
-                    console.log(`File '${templatePath}' missing. Using default template.`);
+                    console.log(`NOTICE: File '${templatePath}' missing. Using default template.`);
                 }
             }
             const data = Object.assign(Object.assign({}, lollygag._config), file);

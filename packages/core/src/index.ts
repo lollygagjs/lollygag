@@ -237,7 +237,7 @@ export default class Lollygag {
         if(opts.fullBuild) {
             opts.globPattern = defaultGlobPattern;
 
-            time(`Deleted \`${this._out}\` directory`);
+            time(`Deleted '${this._out}' directory`);
 
             await new Promise((resolve, reject) =>
                 rimraf(this._out, (err) => {
@@ -245,7 +245,7 @@ export default class Lollygag {
                     else resolve(0);
                 }));
 
-            timeEnd(`Deleted \`${this._out}\` directory`);
+            timeEnd(`Deleted '${this._out}' directory`);
         }
 
         time('Files collected');
