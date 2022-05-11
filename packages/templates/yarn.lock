@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@lollygag/core@*", "@lollygag/core@^1.0.0":
+"@lollygag/core@*":
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/@lollygag/core/-/core-0.0.2.tgz#b4b6f608e15f1006911fbf9043abe29fb5308671"
   integrity sha512-6T/UXdE0DhMOEkfHQXvCZYykD9a3j0b7qnytsBbNb95HzKHqfa8CiHBABdMKL4xSxmqb8HxEy2G4MpIIAprzxQ==
@@ -15,11 +15,11 @@
     rimraf "^3.0.2"
 
 "@lollygag/handlebars@*":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@lollygag/handlebars/-/handlebars-0.0.1.tgz#4cb6b22bf0bfeefcfa7475b3439120c7a0be6f30"
-  integrity sha512-8ouh4tZj/fBB8s4lL6vSg8qjVr5HZ6l+7wD+K6194JXw7KPsrhtJJbPstVqejdREVCQtKwhKzCOooNMr0gf/Jw==
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@lollygag/handlebars/-/handlebars-0.0.2.tgz#3b724c2f3403fe35bdb9343395d3593559efd3aa"
+  integrity sha512-jNLffqFpNZimx+4pPZ4QtWoy7vl2n/L1jrVNjhB4+iwm9wNE3zgEI6BAu9fciqvD2NR/cDwIE5ZBu5CXfy5EbQ==
   dependencies:
-    "@lollygag/core" "^1.0.0"
+    "@lollygag/core" "*"
     "@types/node" "^17.0.31"
     handlebars "^4.7.7"
 
