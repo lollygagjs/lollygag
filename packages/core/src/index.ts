@@ -248,13 +248,13 @@ export default class Lollygag {
             timeEnd(`Deleted \`${this._out}\` directory`);
         }
 
-        time('Getting files');
+        time('Files collected');
 
         const fileList = await this.getFiles(opts.globPattern);
 
-        timeEnd('Getting files');
+        timeEnd('Files collected');
 
-        time('Parsing files');
+        time('Files parsed');
 
         const fileObjects = this._files.filter((file) =>
             minimatch(file.path, opts.globPattern || defaultGlobPattern));
@@ -264,7 +264,7 @@ export default class Lollygag {
             ...(await this.parseFiles(fileList)),
         ];
 
-        timeEnd('Parsing files');
+        timeEnd('Files parsed');
 
         await this._workers.reduce(
             async(
@@ -275,11 +275,12 @@ export default class Lollygag {
 
                 await Promise.resolve(possiblePromise);
 
-                time(`Running ${workerName}`);
+                log(`Running ${workerName}...`);
+                time(`Finished running ${workerName}`);
 
                 await worker(parsedFiles, this);
 
-                timeEnd(`Running ${workerName}`);
+                timeEnd(`Finished running ${workerName}`);
             },
             Promise.resolve()
         );
@@ -287,18 +288,18 @@ export default class Lollygag {
         let toWrite = parsedFiles;
 
         if(this._config.permalinks) {
-            time('Building permalinks');
+            time('Permalinks built');
 
             toWrite = await this.permalinks(parsedFiles);
 
-            timeEnd('Building permalinks');
+            timeEnd('Permalinks built');
         }
 
-        time('Writing files');
+        time('Files written');
 
         await this.write(toWrite);
 
-        timeEnd('Writing files');
+        timeEnd('Files written');
 
         timeEnd('Total build time');
     }

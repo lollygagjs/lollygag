@@ -190,32 +190,33 @@ class Lollygag {
                 }));
                 (0, console_1.timeEnd)(`Deleted \`${this._out}\` directory`);
             }
-            (0, console_1.time)('Getting files');
+            (0, console_1.time)('Files collected');
             const fileList = yield this.getFiles(opts.globPattern);
-            (0, console_1.timeEnd)('Getting files');
-            (0, console_1.time)('Parsing files');
+            (0, console_1.timeEnd)('Files collected');
+            (0, console_1.time)('Files parsed');
             const fileObjects = this._files.filter((file) => (0, minimatch_1.default)(file.path, opts.globPattern || defaultGlobPattern));
             const parsedFiles = [
                 ...fileObjects,
                 ...(yield this.parseFiles(fileList)),
             ];
-            (0, console_1.timeEnd)('Parsing files');
+            (0, console_1.timeEnd)('Files parsed');
             yield this._workers.reduce((possiblePromise, worker) => __awaiter(this, void 0, void 0, function* () {
                 const workerName = worker.name || 'unknown worker';
                 yield Promise.resolve(possiblePromise);
-                (0, console_1.time)(`Running ${workerName}`);
+                (0, console_1.log)(`Running ${workerName}...`);
+                (0, console_1.time)(`Finished running ${workerName}`);
                 yield worker(parsedFiles, this);
-                (0, console_1.timeEnd)(`Running ${workerName}`);
+                (0, console_1.timeEnd)(`Finished running ${workerName}`);
             }), Promise.resolve());
             let toWrite = parsedFiles;
             if (this._config.permalinks) {
-                (0, console_1.time)('Building permalinks');
+                (0, console_1.time)('Permalinks built');
                 toWrite = yield this.permalinks(parsedFiles);
-                (0, console_1.timeEnd)('Building permalinks');
+                (0, console_1.timeEnd)('Permalinks built');
             }
-            (0, console_1.time)('Writing files');
+            (0, console_1.time)('Files written');
             yield this.write(toWrite);
-            (0, console_1.timeEnd)('Writing files');
+            (0, console_1.timeEnd)('Files written');
             (0, console_1.timeEnd)('Total build time');
         });
     }

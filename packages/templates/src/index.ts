@@ -58,10 +58,15 @@ export function templates(options?: ITemplatesOptions): TWorker {
 
         const templatesDirectory = options?.templatesDirectory || 'templates';
         const defaultTemplate = options?.defaultTemplate || 'index.hbs';
-        const pathToDefaultTemplate = join(templatesDirectory, defaultTemplate);
 
-        if(existsSync(pathToDefaultTemplate)) {
-            template = readFileSync(pathToDefaultTemplate, {encoding: 'utf-8'});
+        let templatePath = join(templatesDirectory, defaultTemplate);
+
+        if(existsSync(templatePath)) {
+            template = readFileSync(templatePath, {encoding: 'utf-8'});
+        } else {
+            console.log(
+                `File '${templatePath}' not found. Using built-in template as default.`
+            );
         }
 
         for(let i = 0; i < files.length; i++) {
@@ -76,6 +81,8 @@ export function templates(options?: ITemplatesOptions): TWorker {
                 continue;
             }
 
+            console.log(`Processing '${file.path}'...`);
+
             if(options?.newExtname !== false) {
                 file.path = changeExtname(
                     file.path,
@@ -84,10 +91,13 @@ export function templates(options?: ITemplatesOptions): TWorker {
             }
 
             if(file.template && file.template !== defaultTemplate) {
-                if(existsSync(join(templatesDirectory, file.template))) {
-                    template = readFileSync(
-                        join(templatesDirectory, file.template),
-                        {encoding: 'utf-8'}
+                templatePath = join(templatesDirectory, file.template);
+
+                if(existsSync(templatePath)) {
+                    template = readFileSync(templatePath, {encoding: 'utf-8'});
+                } else {
+                    console.log(
+                        `File '${templatePath}' missing. Using default template.`
                     );
                 }
             }
@@ -95,6 +105,8 @@ export function templates(options?: ITemplatesOptions): TWorker {
             const data = {...lollygag._config, ...file};
 
             file.content = handler(template, options?.handlerOptions, data);
+
+            console.log(`Processing '${file.path}'... Done!`);
         }
     };
 }
