@@ -1,4 +1,4 @@
-const {existsSync} = require('fs');
+const {existsSync, unlinkSync} = require('fs');
 const {resolve, relative} = require('path');
 const {default: Lollygag} = require('../packages/core');
 const {default: handlebars} = require('../packages/handlebars');
@@ -41,3 +41,5 @@ new Lollygag()
         })
     )
     .build();
+
+unlinkSync('.timestamp');
