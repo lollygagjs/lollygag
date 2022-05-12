@@ -127,9 +127,6 @@ function getUseTs(msg?: string): Promise<boolean> {
 
     const validOptionsAndAliases = [...validOptions, ...aliases];
 
-    console.log(validOptions);
-    console.log(aliases);
-
     let projectDirValue = process.argv[2];
 
     if(validOptions.includes(projectDirValue)) {

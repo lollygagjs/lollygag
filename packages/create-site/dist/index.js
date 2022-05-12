@@ -114,8 +114,6 @@ function getUseTs(msg) {
             .map((key) => options[key].aliases)
             .flat();
         const validOptionsAndAliases = [...validOptions, ...aliases];
-        console.log(validOptions);
-        console.log(aliases);
         let projectDirValue = process.argv[2];
         if (validOptions.includes(projectDirValue)) {
             projectDirValue = (yield getProjectDir()).trim();
