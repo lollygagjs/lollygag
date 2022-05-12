@@ -1,0 +1,32 @@
+{
+  "name": "@lollygag/create-site",
+  "version": "0.0.1",
+  "description": "Lollygag site starter.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "John Romeral",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jegwastaken/lollygag.git",
+    "directory": "packages/create-site"
+  },
+  "bin": {
+    "create-lollygag-site": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc -d",
+    "start": "rimraf dist && tsc -d -w"
+  },
+  "dependencies": {
+    "@lollygag/core": "*",
+    "@lollygag/handlebars": "^0.0.3",
+    "@types/node": "^17.0.31"
+  },
+  "devDependencies": {
+    "typescript": "^4.6.4"
+  }
+}
