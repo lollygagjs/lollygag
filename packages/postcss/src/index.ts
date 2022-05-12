@@ -23,10 +23,7 @@ export default function postcss(options?: IOptions): TWorker {
 
             if(options?.newExtname && keepOriginal) _file = {...file};
 
-            const targetExtnames = [
-                ...['.css', '.pcss'],
-                ...(options?.targetExtnames || []),
-            ];
+            const targetExtnames = options?.targetExtnames || ['.css', '.pcss'];
 
             if(
                 !targetExtnames.includes(extname(_file.path))

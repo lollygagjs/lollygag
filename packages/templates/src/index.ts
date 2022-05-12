@@ -42,10 +42,7 @@ export function templates(options?: ITemplatesOptions): TWorker {
         for(let i = 0; i < files.length; i++) {
             const file = files[i];
 
-            const targetExtnames = [
-                ...['.hbs', '.html'],
-                ...(options?.targetExtnames || []),
-            ];
+            const targetExtnames = options?.targetExtnames || ['.hbs', '.html'];
 
             if(!targetExtnames.includes(extname(file.path))) {
                 continue;

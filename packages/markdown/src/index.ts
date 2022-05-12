@@ -22,10 +22,7 @@ export default function markdown(options?: IMarkdownOptions): TWorker {
         for(let i = 0; i < files.length; i++) {
             const file = files[i];
 
-            const targetExtnames = [
-                ...['.md', '.html'],
-                ...(options?.targetExtnames || []),
-            ];
+            const targetExtnames = options?.targetExtnames || ['.md', '.html'];
 
             if(!targetExtnames.includes(extname(file.path))) {
                 continue;

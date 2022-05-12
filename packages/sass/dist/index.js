@@ -12,9 +12,9 @@ function sass(options) {
         const nodeSassOptions = Object.assign({ sourceMap: true, sourceMapContents: true }, options === null || options === void 0 ? void 0 : options.nodeSassOptions);
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
-            const targetExtnames = [
-                ...['.scss', '.sass'],
-                ...((options === null || options === void 0 ? void 0 : options.targetExtnames) || []),
+            const targetExtnames = (options === null || options === void 0 ? void 0 : options.targetExtnames) || [
+                '.scss',
+                '.sass',
             ];
             if (!targetExtnames.includes((0, path_1.extname)(file.path))) {
                 continue;

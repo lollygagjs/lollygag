@@ -24,9 +24,9 @@ export default function sass(options?: ISassOptions): TWorker {
         for(let i = 0; i < files.length; i++) {
             const file = files[i];
 
-            const targetExtnames = [
-                ...['.scss', '.sass'],
-                ...(options?.targetExtnames || []),
+            const targetExtnames = options?.targetExtnames || [
+                '.scss',
+                '.sass',
             ];
 
             if(!targetExtnames.includes(extname(file.path))) {

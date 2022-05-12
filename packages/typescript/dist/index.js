@@ -10,10 +10,7 @@ function typescript(options) {
             return;
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
-            const targetExtnames = [
-                ...['.ts'],
-                ...((options === null || options === void 0 ? void 0 : options.targetExtnames) || []),
-            ];
+            const targetExtnames = (options === null || options === void 0 ? void 0 : options.targetExtnames) || ['.ts'];
             if (!targetExtnames.includes((0, path_1.extname)(file.path))) {
                 continue;
             }

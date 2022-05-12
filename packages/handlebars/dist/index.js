@@ -21,10 +21,7 @@ function handlebars(options) {
             return;
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
-            const targetExtnames = [
-                ...['.hbs', '.html'],
-                ...((options === null || options === void 0 ? void 0 : options.targetExtnames) || []),
-            ];
+            const targetExtnames = (options === null || options === void 0 ? void 0 : options.targetExtnames) || ['.hbs', '.html'];
             if (!targetExtnames.includes((0, path_1.extname)(file.path))) {
                 continue;
             }

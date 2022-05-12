@@ -16,10 +16,7 @@ export default function typescript(options?: ITypescriptOptions): TWorker {
         for(let i = 0; i < files.length; i++) {
             const file = files[i];
 
-            const targetExtnames = [
-                ...['.ts'],
-                ...(options?.targetExtnames || []),
-            ];
+            const targetExtnames = options?.targetExtnames || ['.ts'];
 
             if(!targetExtnames.includes(extname(file.path))) {
                 continue;

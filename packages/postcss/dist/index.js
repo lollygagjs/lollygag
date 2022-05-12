@@ -26,10 +26,7 @@ function postcss(options) {
                 let _file = file;
                 if ((options === null || options === void 0 ? void 0 : options.newExtname) && keepOriginal)
                     _file = Object.assign({}, file);
-                const targetExtnames = [
-                    ...['.css', '.pcss'],
-                    ...((options === null || options === void 0 ? void 0 : options.targetExtnames) || []),
-                ];
+                const targetExtnames = (options === null || options === void 0 ? void 0 : options.targetExtnames) || ['.css', '.pcss'];
                 if (!targetExtnames.includes((0, path_1.extname)(_file.path))
                     || (0, core_1.fullExtname)(_file.path).endsWith('.min.css')) {
                     return;
