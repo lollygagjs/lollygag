@@ -1,4 +1,4 @@
-import fs, {promises as fsp} from 'fs';
+import fs, {existsSync, promises as fsp} from 'fs';
 import {log, error, time, timeEnd} from 'console';
 import {basename, dirname, extname, join} from 'path';
 import fm from 'front-matter';
@@ -80,7 +80,7 @@ export default class Lollygag {
     }
 
     in(dir: string): this {
-        this.__in = dir;
+        this.__in = join(dir);
         return this;
     }
 
@@ -89,7 +89,7 @@ export default class Lollygag {
     }
 
     out(dir: string): this {
-        this.__out = dir;
+        this.__out = join(dir);
         return this;
     }
 
@@ -224,6 +224,11 @@ export default class Lollygag {
     }
 
     async build(options?: IBuildOptions): Promise<void> {
+        if(!this._files && !existsSync(this._in)) {
+            error(`Input directory '${this._in}' does not exist.`);
+            return;
+        }
+
         time('Total build time');
 
         const defaultGlobPattern = join(this._in, '/**/*');

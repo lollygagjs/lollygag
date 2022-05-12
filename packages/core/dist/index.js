@@ -74,14 +74,14 @@ class Lollygag {
         return this.__config;
     }
     in(dir) {
-        this.__in = dir;
+        this.__in = (0, path_1.join)(dir);
         return this;
     }
     get _in() {
         return this.__in;
     }
     out(dir) {
-        this.__out = dir;
+        this.__out = (0, path_1.join)(dir);
         return this;
     }
     get _out() {
@@ -176,6 +176,10 @@ class Lollygag {
     }
     build(options) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (!this._files && !(0, fs_1.existsSync)(this._in)) {
+                (0, console_1.error)(`Input directory '${this._in}' does not exist.`);
+                return;
+            }
             (0, console_1.time)('Total build time');
             const defaultGlobPattern = (0, path_1.join)(this._in, '/**/*');
             const opts = Object.assign({ fullBuild: false, globPattern: defaultGlobPattern }, options);
