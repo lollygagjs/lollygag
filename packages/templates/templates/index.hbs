@@ -1,0 +1,36 @@
+<html lang='en'>
+    <head>
+        <meta charset='UTF-8' />
+        {{#if description}}
+            <meta name='description' content='{{description}}' />
+        {{/if}}
+        <meta name='viewport' content='device-width, initial-scale=1.0' />
+        <meta name='generator' content='{{orDefault generator "Lollygag"}}' />
+        <title>{{orDefault sitename 'Lollygag'}}{{#if title}}
+                &mdash;
+                {{title}}{{/if}}</title>
+    </head>
+    <body>
+        <div id='container'>
+            <header>
+                <div class='branding'>
+                    <a href='{{subdir}}/'>{{orDefault sitename 'Lollygag'}}</a>
+                </div>
+            </header>
+            <main>
+                <article>
+                    {{#if title}}<h1 class='title'>{{title}}</h1>{{/if}}
+                    {{#if content}}
+                        <div class='content'>{{{content}}}</div>
+                    {{/if}}
+                </article>
+            </main>
+            <footer>
+                <p class='copyright-notice'>&copy;
+                    {{year}}
+                    <a href='{{subdir}}/'>{{orDefault sitename 'Lollygag'}}</a>.
+                    All rights reserved</p>
+            </footer>
+        </div>
+    </body>
+</html>

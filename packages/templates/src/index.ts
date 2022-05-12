@@ -1,5 +1,5 @@
 /* eslint-disable no-continue */
-import {extname, join} from 'path';
+import {extname, join, resolve} from 'path';
 import {changeExtname, TFileHandler, TWorker} from '@lollygag/core';
 import {handleHandlebars} from '@lollygag/handlebars';
 import {existsSync, readFileSync} from 'fs';
@@ -13,43 +13,6 @@ export interface ITemplatesOptions {
     handlerOptions?: unknown;
 }
 
-let template = `<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  {{#if description}}
-    <meta name="description" content="{{description}}" />
-  {{/if}}
-  <meta name="viewport" content="device-width, initial-scale=1.0" />
-  <meta name="generator" content="{{orDefault generator 'Lollygag'}}" />
-  <title>{{orDefault sitename "Lollygag"}}{{#if title}}
-      &mdash;
-      {{title}}{{/if}}</title>
-</head>
-<body>
-  <div id="container">
-    <header>
-      <div class="branding">
-        <a href="{{subdir}}/">{{orDefault sitename "Lollygag"}}</a>
-      </div>
-    </header>
-    <main>
-      <article>
-        {{#if title}}<h1 class="title">{{title}}</h1>{{/if}}
-        {{#if content}}
-          <div class="content">{{{content}}}</div>
-        {{/if}}
-      </article>
-    </main>
-    <footer>
-      <p class="copyright-notice">&copy;
-        {{year}}
-        <a href="{{subdir}}/">{{orDefault sitename "Lollygag"}}</a>. All
-        rights reserved</p>
-    </footer>
-  </div>
-</body>
-</html>`;
-
 export function templates(options?: ITemplatesOptions): TWorker {
     return function templatesWorker(this: TWorker, files, lollygag): void {
         if(!files) return;
@@ -59,11 +22,18 @@ export function templates(options?: ITemplatesOptions): TWorker {
         const templatesDirectory = options?.templatesDirectory || 'templates';
         const defaultTemplate = options?.defaultTemplate || 'index.hbs';
 
+        let template = '';
         let templatePath = join(templatesDirectory, defaultTemplate);
 
         if(existsSync(templatePath)) {
             template = readFileSync(templatePath, {encoding: 'utf-8'});
         } else {
+            // get built-in template
+            template = readFileSync(
+                resolve(__dirname, '../templates/index.hbs'),
+                {encoding: 'utf-8'}
+            );
+
             console.log(
                 `NOTICE: File '${templatePath}' not found. Using built-in template as default.`
             );
