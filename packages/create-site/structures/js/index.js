@@ -1,7 +1,7 @@
-import Lollygag from '@lollygag/core';
-import markdown from '@lollygag/markdown';
-import templates from '@lollygag/templates';
-import livedev from '@lollygag/livedev';
+const {default: Lollygag} = require('@lollygag/core');
+const {default: markdown} = require('@lollygag/markdown');
+const {default: templates} = require('@lollygag/templates');
+const {default: livedev} = require('@lollygag/livedev');
 
 new Lollygag()
     .config({

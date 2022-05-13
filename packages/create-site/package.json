@@ -24,7 +24,8 @@
   "dependencies": {
     "@lollygag/core": "*",
     "@lollygag/handlebars": "^0.0.3",
-    "@types/node": "^17.0.31"
+    "@types/node": "^17.0.31",
+    "ncp": "^2.0.0"
   },
   "devDependencies": {
     "typescript": "^4.6.4"
