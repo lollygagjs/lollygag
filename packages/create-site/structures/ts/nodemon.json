@@ -1,11 +1,5 @@
 {
   "verbose": true,
-  "watch": [
-    "index.ts",
-    "/home/jeg/code/nodejs/lollygag/packages/",
-    "/home/jeg/code/nodejs/simpleton-css/scss/"
-  ],
-  "ext": "js,json,ts,html,md,hbs,scss",
-  "restartable": "rs",
+  "watch": ["index.ts"],
   "exec": "yarn build"
 }

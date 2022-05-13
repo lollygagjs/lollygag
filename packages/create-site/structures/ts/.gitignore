@@ -3,7 +3,6 @@
 
 # Dep dirs
 node_modules/
-vendor/
 
 # IDEs
 .idea/
@@ -11,10 +10,9 @@ vendor/
 
 # Etcetera
 .env
-.timestamp
-.temp/
 *.bak*
 
 # Project
 .ext/
+.timestamp
 *.tsbuildinfo
