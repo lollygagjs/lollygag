@@ -31,5 +31,7 @@
             "path": "packages/create-site"
         }
     ],
-    "settings": {}
+    "settings": {
+        "editor.formatOnSave": false
+    }
 }
