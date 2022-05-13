@@ -4,7 +4,8 @@ import {existsSync, unlinkSync} from 'fs';
 import {join, resolve} from 'path';
 import {spawn, spawnSync} from 'child_process';
 import readline from 'readline';
-import Lollygag from '@lollygag/core';
+import ncp from 'ncp';
+import Lollygag, {RaggedyAny} from '@lollygag/core';
 import handlebars from '@lollygag/handlebars';
 
 const rl = readline.createInterface({
@@ -72,7 +73,7 @@ const getSiteDescriptionQuestion = `${qPrefix} Site description (${defaultSiteDe
 
 const getSiteDescription = (description: string) => description;
 
-const defaultUseTs = true;
+const defaultUseTs = 'yes';
 const getUseTsQuestion = `${qPrefix} Use TypeScript? (${defaultUseTs}): `;
 
 function getUseTs(useTs: string, func?: typeof getOption) {
@@ -90,13 +91,12 @@ function getUseTs(useTs: string, func?: typeof getOption) {
         const lastVal = vals.pop();
 
         vals = `${vals.join(', ')} and ${lastVal}`;
-
         result = `${wPrefix} Valid values are ${vals}`;
     } else {
-        result = useTs === '' || yes.includes(useTs);
+        result = useTs === '' || yes.includes(useTs) ? 'yes' : 'no';
     }
 
-    return func && typeof result === 'string'
+    return func && !['yes', 'no'].includes(result)
         ? func(getUseTsQuestion, result, getUseTs)
         : result;
 }
@@ -115,7 +115,7 @@ function getUseTs(useTs: string, func?: typeof getOption) {
         callback: TGetOptionCallback;
         question: string;
         varToSet: TOptionVars;
-        returnType: 'string' | 'boolean';
+        returnType: 'string' | 'boolstring';
     }
 
     const options: Record<string, ICreateOptions> = {
@@ -159,13 +159,13 @@ function getUseTs(useTs: string, func?: typeof getOption) {
             callback: getUseTs,
             question: getUseTsQuestion,
             varToSet: 'useTs',
-            returnType: 'boolean',
+            returnType: 'boolstring',
         },
         '--typescript': {
             callback: getUseTs,
             question: getUseTsQuestion,
             varToSet: 'useTs',
-            returnType: 'boolean',
+            returnType: 'boolstring',
         },
     };
 
@@ -180,7 +180,7 @@ function getUseTs(useTs: string, func?: typeof getOption) {
 
         const idx = process.argv.indexOf(validOptions[i]);
 
-        let val: string | boolean = '';
+        let val = '';
 
         if(idx > -1) {
             if(opt.returnType === 'string') {
@@ -189,24 +189,22 @@ function getUseTs(useTs: string, func?: typeof getOption) {
                     : process.argv[idx + 1];
             }
 
-            if(opt.returnType === 'boolean') val = true;
+            if(opt.returnType === 'boolstring') val = 'yes';
 
-            const checkedVal = opt.callback(val?.toString());
+            const checkedVal = opt.callback(val);
 
-            if(checkedVal.toString() !== val) {
+            if(checkedVal !== val) {
                 val = '';
                 console.log(checkedVal);
             }
         }
 
-        const output
+        // eslint-disable-next-line require-atomic-updates
+        vars[opt.varToSet]
             = val
             // eslint-disable-next-line no-await-in-loop
             || (await getOption(opt.question, null, opt.callback))
-            || vars[opt.varToSet];
-
-        (vars[opt.varToSet] as string | boolean)
-            = typeof output === 'string' ? output.trim() : output;
+            || vars[opt.varToSet].trim();
 
         skips.push(opt.varToSet);
     }
@@ -228,19 +226,30 @@ function getUseTs(useTs: string, func?: typeof getOption) {
             resolve(
                 __dirname,
                 '../',
-                join('structures', vars.useTs ? 'ts' : 'js')
+                join('structures', vars.useTs === 'yes' ? 'ts' : 'js')
             )
         )
         .out(vars.projectDir)
         .do(
             handlebars({
                 newExtname: false,
-                targetExtnames: ['.json', '.ts', '.md'],
+                targetExtnames: ['.json', '.ts', '.md', '.js'],
             })
         )
         .build();
 
     unlinkSync('.timestamp');
+
+    await new Promise((res, rej) => {
+        ncp(
+            resolve(__dirname, '../', join('structures', 'universal')),
+            vars.projectDir,
+            (err: RaggedyAny): RaggedyAny => {
+                if(err) rej(err);
+                res(null);
+            }
+        );
+    });
 
     const yarnVersion = spawnSync('yarn --version', {
         shell: true,

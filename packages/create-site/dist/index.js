@@ -17,6 +17,7 @@ const fs_1 = require("fs");
 const path_1 = require("path");
 const child_process_1 = require("child_process");
 const readline_1 = __importDefault(require("readline"));
+const ncp_1 = __importDefault(require("ncp"));
 const core_1 = __importDefault(require("@lollygag/core"));
 const handlebars_1 = __importDefault(require("@lollygag/handlebars"));
 const rl = readline_1.default.createInterface({
@@ -64,7 +65,7 @@ const getSiteName = (name) => name;
 const defaultSiteDescription = 'A Lollygag starter site.';
 const getSiteDescriptionQuestion = `${qPrefix} Site description (${defaultSiteDescription}): `;
 const getSiteDescription = (description) => description;
-const defaultUseTs = true;
+const defaultUseTs = 'yes';
 const getUseTsQuestion = `${qPrefix} Use TypeScript? (${defaultUseTs}): `;
 function getUseTs(useTs, func) {
     let result;
@@ -80,9 +81,9 @@ function getUseTs(useTs, func) {
         result = `${wPrefix} Valid values are ${vals}`;
     }
     else {
-        result = useTs === '' || yes.includes(useTs);
+        result = useTs === '' || yes.includes(useTs) ? 'yes' : 'no';
     }
-    return func && typeof result === 'string'
+    return func && !['yes', 'no'].includes(result)
         ? func(getUseTsQuestion, result, getUseTs)
         : result;
 }
@@ -135,13 +136,13 @@ function getUseTs(useTs, func) {
                 callback: getUseTs,
                 question: getUseTsQuestion,
                 varToSet: 'useTs',
-                returnType: 'boolean',
+                returnType: 'boolstring',
             },
             '--typescript': {
                 callback: getUseTs,
                 question: getUseTsQuestion,
                 varToSet: 'useTs',
-                returnType: 'boolean',
+                returnType: 'boolstring',
             },
         };
         const validOptions = Object.keys(options).map((key) => key);
@@ -159,20 +160,20 @@ function getUseTs(useTs, func) {
                         ? ''
                         : process.argv[idx + 1];
                 }
-                if (opt.returnType === 'boolean')
-                    val = true;
-                const checkedVal = opt.callback(val === null || val === void 0 ? void 0 : val.toString());
-                if (checkedVal.toString() !== val) {
+                if (opt.returnType === 'boolstring')
+                    val = 'yes';
+                const checkedVal = opt.callback(val);
+                if (checkedVal !== val) {
                     val = '';
                     console.log(checkedVal);
                 }
             }
-            const output = val
-                // eslint-disable-next-line no-await-in-loop
-                || (yield getOption(opt.question, null, opt.callback))
-                || vars[opt.varToSet];
+            // eslint-disable-next-line require-atomic-updates
             vars[opt.varToSet]
-                = typeof output === 'string' ? output.trim() : output;
+                = val
+                    // eslint-disable-next-line no-await-in-loop
+                    || (yield getOption(opt.question, null, opt.callback))
+                    || vars[opt.varToSet].trim();
             skips.push(opt.varToSet);
         }
         const packageName = vars.siteName
@@ -187,14 +188,21 @@ function getUseTs(useTs, func) {
             siteDescription: vars.siteDescription,
             packageName,
         })
-            .in((0, path_1.resolve)(__dirname, '../', (0, path_1.join)('structures', vars.useTs ? 'ts' : 'js')))
+            .in((0, path_1.resolve)(__dirname, '../', (0, path_1.join)('structures', vars.useTs === 'yes' ? 'ts' : 'js')))
             .out(vars.projectDir)
             .do((0, handlebars_1.default)({
             newExtname: false,
-            targetExtnames: ['.json', '.ts', '.md'],
+            targetExtnames: ['.json', '.ts', '.md', '.js'],
         }))
             .build();
         (0, fs_1.unlinkSync)('.timestamp');
+        yield new Promise((res, rej) => {
+            (0, ncp_1.default)((0, path_1.resolve)(__dirname, '../', (0, path_1.join)('structures', 'universal')), vars.projectDir, (err) => {
+                if (err)
+                    rej(err);
+                res(null);
+            });
+        });
         const yarnVersion = (0, child_process_1.spawnSync)('yarn --version', {
             shell: true,
         })
