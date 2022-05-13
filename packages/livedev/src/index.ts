@@ -1,4 +1,5 @@
-import {join, resolve} from 'path';
+/* eslint-disable no-continue */
+import {extname, join, resolve} from 'path';
 import http from 'http';
 import {log} from 'console';
 import {watch as watcher} from 'chokidar';
@@ -6,6 +7,7 @@ import {green} from 'chalk';
 import minimatch from 'minimatch';
 import handler from 'serve-handler';
 import livereload from 'livereload';
+import {parse} from 'node-html-parser';
 import Lollygag, {addParentToPath, TWorker} from '@lollygag/core';
 
 /**
@@ -27,6 +29,7 @@ export interface IWatchPatterns {
 export interface IWatchOptions {
     serverPort?: number;
     livereloadPort?: number;
+    injectLivereloadScript?: boolean;
     patterns: IWatchPatterns;
     fullBuild?: boolean;
 }
@@ -79,7 +82,31 @@ async function rebuild(options: IRebuildOptions): Promise<void> {
 let serverStarted = false;
 
 export default function livedev(options: IWatchOptions): TWorker {
-    return async function livedevWorker(_files, lollygag): Promise<void> {
+    return async function livedevWorker(files, lollygag): Promise<void> {
+        const serverPort = options.serverPort || 3000;
+        const livereloadPort = options.livereloadPort || 35729;
+
+        if(options.injectLivereloadScript) {
+            for(let i = 0; i < files.length; i++) {
+                const file = files[i];
+
+                if(extname(file.path) !== '.html') continue;
+
+                const $ = parse(file.content || '');
+                const body = $.querySelector('body');
+
+                if(!body) continue;
+
+                const script = parse(
+                    `<script src='http://localhost:${livereloadPort}/livereload.js'></script>`
+                );
+
+                body.appendChild(script);
+
+                file.content = $.toString();
+            }
+        }
+
         if(serverStarted) return;
 
         serverStarted = true;
@@ -92,8 +119,6 @@ export default function livedev(options: IWatchOptions): TWorker {
                 cleanUrls: true,
             }));
 
-        const serverPort = options.serverPort || 3000;
-
         await new Promise((ok) => {
             server.listen(serverPort, () => {
                 log(green(`Server running at port ${serverPort}`));
@@ -101,8 +126,6 @@ export default function livedev(options: IWatchOptions): TWorker {
                 ok(null);
             });
         });
-
-        const livereloadPort = options.livereloadPort || 35729;
 
         await new Promise((ok) => {
             livereload

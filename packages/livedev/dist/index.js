@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/* eslint-disable no-continue */
 const path_1 = require("path");
 const http_1 = __importDefault(require("http"));
 const console_1 = require("console");
@@ -20,6 +21,7 @@ const chalk_1 = require("chalk");
 const minimatch_1 = __importDefault(require("minimatch"));
 const serve_handler_1 = __importDefault(require("serve-handler"));
 const livereload_1 = __importDefault(require("livereload"));
+const node_html_parser_1 = require("node-html-parser");
 const core_1 = require("@lollygag/core");
 function rebuild(options) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -54,8 +56,24 @@ function rebuild(options) {
 }
 let serverStarted = false;
 function livedev(options) {
-    return function livedevWorker(_files, lollygag) {
+    return function livedevWorker(files, lollygag) {
         return __awaiter(this, void 0, void 0, function* () {
+            const serverPort = options.serverPort || 3000;
+            const livereloadPort = options.livereloadPort || 35729;
+            if (options.injectLivereloadScript) {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    if ((0, path_1.extname)(file.path) !== '.html')
+                        continue;
+                    const $ = (0, node_html_parser_1.parse)(file.content || '');
+                    const body = $.querySelector('body');
+                    if (!body)
+                        continue;
+                    const script = (0, node_html_parser_1.parse)(`<script src='http://localhost:${livereloadPort}/livereload.js'></script>`);
+                    body.appendChild(script);
+                    file.content = $.toString();
+                }
+            }
             if (serverStarted)
                 return;
             serverStarted = true;
@@ -64,14 +82,12 @@ function livedev(options) {
                 public: staticDir,
                 cleanUrls: true,
             }));
-            const serverPort = options.serverPort || 3000;
             yield new Promise((ok) => {
                 server.listen(serverPort, () => {
                     (0, console_1.log)((0, chalk_1.green)(`Server running at port ${serverPort}`));
                     ok(null);
                 });
             });
-            const livereloadPort = options.livereloadPort || 35729;
             yield new Promise((ok) => {
                 livereload_1.default
                     .createServer({ port: livereloadPort }, () => {

@@ -15,6 +15,7 @@ export interface IWatchPatterns {
 export interface IWatchOptions {
     serverPort?: number;
     livereloadPort?: number;
+    injectLivereloadScript?: boolean;
     patterns: IWatchPatterns;
     fullBuild?: boolean;
 }
