@@ -15,6 +15,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = require("fs");
 const path_1 = require("path");
+const child_process_1 = require("child_process");
 const readline_1 = __importDefault(require("readline"));
 const core_1 = __importDefault(require("@lollygag/core"));
 const handlebars_1 = __importDefault(require("@lollygag/handlebars"));
@@ -27,7 +28,6 @@ const wPrefix = '\x1b[33mwarning \x1b[0m';
 function getOption(question, message, callback) {
     if (message)
         console.log(message);
-    console.log(callback.name);
     return new Promise((res) => {
         rl.question(question, (answer) => __awaiter(this, void 0, void 0, function* () {
             // eslint-disable-next-line callback-return
@@ -195,6 +195,39 @@ function getUseTs(useTs, func) {
         }))
             .build();
         (0, fs_1.unlinkSync)('.timestamp');
-        process.exit(0);
+        const yarnVersion = (0, child_process_1.spawnSync)('yarn --version', {
+            shell: true,
+        })
+            .stdout.toString()
+            .trim();
+        const packageManager = yarnVersion ? 'yarn' : 'npm';
+        const installCommand = yarnVersion ? 'yarn' : 'npm install';
+        const install = (0, child_process_1.spawn)(`cd ${vars.projectDir} && ${installCommand}`, {
+            shell: true,
+        });
+        install.stdout.on('data', (data) => {
+            console.log(data.toString().trim());
+        });
+        install.on('exit', (exitCode) => {
+            console.log();
+            console.log('--------------------------------------------');
+            console.log();
+            console.log('Your new Lollygag site is ready.');
+            console.log();
+            console.log('Next steps:');
+            console.log();
+            console.log(`$ cd ${vars.projectDir}`);
+            console.log(`$ ${packageManager} start`);
+            console.log();
+            console.log('This would start a live dev server at');
+            console.log('http://localhost:3000. For more info, check');
+            console.log('out the docs: https://lollygag.github.io');
+            console.log();
+            console.log('Happy building!');
+            console.log();
+            console.log('--------------------------------------------');
+            console.log();
+            process.exit(exitCode || 0);
+        });
     });
 }());

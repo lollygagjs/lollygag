@@ -2,7 +2,7 @@
 
 import {existsSync, unlinkSync} from 'fs';
 import {join, resolve} from 'path';
-import {spawn} from 'child_process';
+import {spawn, spawnSync} from 'child_process';
 import readline from 'readline';
 import Lollygag from '@lollygag/core';
 import handlebars from '@lollygag/handlebars';
@@ -27,8 +27,6 @@ function getOption(
     callback: TGetOptionCallback
 ): Promise<string> {
     if(message) console.log(message);
-
-    console.log(callback.name);
 
     return new Promise((res) => {
         rl.question(question, async(answer) => {
@@ -244,5 +242,43 @@ function getUseTs(useTs: string, func?: typeof getOption) {
 
     unlinkSync('.timestamp');
 
-    process.exit(0);
+    const yarnVersion = spawnSync('yarn --version', {
+        shell: true,
+    })
+        .stdout.toString()
+        .trim();
+
+    const packageManager = yarnVersion ? 'yarn' : 'npm';
+    const installCommand = yarnVersion ? 'yarn' : 'npm install';
+
+    const install = spawn(`cd ${vars.projectDir} && ${installCommand}`, {
+        shell: true,
+    });
+
+    install.stdout.on('data', (data) => {
+        console.log(data.toString().trim());
+    });
+
+    install.on('exit', (exitCode) => {
+        console.log();
+        console.log('--------------------------------------------');
+        console.log();
+        console.log('Your new Lollygag site is ready.');
+        console.log();
+        console.log('Next steps:');
+        console.log();
+        console.log(`$ cd ${vars.projectDir}`);
+        console.log(`$ ${packageManager} start`);
+        console.log();
+        console.log('This would start a live dev server at');
+        console.log('http://localhost:3000. For more info, check');
+        console.log('out the docs: https://lollygag.github.io');
+        console.log();
+        console.log('Happy building!');
+        console.log();
+        console.log('--------------------------------------------');
+        console.log();
+
+        process.exit(exitCode || 0);
+    });
 }());
