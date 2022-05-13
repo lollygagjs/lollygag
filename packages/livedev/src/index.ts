@@ -92,8 +92,8 @@ export default function livedev(options: IWatchOptions): TWorker {
 
                 if(extname(file.path) !== '.html') continue;
 
-                const $ = parse(file.content || '');
-                const body = $.querySelector('body');
+                const doc = parse(file.content || '');
+                const body = doc.querySelector('body');
 
                 if(!body) continue;
 
@@ -103,7 +103,7 @@ export default function livedev(options: IWatchOptions): TWorker {
 
                 body.appendChild(script);
 
-                file.content = $.toString();
+                file.content = doc.toString();
             }
         }
 

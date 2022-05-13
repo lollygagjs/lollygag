@@ -65,13 +65,13 @@ function livedev(options) {
                     const file = files[i];
                     if ((0, path_1.extname)(file.path) !== '.html')
                         continue;
-                    const $ = (0, node_html_parser_1.parse)(file.content || '');
-                    const body = $.querySelector('body');
+                    const doc = (0, node_html_parser_1.parse)(file.content || '');
+                    const body = doc.querySelector('body');
                     if (!body)
                         continue;
                     const script = (0, node_html_parser_1.parse)(`<script src='http://localhost:${livereloadPort}/livereload.js'></script>`);
                     body.appendChild(script);
-                    file.content = $.toString();
+                    file.content = doc.toString();
                 }
             }
             if (serverStarted)
