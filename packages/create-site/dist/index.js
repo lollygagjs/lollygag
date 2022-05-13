@@ -21,21 +21,26 @@ const handlebars_1 = __importDefault(require("@lollygag/handlebars"));
 const rl = readline_1.default.createInterface({
     input: process.stdin,
     output: process.stdout,
-    prompt: 'question',
 });
+const qPrefix = '\x1b[36mquestion\x1b[0m';
+const wPrefix = '\x1b[33mwarning \x1b[0m';
+const defaultProjectDir = '';
 function getProjectDir(msg) {
     if (msg)
         console.log(msg);
     return new Promise((res) => {
-        rl.question('Project directory: ', (dir) => {
+        rl.question(`${qPrefix} Project directory: `, (dir) => {
             // eslint-disable-next-line no-negated-condition
             if (!dir) {
-                res(getProjectDir('Directory name cannot be blank...'));
+                res(getProjectDir(`${wPrefix} Directory name cannot be blank`));
             }
             else if (!dir.match(/^[\w]([\w-]*[\w])*$/)
                 || dir.indexOf('-_') !== -1
                 || dir.indexOf('_-') !== -1) {
-                res(getProjectDir(`Invalid directory name... '${dir}'`));
+                res(getProjectDir(`${wPrefix} Invalid directory name... '${dir}'`));
+            }
+            else if ((0, fs_1.existsSync)(dir)) {
+                res(getProjectDir(`${wPrefix} The directory '${dir}' exists`));
             }
             else {
                 res(dir);
@@ -46,7 +51,7 @@ function getProjectDir(msg) {
 const defaultSiteName = 'Lollygag Site';
 function getSiteName() {
     return new Promise((res) => {
-        rl.question(`Site name (${defaultSiteName}): `, (name) => {
+        rl.question(`${qPrefix} Site name (${defaultSiteName}): `, (name) => {
             res(name);
         });
     });
@@ -54,9 +59,7 @@ function getSiteName() {
 const defaultSiteDescription = 'A Lollygag starter site.';
 function getSiteDescription() {
     return new Promise((res) => {
-        rl.question(`Site description (${defaultSiteDescription}): `, (description) => {
-            res(description);
-        });
+        rl.question(`${qPrefix} Site description (${defaultSiteDescription}): `, (description) => { res(description); });
     });
 }
 const defaultUseTs = true;
@@ -64,7 +67,7 @@ function getUseTs(msg) {
     if (msg)
         console.log(msg);
     return new Promise((res) => {
-        rl.question(`Use TypeScript? (${defaultUseTs}): `, (useTs) => {
+        rl.question(`${qPrefix} Use TypeScript? (${defaultUseTs}): `, (useTs) => {
             useTs.toLowerCase();
             const no = ['no', 'n', 'false'];
             const yes = ['yes', 'y', 'true'];
@@ -74,7 +77,7 @@ function getUseTs(msg) {
                 let vals = [...validValues];
                 const lastVal = vals.pop();
                 vals = `${vals.join(', ')} and ${lastVal}`;
-                res(getUseTs(`Valid values are ${vals}.`));
+                res(getUseTs(`${wPrefix} Valid values are ${vals}`));
             }
             else {
                 res(Boolean(useTs === '' || yes.includes(useTs)));
@@ -88,49 +91,57 @@ function getUseTs(msg) {
             siteName: defaultSiteName,
             siteDescription: defaultSiteDescription,
             useTs: defaultUseTs,
+            projectDir: defaultProjectDir,
         };
         const options = {
-            '--name': {
-                aliases: ['-n'],
+            '-p': {
+                func: getProjectDir,
+                returnType: 'string',
+                varToSet: 'projectDir',
+            },
+            '--projectdir': {
+                func: getProjectDir,
+                returnType: 'string',
+                varToSet: 'projectDir',
+            },
+            '-n': {
                 func: getSiteName,
                 returnType: 'string',
                 varToSet: 'siteName',
             },
-            '--description': {
-                aliases: ['-d'],
+            '--name': {
+                func: getSiteName,
+                returnType: 'string',
+                varToSet: 'siteName',
+            },
+            '-d': {
                 func: getSiteDescription,
                 returnType: 'string',
                 varToSet: 'siteDescription',
             },
-            '--ts': {
-                aliases: ['-t'],
+            '--description': {
+                func: getSiteDescription,
+                returnType: 'string',
+                varToSet: 'siteDescription',
+            },
+            '-t': {
+                func: getUseTs,
+                returnType: 'boolean',
+                varToSet: 'useTs',
+            },
+            '--typescript': {
                 func: getUseTs,
                 returnType: 'boolean',
                 varToSet: 'useTs',
             },
         };
         const validOptions = Object.keys(options).map((key) => key);
-        const aliases = Object.keys(options)
-            .map((key) => options[key].aliases)
-            .flat();
-        const validOptionsAndAliases = [...validOptions, ...aliases];
-        let projectDirValue = process.argv[2];
-        if (validOptions.includes(projectDirValue)) {
-            projectDirValue = (yield getProjectDir()).trim();
-        }
-        if (projectDirValue
-            && (!projectDirValue.match(/^[\w]([\w-]*[\w])*$/)
-                || projectDirValue.indexOf('-_') !== -1
-                || projectDirValue.indexOf('_-') !== -1)) {
-            projectDirValue = (yield getProjectDir(`Invalid directory name... '${projectDirValue}'`)).trim();
-        }
-        const projectDir = (0, path_1.join)(projectDirValue || (yield getProjectDir()).trim());
-        if ((0, fs_1.existsSync)(projectDir)) {
-            console.log(`The directory '${projectDir}' exists. Exiting...`);
-            process.exit(0);
-        }
+        const skips = [];
         for (let i = 0; i < validOptions.length; i++) {
             const opt = options[validOptions[i]];
+            // eslint-disable-next-line no-continue
+            if (skips.includes(opt.varToSet))
+                continue;
             const idx = process.argv.indexOf(validOptions[i]);
             let val;
             if (idx > -1) {
@@ -144,7 +155,9 @@ function getUseTs(msg) {
             }
             // eslint-disable-next-line no-await-in-loop
             const output = val || (yield opt.func()) || vars[opt.varToSet];
-            vars[opt.varToSet] = output.trim ? output.trim() : output;
+            vars[opt.varToSet]
+                = typeof output === 'string' ? output.trim() : output;
+            skips.push(opt.varToSet);
         }
         const packageName = vars.siteName
             .toLowerCase()
@@ -159,7 +172,7 @@ function getUseTs(msg) {
             packageName,
         })
             .in((0, path_1.resolve)(__dirname, '../', (0, path_1.join)('structures', vars.useTs ? 'ts' : 'js')))
-            .out(projectDir)
+            .out(vars.projectDir)
             .do((0, handlebars_1.default)({
             newExtname: false,
             targetExtnames: ['.json', '.ts', '.md'],

@@ -3,29 +3,39 @@
 import {existsSync, unlinkSync} from 'fs';
 import {join, resolve} from 'path';
 import readline from 'readline';
-import Lollygag, {RaggedyAny} from '@lollygag/core';
+import Lollygag from '@lollygag/core';
 import handlebars from '@lollygag/handlebars';
 
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
-    prompt: 'question',
 });
+
+const qPrefix = '\x1b[36mquestion\x1b[0m';
+const wPrefix = '\x1b[33mwarning \x1b[0m';
+
+const defaultProjectDir = '';
 
 function getProjectDir(msg?: string): Promise<string> {
     if(msg) console.log(msg);
 
     return new Promise((res) => {
-        rl.question('Project directory: ', (dir) => {
+        rl.question(`${qPrefix} Project directory: `, (dir) => {
             // eslint-disable-next-line no-negated-condition
             if(!dir) {
-                res(getProjectDir('Directory name cannot be blank...'));
+                res(getProjectDir(`${wPrefix} Directory name cannot be blank`));
             } else if(
                 !dir.match(/^[\w]([\w-]*[\w])*$/)
                 || dir.indexOf('-_') !== -1
                 || dir.indexOf('_-') !== -1
             ) {
-                res(getProjectDir(`Invalid directory name... '${dir}'`));
+                res(
+                    getProjectDir(
+                        `${wPrefix} Invalid directory name... '${dir}'`
+                    )
+                );
+            } else if(existsSync(dir)) {
+                res(getProjectDir(`${wPrefix} The directory '${dir}' exists`));
             } else {
                 res(dir);
             }
@@ -37,7 +47,7 @@ const defaultSiteName = 'Lollygag Site';
 
 function getSiteName(): Promise<string> {
     return new Promise((res) => {
-        rl.question(`Site name (${defaultSiteName}): `, (name) => {
+        rl.question(`${qPrefix} Site name (${defaultSiteName}): `, (name) => {
             res(name);
         });
     });
@@ -48,10 +58,8 @@ const defaultSiteDescription = 'A Lollygag starter site.';
 function getSiteDescription(): Promise<string> {
     return new Promise((res) => {
         rl.question(
-            `Site description (${defaultSiteDescription}): `,
-            (description) => {
-                res(description);
-            }
+            `${qPrefix} Site description (${defaultSiteDescription}): `,
+            (description) => { res(description); }
         );
     });
 }
@@ -62,57 +70,84 @@ function getUseTs(msg?: string): Promise<boolean> {
     if(msg) console.log(msg);
 
     return new Promise((res) => {
-        rl.question(`Use TypeScript? (${defaultUseTs}): `, (useTs) => {
-            useTs.toLowerCase();
+        rl.question(
+            `${qPrefix} Use TypeScript? (${defaultUseTs}): `,
+            (useTs) => {
+                useTs.toLowerCase();
 
-            const no = ['no', 'n', 'false'];
-            const yes = ['yes', 'y', 'true'];
-            const validValues = [...yes, ...no];
+                const no = ['no', 'n', 'false'];
+                const yes = ['yes', 'y', 'true'];
+                const validValues = [...yes, ...no];
 
-            // eslint-disable-next-line no-negated-condition
-            if(useTs && !validValues.includes(useTs)) {
-                let vals: string | string[] = [...validValues];
-                const lastVal = vals.pop();
+                // eslint-disable-next-line no-negated-condition
+                if(useTs && !validValues.includes(useTs)) {
+                    let vals: string | string[] = [...validValues];
+                    const lastVal = vals.pop();
 
-                vals = `${vals.join(', ')} and ${lastVal}`;
+                    vals = `${vals.join(', ')} and ${lastVal}`;
 
-                res(getUseTs(`Valid values are ${vals}.`));
-            } else {
-                res(Boolean(useTs === '' || yes.includes(useTs)));
+                    res(getUseTs(`${wPrefix} Valid values are ${vals}`));
+                } else {
+                    res(Boolean(useTs === '' || yes.includes(useTs)));
+                }
             }
-        });
+        );
     });
 }
 
 (async function start() {
-    const vars: Record<string, RaggedyAny> = {
+    const vars = {
         siteName: defaultSiteName,
         siteDescription: defaultSiteDescription,
         useTs: defaultUseTs,
+        projectDir: defaultProjectDir,
     };
 
+    type TOptionVars = keyof typeof vars;
+
     interface ICreateOptions {
-        aliases: string[];
         func: () => Promise<string | boolean>;
         returnType: 'string' | 'boolean';
-        varToSet: 'siteName' | 'siteDescription' | 'useTs';
+        varToSet: TOptionVars;
     }
 
     const options: Record<string, ICreateOptions> = {
-        '--name': {
-            aliases: ['-n'],
+        '-p': {
+            func: getProjectDir,
+            returnType: 'string',
+            varToSet: 'projectDir',
+        },
+        '--projectdir': {
+            func: getProjectDir,
+            returnType: 'string',
+            varToSet: 'projectDir',
+        },
+        '-n': {
             func: getSiteName,
             returnType: 'string',
             varToSet: 'siteName',
         },
-        '--description': {
-            aliases: ['-d'],
+        '--name': {
+            func: getSiteName,
+            returnType: 'string',
+            varToSet: 'siteName',
+        },
+        '-d': {
             func: getSiteDescription,
             returnType: 'string',
             varToSet: 'siteDescription',
         },
-        '--ts': {
-            aliases: ['-t'],
+        '--description': {
+            func: getSiteDescription,
+            returnType: 'string',
+            varToSet: 'siteDescription',
+        },
+        '-t': {
+            func: getUseTs,
+            returnType: 'boolean',
+            varToSet: 'useTs',
+        },
+        '--typescript': {
             func: getUseTs,
             returnType: 'boolean',
             varToSet: 'useTs',
@@ -120,41 +155,14 @@ function getUseTs(msg?: string): Promise<boolean> {
     };
 
     const validOptions = Object.keys(options).map((key) => key);
-
-    const aliases = Object.keys(options)
-        .map((key) => options[key].aliases)
-        .flat();
-
-    const validOptionsAndAliases = [...validOptions, ...aliases];
-
-    let projectDirValue = process.argv[2];
-
-    if(validOptions.includes(projectDirValue)) {
-        projectDirValue = (await getProjectDir()).trim();
-    }
-
-    if(
-        projectDirValue
-        && (!projectDirValue.match(/^[\w]([\w-]*[\w])*$/)
-            || projectDirValue.indexOf('-_') !== -1
-            || projectDirValue.indexOf('_-') !== -1)
-    ) {
-        projectDirValue = (
-            await getProjectDir(
-                `Invalid directory name... '${projectDirValue}'`
-            )
-        ).trim();
-    }
-
-    const projectDir = join(projectDirValue || (await getProjectDir()).trim());
-
-    if(existsSync(projectDir)) {
-        console.log(`The directory '${projectDir}' exists. Exiting...`);
-        process.exit(0);
-    }
+    const skips: TOptionVars[] = [];
 
     for(let i = 0; i < validOptions.length; i++) {
         const opt = options[validOptions[i]];
+
+        // eslint-disable-next-line no-continue
+        if(skips.includes(opt.varToSet)) continue;
+
         const idx = process.argv.indexOf(validOptions[i]);
 
         let val;
@@ -172,7 +180,10 @@ function getUseTs(msg?: string): Promise<boolean> {
         // eslint-disable-next-line no-await-in-loop
         const output = val || (await opt.func()) || vars[opt.varToSet];
 
-        vars[opt.varToSet] = output.trim ? output.trim() : output;
+        (vars[opt.varToSet] as string | boolean)
+            = typeof output === 'string' ? output.trim() : output;
+
+        skips.push(opt.varToSet);
     }
 
     const packageName = vars.siteName
@@ -195,7 +206,7 @@ function getUseTs(msg?: string): Promise<boolean> {
                 join('structures', vars.useTs ? 'ts' : 'js')
             )
         )
-        .out(projectDir)
+        .out(vars.projectDir)
         .do(
             handlebars({
                 newExtname: false,
