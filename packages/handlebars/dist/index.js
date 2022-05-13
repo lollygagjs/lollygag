@@ -9,6 +9,7 @@ const path_1 = require("path");
 const handlebars_1 = __importDefault(require("handlebars"));
 exports.Handlebars = handlebars_1.default;
 const core_1 = require("@lollygag/core");
+handlebars_1.default.registerHelper('asIs', (opts) => opts.fn());
 handlebars_1.default.registerHelper('orDefault', (prop, defaultValue) => (prop ? prop : defaultValue));
 const handleHandlebars = (content, options, data) => {
     const o = options;

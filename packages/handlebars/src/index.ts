@@ -10,6 +10,8 @@ import {
     TWorker,
 } from '@lollygag/core';
 
+Handlebars.registerHelper('asIs', (opts) => opts.fn());
+
 Handlebars.registerHelper('orDefault', (prop, defaultValue) =>
     (prop ? prop : defaultValue));
 
