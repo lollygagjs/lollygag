@@ -2,6 +2,7 @@
 
 import {existsSync, unlinkSync} from 'fs';
 import {join, resolve} from 'path';
+import {spawn} from 'child_process';
 import readline from 'readline';
 import Lollygag from '@lollygag/core';
 import handlebars from '@lollygag/handlebars';
@@ -14,85 +15,92 @@ const rl = readline.createInterface({
 const qPrefix = '\x1b[36mquestion\x1b[0m';
 const wPrefix = '\x1b[33mwarning \x1b[0m';
 
-const defaultProjectDir = '';
+type TGetOptionCallback = (
+    answer: string,
+    // eslint-disable-next-line no-use-before-define
+    func?: typeof getOption
+) => string | Promise<string> | boolean;
 
-function getProjectDir(msg?: string): Promise<string> {
-    if(msg) console.log(msg);
+function getOption(
+    question: string,
+    message: string | null,
+    callback: TGetOptionCallback
+): Promise<string> {
+    if(message) console.log(message);
+
+    console.log(callback.name);
 
     return new Promise((res) => {
-        rl.question(`${qPrefix} Project directory: `, (dir) => {
-            // eslint-disable-next-line no-negated-condition
-            if(!dir) {
-                res(getProjectDir(`${wPrefix} Directory name cannot be blank`));
-            } else if(
-                !dir.match(/^[\w]([\w-]*[\w])*$/)
-                || dir.indexOf('-_') !== -1
-                || dir.indexOf('_-') !== -1
-            ) {
-                res(
-                    getProjectDir(
-                        `${wPrefix} Invalid directory name... '${dir}'`
-                    )
-                );
-            } else if(existsSync(dir)) {
-                res(getProjectDir(`${wPrefix} The directory '${dir}' exists`));
-            } else {
-                res(dir);
-            }
+        rl.question(question, async(answer) => {
+            // eslint-disable-next-line callback-return
+            res(callback(answer, getOption) as string | Promise<string>);
         });
     });
+}
+
+const defaultProjectDir = '';
+const getProjectDirQuestion = `${qPrefix} Project directory: `;
+
+function getProjectDir(dir: string, func?: typeof getOption) {
+    let result;
+
+    // eslint-disable-next-line no-negated-condition
+    if(!dir) {
+        result = `${wPrefix} Directory name cannot be blank`;
+    } else if(
+        !dir.match(/^[\w]([\w-]*[\w])*$/)
+        || dir.indexOf('-_') !== -1
+        || dir.indexOf('_-') !== -1
+    ) {
+        result = `${wPrefix} Invalid directory name... '${dir}'`;
+    } else if(existsSync(dir)) {
+        result = `${wPrefix} The directory '${dir}' exists`;
+    } else {
+        result = dir;
+    }
+
+    return func && result !== dir
+        ? func(getProjectDirQuestion, result, getProjectDir)
+        : result;
 }
 
 const defaultSiteName = 'Lollygag Site';
+const getSiteNameQuestion = `${qPrefix} Site name (${defaultSiteName}): `;
 
-function getSiteName(): Promise<string> {
-    return new Promise((res) => {
-        rl.question(`${qPrefix} Site name (${defaultSiteName}): `, (name) => {
-            res(name);
-        });
-    });
-}
+const getSiteName = (name: string) => name;
 
 const defaultSiteDescription = 'A Lollygag starter site.';
+const getSiteDescriptionQuestion = `${qPrefix} Site description (${defaultSiteDescription}): `;
 
-function getSiteDescription(): Promise<string> {
-    return new Promise((res) => {
-        rl.question(
-            `${qPrefix} Site description (${defaultSiteDescription}): `,
-            (description) => { res(description); }
-        );
-    });
-}
+const getSiteDescription = (description: string) => description;
 
 const defaultUseTs = true;
+const getUseTsQuestion = `${qPrefix} Use TypeScript? (${defaultUseTs}): `;
 
-function getUseTs(msg?: string): Promise<boolean> {
-    if(msg) console.log(msg);
+function getUseTs(useTs: string, func?: typeof getOption) {
+    let result;
 
-    return new Promise((res) => {
-        rl.question(
-            `${qPrefix} Use TypeScript? (${defaultUseTs}): `,
-            (useTs) => {
-                useTs.toLowerCase();
+    useTs.toLowerCase();
 
-                const no = ['no', 'n', 'false'];
-                const yes = ['yes', 'y', 'true'];
-                const validValues = [...yes, ...no];
+    const no = ['no', 'n', 'false'];
+    const yes = ['yes', 'y', 'true'];
+    const validValues = [...yes, ...no];
 
-                // eslint-disable-next-line no-negated-condition
-                if(useTs && !validValues.includes(useTs)) {
-                    let vals: string | string[] = [...validValues];
-                    const lastVal = vals.pop();
+    // eslint-disable-next-line no-negated-condition
+    if(useTs && !validValues.includes(useTs)) {
+        let vals: string | string[] = [...validValues];
+        const lastVal = vals.pop();
 
-                    vals = `${vals.join(', ')} and ${lastVal}`;
+        vals = `${vals.join(', ')} and ${lastVal}`;
 
-                    res(getUseTs(`${wPrefix} Valid values are ${vals}`));
-                } else {
-                    res(Boolean(useTs === '' || yes.includes(useTs)));
-                }
-            }
-        );
-    });
+        result = `${wPrefix} Valid values are ${vals}`;
+    } else {
+        result = useTs === '' || yes.includes(useTs);
+    }
+
+    return func && typeof result === 'string'
+        ? func(getUseTsQuestion, result, getUseTs)
+        : result;
 }
 
 (async function start() {
@@ -106,51 +114,60 @@ function getUseTs(msg?: string): Promise<boolean> {
     type TOptionVars = keyof typeof vars;
 
     interface ICreateOptions {
-        func: () => Promise<string | boolean>;
-        returnType: 'string' | 'boolean';
+        callback: TGetOptionCallback;
+        question: string;
         varToSet: TOptionVars;
+        returnType: 'string' | 'boolean';
     }
 
     const options: Record<string, ICreateOptions> = {
         '-p': {
-            func: getProjectDir,
-            returnType: 'string',
+            callback: getProjectDir,
+            question: getProjectDirQuestion,
             varToSet: 'projectDir',
+            returnType: 'string',
         },
         '--projectdir': {
-            func: getProjectDir,
-            returnType: 'string',
+            callback: getProjectDir,
+            question: getProjectDirQuestion,
             varToSet: 'projectDir',
+            returnType: 'string',
         },
         '-n': {
-            func: getSiteName,
-            returnType: 'string',
+            callback: getSiteName,
+            question: getSiteNameQuestion,
             varToSet: 'siteName',
+            returnType: 'string',
         },
         '--name': {
-            func: getSiteName,
-            returnType: 'string',
+            callback: getSiteName,
+            question: getSiteNameQuestion,
             varToSet: 'siteName',
+            returnType: 'string',
         },
         '-d': {
-            func: getSiteDescription,
-            returnType: 'string',
+            callback: getSiteDescription,
+            question: getSiteDescriptionQuestion,
             varToSet: 'siteDescription',
+            returnType: 'string',
         },
         '--description': {
-            func: getSiteDescription,
-            returnType: 'string',
+            callback: getSiteDescription,
+            question: getSiteDescriptionQuestion,
             varToSet: 'siteDescription',
+            returnType: 'string',
         },
         '-t': {
-            func: getUseTs,
-            returnType: 'boolean',
+            callback: getUseTs,
+            question: getUseTsQuestion,
             varToSet: 'useTs',
+            returnType: 'boolean',
         },
         '--typescript': {
-            func: getUseTs,
-            returnType: 'boolean',
+            callback: getUseTs,
+            question: getUseTsQuestion,
             varToSet: 'useTs',
+            returnType: 'boolean',
         },
     };
 
@@ -165,7 +182,7 @@ function getUseTs(msg?: string): Promise<boolean> {
 
         const idx = process.argv.indexOf(validOptions[i]);
 
-        let val;
+        let val: string | boolean = '';
 
         if(idx > -1) {
             if(opt.returnType === 'string') {
@@ -175,10 +192,20 @@ function getUseTs(msg?: string): Promise<boolean> {
             }
 
             if(opt.returnType === 'boolean') val = true;
+
+            const checkedVal = opt.callback(val?.toString());
+
+            if(checkedVal.toString() !== val) {
+                val = '';
+                console.log(checkedVal);
+            }
         }
 
-        // eslint-disable-next-line no-await-in-loop
-        const output = val || (await opt.func()) || vars[opt.varToSet];
+        const output
+            = val
+            // eslint-disable-next-line no-await-in-loop
+            || (await getOption(opt.question, null, opt.callback))
+            || vars[opt.varToSet];
 
         (vars[opt.varToSet] as string | boolean)
             = typeof output === 'string' ? output.trim() : output;

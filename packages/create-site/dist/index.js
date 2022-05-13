@@ -24,66 +24,67 @@ const rl = readline_1.default.createInterface({
 });
 const qPrefix = '\x1b[36mquestion\x1b[0m';
 const wPrefix = '\x1b[33mwarning \x1b[0m';
-const defaultProjectDir = '';
-function getProjectDir(msg) {
-    if (msg)
-        console.log(msg);
+function getOption(question, message, callback) {
+    if (message)
+        console.log(message);
+    console.log(callback.name);
     return new Promise((res) => {
-        rl.question(`${qPrefix} Project directory: `, (dir) => {
-            // eslint-disable-next-line no-negated-condition
-            if (!dir) {
-                res(getProjectDir(`${wPrefix} Directory name cannot be blank`));
-            }
-            else if (!dir.match(/^[\w]([\w-]*[\w])*$/)
-                || dir.indexOf('-_') !== -1
-                || dir.indexOf('_-') !== -1) {
-                res(getProjectDir(`${wPrefix} Invalid directory name... '${dir}'`));
-            }
-            else if ((0, fs_1.existsSync)(dir)) {
-                res(getProjectDir(`${wPrefix} The directory '${dir}' exists`));
-            }
-            else {
-                res(dir);
-            }
-        });
+        rl.question(question, (answer) => __awaiter(this, void 0, void 0, function* () {
+            // eslint-disable-next-line callback-return
+            res(callback(answer, getOption));
+        }));
     });
+}
+const defaultProjectDir = '';
+const getProjectDirQuestion = `${qPrefix} Project directory: `;
+function getProjectDir(dir, func) {
+    let result;
+    // eslint-disable-next-line no-negated-condition
+    if (!dir) {
+        result = `${wPrefix} Directory name cannot be blank`;
+    }
+    else if (!dir.match(/^[\w]([\w-]*[\w])*$/)
+        || dir.indexOf('-_') !== -1
+        || dir.indexOf('_-') !== -1) {
+        result = `${wPrefix} Invalid directory name... '${dir}'`;
+    }
+    else if ((0, fs_1.existsSync)(dir)) {
+        result = `${wPrefix} The directory '${dir}' exists`;
+    }
+    else {
+        result = dir;
+    }
+    return func && result !== dir
+        ? func(getProjectDirQuestion, result, getProjectDir)
+        : result;
 }
 const defaultSiteName = 'Lollygag Site';
-function getSiteName() {
-    return new Promise((res) => {
-        rl.question(`${qPrefix} Site name (${defaultSiteName}): `, (name) => {
-            res(name);
-        });
-    });
-}
+const getSiteNameQuestion = `${qPrefix} Site name (${defaultSiteName}): `;
+const getSiteName = (name) => name;
 const defaultSiteDescription = 'A Lollygag starter site.';
-function getSiteDescription() {
-    return new Promise((res) => {
-        rl.question(`${qPrefix} Site description (${defaultSiteDescription}): `, (description) => { res(description); });
-    });
-}
+const getSiteDescriptionQuestion = `${qPrefix} Site description (${defaultSiteDescription}): `;
+const getSiteDescription = (description) => description;
 const defaultUseTs = true;
-function getUseTs(msg) {
-    if (msg)
-        console.log(msg);
-    return new Promise((res) => {
-        rl.question(`${qPrefix} Use TypeScript? (${defaultUseTs}): `, (useTs) => {
-            useTs.toLowerCase();
-            const no = ['no', 'n', 'false'];
-            const yes = ['yes', 'y', 'true'];
-            const validValues = [...yes, ...no];
-            // eslint-disable-next-line no-negated-condition
-            if (useTs && !validValues.includes(useTs)) {
-                let vals = [...validValues];
-                const lastVal = vals.pop();
-                vals = `${vals.join(', ')} and ${lastVal}`;
-                res(getUseTs(`${wPrefix} Valid values are ${vals}`));
-            }
-            else {
-                res(Boolean(useTs === '' || yes.includes(useTs)));
-            }
-        });
-    });
+const getUseTsQuestion = `${qPrefix} Use TypeScript? (${defaultUseTs}): `;
+function getUseTs(useTs, func) {
+    let result;
+    useTs.toLowerCase();
+    const no = ['no', 'n', 'false'];
+    const yes = ['yes', 'y', 'true'];
+    const validValues = [...yes, ...no];
+    // eslint-disable-next-line no-negated-condition
+    if (useTs && !validValues.includes(useTs)) {
+        let vals = [...validValues];
+        const lastVal = vals.pop();
+        vals = `${vals.join(', ')} and ${lastVal}`;
+        result = `${wPrefix} Valid values are ${vals}`;
+    }
+    else {
+        result = useTs === '' || yes.includes(useTs);
+    }
+    return func && typeof result === 'string'
+        ? func(getUseTsQuestion, result, getUseTs)
+        : result;
 }
 (function start() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -95,44 +96,52 @@ function getUseTs(msg) {
         };
         const options = {
             '-p': {
-                func: getProjectDir,
-                returnType: 'string',
+                callback: getProjectDir,
+                question: getProjectDirQuestion,
                 varToSet: 'projectDir',
+                returnType: 'string',
             },
             '--projectdir': {
-                func: getProjectDir,
-                returnType: 'string',
+                callback: getProjectDir,
+                question: getProjectDirQuestion,
                 varToSet: 'projectDir',
+                returnType: 'string',
             },
             '-n': {
-                func: getSiteName,
-                returnType: 'string',
+                callback: getSiteName,
+                question: getSiteNameQuestion,
                 varToSet: 'siteName',
+                returnType: 'string',
             },
             '--name': {
-                func: getSiteName,
-                returnType: 'string',
+                callback: getSiteName,
+                question: getSiteNameQuestion,
                 varToSet: 'siteName',
+                returnType: 'string',
             },
             '-d': {
-                func: getSiteDescription,
-                returnType: 'string',
+                callback: getSiteDescription,
+                question: getSiteDescriptionQuestion,
                 varToSet: 'siteDescription',
+                returnType: 'string',
             },
             '--description': {
-                func: getSiteDescription,
-                returnType: 'string',
+                callback: getSiteDescription,
+                question: getSiteDescriptionQuestion,
                 varToSet: 'siteDescription',
+                returnType: 'string',
             },
             '-t': {
-                func: getUseTs,
-                returnType: 'boolean',
+                callback: getUseTs,
+                question: getUseTsQuestion,
                 varToSet: 'useTs',
+                returnType: 'boolean',
             },
             '--typescript': {
-                func: getUseTs,
-                returnType: 'boolean',
+                callback: getUseTs,
+                question: getUseTsQuestion,
                 varToSet: 'useTs',
+                returnType: 'boolean',
             },
         };
         const validOptions = Object.keys(options).map((key) => key);
@@ -143,7 +152,7 @@ function getUseTs(msg) {
             if (skips.includes(opt.varToSet))
                 continue;
             const idx = process.argv.indexOf(validOptions[i]);
-            let val;
+            let val = '';
             if (idx > -1) {
                 if (opt.returnType === 'string') {
                     val = validOptions.includes(process.argv[idx + 1])
@@ -152,9 +161,16 @@ function getUseTs(msg) {
                 }
                 if (opt.returnType === 'boolean')
                     val = true;
+                const checkedVal = opt.callback(val === null || val === void 0 ? void 0 : val.toString());
+                if (checkedVal.toString() !== val) {
+                    val = '';
+                    console.log(checkedVal);
+                }
             }
-            // eslint-disable-next-line no-await-in-loop
-            const output = val || (yield opt.func()) || vars[opt.varToSet];
+            const output = val
+                // eslint-disable-next-line no-await-in-loop
+                || (yield getOption(opt.question, null, opt.callback))
+                || vars[opt.varToSet];
             vars[opt.varToSet]
                 = typeof output === 'string' ? output.trim() : output;
             skips.push(opt.varToSet);
