@@ -26,9 +26,6 @@
         },
         {
             "path": "packages/livedev"
-        },
-        {
-            "path": "packages/create-site"
         }
     ],
     "settings": {
