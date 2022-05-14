@@ -1,6 +1,6 @@
 {
   "name": "@lollygag/sass",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Sass worker for Lollygag.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
