@@ -4,8 +4,8 @@ export interface ITemplatesOptions {
     targetExtnames?: string[];
     templatesDirectory?: string;
     defaultTemplate?: string;
-    handler?: TFileHandler;
-    handlerOptions?: unknown;
+    templatingHandler?: TFileHandler;
+    templatingHandlerOptions?: unknown;
 }
 export declare function templates(options?: ITemplatesOptions): TWorker;
 export default templates;

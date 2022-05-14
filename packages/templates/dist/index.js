@@ -10,7 +10,7 @@ function templates(options) {
     return function templatesWorker(files, lollygag) {
         if (!files)
             return;
-        const handler = (options === null || options === void 0 ? void 0 : options.handler) || handlebars_1.handleHandlebars;
+        const templatingHandler = (options === null || options === void 0 ? void 0 : options.templatingHandler) || handlebars_1.handleHandlebars;
         const templatesDirectory = (options === null || options === void 0 ? void 0 : options.templatesDirectory) || 'templates';
         const defaultTemplate = (options === null || options === void 0 ? void 0 : options.defaultTemplate) || 'index.hbs';
         let template = '';
@@ -43,7 +43,7 @@ function templates(options) {
                 }
             }
             const data = Object.assign(Object.assign({}, lollygag._config), file);
-            file.content = handler(template, options === null || options === void 0 ? void 0 : options.handlerOptions, data);
+            file.content = templatingHandler(template, options === null || options === void 0 ? void 0 : options.templatingHandlerOptions, data);
             console.log(`Processing '${file.path}'... Done!`);
         }
     };

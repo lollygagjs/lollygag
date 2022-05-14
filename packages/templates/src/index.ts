@@ -9,15 +9,16 @@ export interface ITemplatesOptions {
     targetExtnames?: string[];
     templatesDirectory?: string;
     defaultTemplate?: string;
-    handler?: TFileHandler;
-    handlerOptions?: unknown;
+    templatingHandler?: TFileHandler;
+    templatingHandlerOptions?: unknown;
 }
 
 export function templates(options?: ITemplatesOptions): TWorker {
     return function templatesWorker(this: TWorker, files, lollygag): void {
         if(!files) return;
 
-        const handler = options?.handler || handleHandlebars;
+        const templatingHandler
+            = options?.templatingHandler || handleHandlebars;
 
         const templatesDirectory = options?.templatesDirectory || 'templates';
         const defaultTemplate = options?.defaultTemplate || 'index.hbs';
@@ -71,7 +72,11 @@ export function templates(options?: ITemplatesOptions): TWorker {
 
             const data = {...lollygag._config, ...file};
 
-            file.content = handler(template, options?.handlerOptions, data);
+            file.content = templatingHandler(
+                template,
+                options?.templatingHandlerOptions,
+                data
+            );
 
             console.log(`Processing '${file.path}'... Done!`);
         }
