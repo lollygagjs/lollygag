@@ -25,9 +25,11 @@
   },
   "devDependencies": {
     "@lollygag/core": "*",
+    "@lollygag/handlebars": "*",
     "typescript": "^4.6.4"
   },
   "peerDependencies": {
-    "@lollygag/core": "*"
+    "@lollygag/core": "*",
+    "@lollygag/handlebars": "*"
   }
 }
