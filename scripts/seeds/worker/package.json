@@ -19,10 +19,13 @@
     "start": "rimraf dist && tsc -d -w"
   },
   "dependencies": {
-    "@lollygag/core": "*",
     "@types/node": "^17.0.31"
   },
   "devDependencies": {
+    "@lollygag/core": "*",
     "typescript": "^4.6.4"
+  },
+  "peerDependencies": {
+    "@lollygag/core": "*"
   }
 }
