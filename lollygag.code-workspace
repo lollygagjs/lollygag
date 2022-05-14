@@ -7,13 +7,13 @@
             "path": "packages/core"
         },
         {
-            "path": "packages/markdown"
-        },
-        {
             "path": "packages/handlebars"
         },
         {
-            "path": "packages/templates"
+            "path": "packages/livedev"
+        },
+        {
+            "path": "packages/markdown"
         },
         {
             "path": "packages/postcss"
@@ -22,10 +22,10 @@
             "path": "packages/sass"
         },
         {
-            "path": "packages/typescript"
+            "path": "packages/templates"
         },
         {
-            "path": "packages/livedev"
+            "path": "packages/typescript"
         }
     ],
     "settings": {
