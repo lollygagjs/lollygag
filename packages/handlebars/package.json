@@ -1,6 +1,6 @@
 {
   "name": "@lollygag/handlebars",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Handlebars worker for Lollygag.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
