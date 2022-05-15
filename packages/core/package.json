@@ -22,7 +22,7 @@
     "@types/mmmagic": "^0.4.30",
     "@types/rimraf": "^3.0.2",
     "chalk": "^4.1.2",
-    "front-matter": "^4.0.2",
+    "gray-matter": "^4.0.3",
     "mmmagic": "^0.5.3",
     "rimraf": "^3.0.2"
   },

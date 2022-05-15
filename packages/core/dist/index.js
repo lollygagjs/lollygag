@@ -41,7 +41,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importStar(require("fs"));
 const console_1 = require("console");
 const path_1 = require("path");
-const front_matter_1 = __importDefault(require("front-matter"));
+const gray_matter_1 = __importDefault(require("gray-matter"));
 const rimraf_1 = __importDefault(require("rimraf"));
 const glob_1 = __importDefault(require("glob"));
 const minimatch_1 = __importDefault(require("minimatch"));
@@ -146,8 +146,8 @@ class Lollygag {
                 return fs_1.promises
                     .readFile(file, { encoding: 'utf-8' })
                     .then((fileContent) => {
-                    const fmResult = (0, front_matter_1.default)(fileContent, { allowUnsafe: true });
-                    return Object.assign({ path: file, content: fmResult.body, mimetype: fileMimetype, stats: fileStats }, fmResult.attributes);
+                    const gmResult = (0, gray_matter_1.default)(fileContent, { eval: false });
+                    return Object.assign(Object.assign({ path: file, content: gmResult.content, mimetype: fileMimetype }, gmResult.data), { stats: fileStats });
                 });
             }
             return { path: file, mimetype: fileMimetype };

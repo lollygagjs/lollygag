@@ -1,7 +1,7 @@
 import fs, {existsSync, promises as fsp} from 'fs';
 import {log, error, time, timeEnd} from 'console';
 import {basename, dirname, extname, join} from 'path';
-import fm from 'front-matter';
+import gm from 'gray-matter';
 import rimraf from 'rimraf';
 import glob from 'glob';
 import minimatch from 'minimatch';
@@ -168,14 +168,14 @@ export default class Lollygag {
                 return fsp
                     .readFile(file, {encoding: 'utf-8'})
                     .then((fileContent): IFile => {
-                        const fmResult = fm(fileContent, {allowUnsafe: true});
+                        const gmResult = gm(fileContent, {eval: false});
 
                         return {
                             path: file,
-                            content: fmResult.body,
+                            content: gmResult.content,
                             mimetype: fileMimetype,
+                            ...gmResult.data,
                             stats: fileStats,
-                            ...(fmResult.attributes as RaggedyObject),
                         };
                     });
             }
