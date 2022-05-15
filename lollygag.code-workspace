@@ -7,22 +7,17 @@
             "path": "packages/core"
         },
         {
-            "path": "packages/handlebars"
+            "name": "built-ins",
+            "path": "packages/core/src/workers"
         },
         {
             "path": "packages/livedev"
-        },
-        {
-            "path": "packages/markdown"
         },
         {
             "path": "packages/postcss"
         },
         {
             "path": "packages/sass"
-        },
-        {
-            "path": "packages/templates"
         },
         {
             "path": "packages/typescript"
