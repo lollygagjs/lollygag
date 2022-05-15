@@ -1,14 +1,13 @@
-const {existsSync, unlinkSync} = require('fs');
-const {resolve, relative} = require('path');
-const {default: Lollygag} = require('../packages/core');
-const {default: handlebars} = require('../packages/handlebars');
+import {existsSync, unlinkSync} from 'fs';
+import {resolve, relative} from 'path';
+import {default as Lollygag, handlebars} from '../packages/core';
 
 const workerName = process.argv[2];
 const scriptPath = relative(process.cwd(), __filename);
 
 if(!workerName) {
     console.log(`Usage: 'node ${scriptPath} [workername]'`);
-    console.log('No workername provided. Exiting...');
+    console.log('No [workername] provided. Exiting...');
     process.exit(0);
 }
 
@@ -31,6 +30,7 @@ if(existsSync(outdir)) {
 }
 
 new Lollygag()
+    .config({disableBuiltins: true})
     .meta({workerName, properName})
     .in(indir)
     .out(outdir)
