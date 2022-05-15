@@ -1,8 +1,7 @@
 /* eslint-disable no-continue */
 import {extname} from 'path';
 import md, {Options} from 'markdown-it';
-import {changeExtname, TFileHandler, TWorker} from '@lollygag/core';
-import {handleHandlebars} from '@lollygag/handlebars';
+import {changeExtname, handleHandlebars, TFileHandler, TWorker} from '..';
 
 export interface IMarkdownOptions {
     newExtname?: string | false;
@@ -18,11 +17,14 @@ export const handleMarkdown: TFileHandler = (
     data?
 ): string => md((options as Options) || {}).render(content || '', data);
 
-export default function markdown(options?: IMarkdownOptions): TWorker {
-    const templatingHandler = options?.templatingHandler || handleHandlebars;
-
+export function markdown(options?: IMarkdownOptions): TWorker {
     return function markdownWorker(this: TWorker, files, lollygag): void {
         if(!files) return;
+
+        const templatingHandler
+            = options?.templatingHandler
+            || lollygag._config.templatingHandler
+            || handleHandlebars;
 
         for(let i = 0; i < files.length; i++) {
             const file = files[i];
@@ -57,3 +59,5 @@ export default function markdown(options?: IMarkdownOptions): TWorker {
         }
     };
 }
+
+export default markdown;

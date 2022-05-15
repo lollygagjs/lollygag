@@ -1,3 +1,4 @@
+import { IMarkdownOptions, ITemplatesOptions } from './helpers';
 export * from './helpers';
 export declare type RaggedyAny = any;
 export declare type RaggedyObject = Record<string, RaggedyAny>;
@@ -11,20 +12,25 @@ export interface IFile {
     status?: 'published' | 'draft' | string;
     [prop: string]: RaggedyAny;
 }
-export interface IConfig {
-    generator?: string;
-    permalinks?: boolean;
-    subdir?: string;
-}
 export interface IMeta {
     year?: number;
     [prop: string]: RaggedyAny;
+}
+export declare type TFileHandler = (content: string, options?: unknown, data?: IMeta) => string;
+export interface IConfig {
+    generator?: string;
+    prettyUrls?: boolean;
+    disableBuiltins?: boolean;
+    subdir?: string;
+    templatingHandler?: TFileHandler;
+    templatingHandlerOptions?: unknown;
+    markdownOptions?: IMarkdownOptions;
+    templatesOptions?: ITemplatesOptions;
 }
 export interface IBuildOptions {
     fullBuild?: boolean;
     globPattern?: string;
 }
-export declare type TFileHandler = (content: string, options?: unknown, data?: IMeta & IConfig & IFile) => string;
 export declare type TWorker = (files: IFile[], lollygag: Lollygag) => void | Promise<void>;
 export default class Lollygag {
     private __config;
@@ -42,8 +48,6 @@ export default class Lollygag {
     get _in(): string;
     out(dir: string): this;
     get _out(): string;
-    subdir(dir: string): this;
-    get _subdir(): string;
     files(files: IFile[]): this;
     get _files(): IFile[];
     do(worker: TWorker): this;
@@ -51,7 +55,8 @@ export default class Lollygag {
     private getFileMimetype;
     private getFiles;
     private parseFiles;
+    private handleTemplating;
+    private generatePrettyUrls;
     private write;
-    private permalinks;
     build(options?: IBuildOptions): Promise<void>;
 }

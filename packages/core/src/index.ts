@@ -7,7 +7,16 @@ import glob from 'glob';
 import minimatch from 'minimatch';
 import {red} from 'chalk';
 import mmm from 'mmmagic';
-import {changeExtname, removeParentFromPath} from './helpers';
+
+import {
+    changeExtname,
+    removeParentFromPath,
+    handleHandlebars,
+    markdown,
+    templates,
+    IMarkdownOptions,
+    ITemplatesOptions,
+} from './helpers';
 
 export * from './helpers';
 
@@ -28,27 +37,32 @@ export interface IFile {
     [prop: string]: RaggedyAny;
 }
 
-export interface IConfig {
-    generator?: string;
-    permalinks?: boolean;
-    subdir?: string;
-}
-
 export interface IMeta {
     year?: number;
     [prop: string]: RaggedyAny;
+}
+
+export type TFileHandler = (
+    content: string,
+    options?: unknown,
+    data?: IMeta
+) => string;
+
+export interface IConfig {
+    generator?: string;
+    prettyUrls?: boolean;
+    disableBuiltins?: boolean;
+    subdir?: string;
+    templatingHandler?: TFileHandler;
+    templatingHandlerOptions?: unknown;
+    markdownOptions?: IMarkdownOptions;
+    templatesOptions?: ITemplatesOptions;
 }
 
 export interface IBuildOptions {
     fullBuild?: boolean;
     globPattern?: string;
 }
-
-export type TFileHandler = (
-    content: string,
-    options?: unknown,
-    data?: IMeta & IConfig & IFile
-) => string;
 
 export type TWorker = (
     files: IFile[],
@@ -60,7 +74,7 @@ export default class Lollygag {
     constructor(
         private __config: IConfig = {
             generator: 'Lollygag',
-            permalinks: true,
+            prettyUrls: true,
         },
         private __meta: IMeta = {
             year: new Date().getFullYear(),
@@ -111,15 +125,6 @@ export default class Lollygag {
         return this.__out;
     }
 
-    subdir(dir: string): this {
-        this.__config.subdir = join('/', dir).replace(/\/$/, '');
-        return this;
-    }
-
-    get _subdir(): string {
-        return this.__config.subdir || '';
-    }
-
     files(files: IFile[]): this {
         this.__files = files;
         return this;
@@ -165,22 +170,59 @@ export default class Lollygag {
                 fileMimetype.startsWith('text/')
                 || fileMimetype === 'inode/x-empty'
             ) {
-                return fsp
-                    .readFile(file, {encoding: 'utf-8'})
-                    .then((fileContent): IFile => {
-                        const gmResult = gm(fileContent, {eval: false});
+                let rawFileContent = await fsp.readFile(file, {
+                    encoding: 'utf-8',
+                });
 
-                        return {
-                            path: file,
-                            content: gmResult.content,
-                            mimetype: fileMimetype,
-                            ...gmResult.data,
-                            stats: fileStats,
-                        };
-                    });
+                rawFileContent = this.handleTemplating(
+                    rawFileContent,
+                    this._config.templatingHandlerOptions || null,
+                    {...this._config, ...this._meta}
+                );
+
+                const gmResult = gm(rawFileContent);
+
+                gmResult.content = this.handleTemplating(
+                    gmResult.content,
+                    this._config.templatingHandlerOptions || null,
+                    gmResult.data
+                );
+
+                return {
+                    path: file,
+                    content: gmResult.content,
+                    mimetype: fileMimetype,
+                    ...gmResult.data,
+                    stats: fileStats,
+                };
             }
 
-            return {path: file, mimetype: fileMimetype};
+            return {path: file, mimetype: fileMimetype, stats: fileStats};
+        });
+
+        return Promise.all(promises);
+    }
+
+    private handleTemplating
+        = this._config.templatingHandler || handleHandlebars;
+
+    private generatePrettyUrls(files: IFile[]): Promise<IFile[]> {
+        const promises = files.map(async(file): Promise<IFile> => {
+            if(
+                extname(file.path) === '.html'
+                && basename(file.path) !== 'index.html'
+            ) {
+                return {
+                    ...file,
+                    path: join(
+                        dirname(file.path),
+                        changeExtname(basename(file.path), ''),
+                        'index.html'
+                    ),
+                };
+            }
+
+            return file;
         });
 
         return Promise.all(promises);
@@ -210,28 +252,6 @@ export default class Lollygag {
             }
 
             await fsp.writeFile('.timestamp', new Date().getTime().toString());
-        });
-
-        return Promise.all(promises);
-    }
-
-    private permalinks(files: IFile[]): Promise<IFile[]> {
-        const promises = files.map(async(file): Promise<IFile> => {
-            if(
-                extname(file.path) === '.html'
-                && basename(file.path) !== 'index.html'
-            ) {
-                return {
-                    ...file,
-                    path: join(
-                        dirname(file.path),
-                        changeExtname(basename(file.path), ''),
-                        'index.html'
-                    ),
-                };
-            }
-
-            return file;
         });
 
         return Promise.all(promises);
@@ -285,6 +305,11 @@ export default class Lollygag {
 
         timeEnd('Files parsed');
 
+        if(!this._config.disableBuiltins) {
+            this.__workers.push(markdown(this._config.markdownOptions));
+            this.__workers.push(templates(this._config.templatesOptions));
+        }
+
         await this._workers.reduce(
             async(
                 possiblePromise: void | Promise<void>,
@@ -306,12 +331,12 @@ export default class Lollygag {
 
         let toWrite = parsedFiles;
 
-        if(this._config.permalinks) {
-            time('Permalinks built');
+        if(this._config.prettyUrls) {
+            time('Generated pretty URLs');
 
-            toWrite = await this.permalinks(parsedFiles);
+            toWrite = await this.generatePrettyUrls(parsedFiles);
 
-            timeEnd('Permalinks built');
+            timeEnd('Generated pretty URLs');
         }
 
         time('Files written');

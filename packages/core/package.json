@@ -19,10 +19,13 @@
     "start": "rimraf dist && tsc -d -w"
   },
   "dependencies": {
+    "@types/markdown-it": "^12.2.3",
     "@types/mmmagic": "^0.4.30",
     "@types/rimraf": "^3.0.2",
     "chalk": "^4.1.2",
     "gray-matter": "^4.0.3",
+    "handlebars": "^4.7.7",
+    "markdown-it": "^13.0.1",
     "mmmagic": "^0.5.3",
     "rimraf": "^3.0.2"
   },

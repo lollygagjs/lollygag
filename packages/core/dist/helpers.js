@@ -1,7 +1,24 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.filterObject = exports.mapObject = exports.foreachObject = exports.removeParentFromPath = exports.addParentToPath = exports.changeFullExtname = exports.changeExtname = exports.fullExtname = void 0;
+exports.removeParentFromPath = exports.addParentToPath = exports.changeFullExtname = exports.changeExtname = exports.fullExtname = void 0;
 const path_1 = require("path");
+__exportStar(require("./workers/handlebars"), exports);
+__exportStar(require("./workers/markdown"), exports);
+__exportStar(require("./workers/templates"), exports);
 function fullExtname(filePath) {
     const extensions = (0, path_1.basename)(filePath).split('.');
     extensions.shift();
@@ -30,15 +47,3 @@ function removeParentFromPath(parent, path) {
     return (0, path_1.join)(path.replace(`${cleanParent}/`, ''));
 }
 exports.removeParentFromPath = removeParentFromPath;
-function foreachObject(obj, callback) {
-    Object.keys(obj).forEach((key) => callback(obj[key], key, obj));
-}
-exports.foreachObject = foreachObject;
-function mapObject(obj, callback) {
-    return Object.keys(obj).map((key) => callback(obj[key], key, obj));
-}
-exports.mapObject = mapObject;
-function filterObject(obj, callback) {
-    return Object.keys(obj).filter((key) => callback(obj[key], key, obj));
-}
-exports.filterObject = filterObject;

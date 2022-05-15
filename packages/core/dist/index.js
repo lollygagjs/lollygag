@@ -53,7 +53,7 @@ const magic = new mmmagic_1.default.Magic(mmmagic_1.default.MAGIC_MIME_TYPE);
 class Lollygag {
     constructor(__config = {
         generator: 'Lollygag',
-        permalinks: true,
+        prettyUrls: true,
     }, __meta = {
         year: new Date().getFullYear(),
     }, __in = 'files', __out = 'public', __files = [], __workers = []) {
@@ -63,6 +63,7 @@ class Lollygag {
         this.__out = __out;
         this.__files = __files;
         this.__workers = __workers;
+        this.handleTemplating = this._config.templatingHandler || helpers_1.handleHandlebars;
         (0, console_1.log)('Hello from Lollygag!');
     }
     config(config) {
@@ -95,13 +96,6 @@ class Lollygag {
     }
     get _out() {
         return this.__out;
-    }
-    subdir(dir) {
-        this.__config.subdir = (0, path_1.join)('/', dir).replace(/\/$/, '');
-        return this;
-    }
-    get _subdir() {
-        return this.__config.subdir || '';
     }
     files(files) {
         this.__files = files;
@@ -143,14 +137,25 @@ class Lollygag {
             const fileStats = yield fs_1.promises.stat(file);
             if (fileMimetype.startsWith('text/')
                 || fileMimetype === 'inode/x-empty') {
-                return fs_1.promises
-                    .readFile(file, { encoding: 'utf-8' })
-                    .then((fileContent) => {
-                    const gmResult = (0, gray_matter_1.default)(fileContent, { eval: false });
-                    return Object.assign(Object.assign({ path: file, content: gmResult.content, mimetype: fileMimetype }, gmResult.data), { stats: fileStats });
+                let rawFileContent = yield fs_1.promises.readFile(file, {
+                    encoding: 'utf-8',
                 });
+                rawFileContent = this.handleTemplating(rawFileContent, this._config.templatingHandlerOptions || null, Object.assign(Object.assign({}, this._config), this._meta));
+                const gmResult = (0, gray_matter_1.default)(rawFileContent);
+                gmResult.content = this.handleTemplating(gmResult.content, this._config.templatingHandlerOptions || null, gmResult.data);
+                return Object.assign(Object.assign({ path: file, content: gmResult.content, mimetype: fileMimetype }, gmResult.data), { stats: fileStats });
             }
-            return { path: file, mimetype: fileMimetype };
+            return { path: file, mimetype: fileMimetype, stats: fileStats };
+        }));
+        return Promise.all(promises);
+    }
+    generatePrettyUrls(files) {
+        const promises = files.map((file) => __awaiter(this, void 0, void 0, function* () {
+            if ((0, path_1.extname)(file.path) === '.html'
+                && (0, path_1.basename)(file.path) !== 'index.html') {
+                return Object.assign(Object.assign({}, file), { path: (0, path_1.join)((0, path_1.dirname)(file.path), (0, helpers_1.changeExtname)((0, path_1.basename)(file.path), ''), 'index.html') });
+            }
+            return file;
         }));
         return Promise.all(promises);
     }
@@ -170,16 +175,6 @@ class Lollygag {
                 yield fs_1.promises.copyFile(file.path, filePath);
             }
             yield fs_1.promises.writeFile('.timestamp', new Date().getTime().toString());
-        }));
-        return Promise.all(promises);
-    }
-    permalinks(files) {
-        const promises = files.map((file) => __awaiter(this, void 0, void 0, function* () {
-            if ((0, path_1.extname)(file.path) === '.html'
-                && (0, path_1.basename)(file.path) !== 'index.html') {
-                return Object.assign(Object.assign({}, file), { path: (0, path_1.join)((0, path_1.dirname)(file.path), (0, helpers_1.changeExtname)((0, path_1.basename)(file.path), ''), 'index.html') });
-            }
-            return file;
         }));
         return Promise.all(promises);
     }
@@ -213,6 +208,10 @@ class Lollygag {
                 ...(yield this.parseFiles(fileList)),
             ];
             (0, console_1.timeEnd)('Files parsed');
+            if (!this._config.disableBuiltins) {
+                this.__workers.push((0, helpers_1.markdown)(this._config.markdownOptions));
+                this.__workers.push((0, helpers_1.templates)(this._config.templatesOptions));
+            }
             yield this._workers.reduce((possiblePromise, worker) => __awaiter(this, void 0, void 0, function* () {
                 const workerName = worker.name || 'unknown worker';
                 yield Promise.resolve(possiblePromise);
@@ -222,10 +221,10 @@ class Lollygag {
                 (0, console_1.timeEnd)(`Finished running ${workerName}`);
             }), Promise.resolve());
             let toWrite = parsedFiles;
-            if (this._config.permalinks) {
-                (0, console_1.time)('Permalinks built');
-                toWrite = yield this.permalinks(parsedFiles);
-                (0, console_1.timeEnd)('Permalinks built');
+            if (this._config.prettyUrls) {
+                (0, console_1.time)('Generated pretty URLs');
+                toWrite = yield this.generatePrettyUrls(parsedFiles);
+                (0, console_1.timeEnd)('Generated pretty URLs');
             }
             (0, console_1.time)('Files written');
             yield this.write(toWrite);

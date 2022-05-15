@@ -1,5 +1,5 @@
 import { Options } from 'markdown-it';
-import { TFileHandler, TWorker } from '@lollygag/core';
+import { TFileHandler, TWorker } from '..';
 export interface IMarkdownOptions {
     newExtname?: string | false;
     targetExtnames?: string[];
@@ -8,4 +8,5 @@ export interface IMarkdownOptions {
     templatingHandlerOptions?: unknown;
 }
 export declare const handleMarkdown: TFileHandler;
-export default function markdown(options?: IMarkdownOptions): TWorker;
+export declare function markdown(options?: IMarkdownOptions): TWorker;
+export default markdown;

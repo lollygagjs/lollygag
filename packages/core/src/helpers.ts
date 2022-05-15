@@ -1,5 +1,8 @@
 import {extname, basename, dirname, join} from 'path';
-import {RaggedyAny, RaggedyObject} from '.';
+
+export * from './workers/handlebars';
+export * from './workers/markdown';
+export * from './workers/templates';
 
 export function fullExtname(filePath: string): string {
     const extensions = basename(filePath).split('.');
@@ -38,31 +41,4 @@ export function removeParentFromPath(parent: string, path: string): string {
     const cleanParent = join(parent).replace(/^\/|\/$/g, '');
 
     return join(path.replace(`${cleanParent}/`, ''));
-}
-
-export type TObjectFunctionCallback = (
-    value: RaggedyAny,
-    key: string,
-    object: RaggedyObject
-) => RaggedyAny;
-
-export function foreachObject(
-    obj: RaggedyObject,
-    callback: TObjectFunctionCallback
-): void {
-    Object.keys(obj).forEach((key) => callback(obj[key], key, obj));
-}
-
-export function mapObject(
-    obj: RaggedyObject,
-    callback: TObjectFunctionCallback
-): RaggedyObject {
-    return Object.keys(obj).map((key) => callback(obj[key], key, obj));
-}
-
-export function filterObject(
-    obj: RaggedyObject,
-    callback: TObjectFunctionCallback
-): RaggedyObject {
-    return Object.keys(obj).filter((key) => callback(obj[key], key, obj));
 }

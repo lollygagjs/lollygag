@@ -2,13 +2,9 @@
 import {extname} from 'path';
 import Handlebars from 'handlebars';
 
-import {
-    changeExtname,
-    IConfig,
-    IFile,
-    TFileHandler,
-    TWorker,
-} from '@lollygag/core';
+import {changeExtname, IConfig, IFile, TFileHandler, TWorker} from '..';
+
+Handlebars.registerHelper('raw', (opts) => opts.fn());
 
 Handlebars.registerHelper('asIs', (opts) => opts.fn());
 
@@ -26,7 +22,7 @@ export interface IHandlebarsOptions {
 
 export type TTemplateData = IConfig & IFile;
 
-export interface IProcessHandlebarsOptions {
+export interface IHandleHandlebarsOptions {
     runtimeOptions?: RuntimeOptions;
     compileOptions?: CompileOptions;
 }
@@ -36,7 +32,7 @@ export const handleHandlebars: TFileHandler = (
     options?,
     data?
 ): string => {
-    const o = options as IProcessHandlebarsOptions | undefined;
+    const o = options as IHandleHandlebarsOptions | undefined;
 
     return Handlebars.compile(content, o?.compileOptions)(
         data,
@@ -44,7 +40,7 @@ export const handleHandlebars: TFileHandler = (
     );
 };
 
-export default function handlebars(options?: IHandlebarsOptions): TWorker {
+export function handlebars(options?: IHandlebarsOptions): TWorker {
     return function handlebarsWorker(this: TWorker, files, lollygag): void {
         if(!files) return;
 
@@ -70,3 +66,5 @@ export default function handlebars(options?: IHandlebarsOptions): TWorker {
         }
     };
 }
+
+export default handlebars;

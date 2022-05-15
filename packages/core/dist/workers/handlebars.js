@@ -3,12 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handleHandlebars = exports.Handlebars = void 0;
+exports.handlebars = exports.handleHandlebars = exports.Handlebars = void 0;
 /* eslint-disable no-continue */
 const path_1 = require("path");
 const handlebars_1 = __importDefault(require("handlebars"));
 exports.Handlebars = handlebars_1.default;
-const core_1 = require("@lollygag/core");
+const __1 = require("..");
+handlebars_1.default.registerHelper('raw', (opts) => opts.fn());
 handlebars_1.default.registerHelper('asIs', (opts) => opts.fn());
 handlebars_1.default.registerHelper('orDefault', (prop, defaultValue) => (prop ? prop : defaultValue));
 const handleHandlebars = (content, options, data) => {
@@ -27,11 +28,12 @@ function handlebars(options) {
                 continue;
             }
             if ((options === null || options === void 0 ? void 0 : options.newExtname) !== false) {
-                file.path = (0, core_1.changeExtname)(file.path, (options === null || options === void 0 ? void 0 : options.newExtname) || '.html');
+                file.path = (0, __1.changeExtname)(file.path, (options === null || options === void 0 ? void 0 : options.newExtname) || '.html');
             }
             const data = Object.assign(Object.assign(Object.assign({}, lollygag._meta), lollygag._config), file);
             file.content = (0, exports.handleHandlebars)(file.content || '', options, data);
         }
     };
 }
+exports.handlebars = handlebars;
 exports.default = handlebars;

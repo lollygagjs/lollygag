@@ -1,8 +1,7 @@
 /* eslint-disable no-continue */
 import {extname, join, resolve} from 'path';
-import {changeExtname, TFileHandler, TWorker} from '@lollygag/core';
-import {handleHandlebars} from '@lollygag/handlebars';
 import {existsSync, readFileSync} from 'fs';
+import {changeExtname, handleHandlebars, TFileHandler, TWorker} from '..';
 
 export interface ITemplatesOptions {
     newExtname?: string | false;
@@ -18,7 +17,9 @@ export function templates(options?: ITemplatesOptions): TWorker {
         if(!files) return;
 
         const templatingHandler
-            = options?.templatingHandler || handleHandlebars;
+            = options?.templatingHandler
+            || lollygag._config.templatingHandler
+            || handleHandlebars;
 
         const templatesDirectory = options?.templatesDirectory || 'templates';
         const defaultTemplate = options?.defaultTemplate || 'index.hbs';
@@ -30,10 +31,9 @@ export function templates(options?: ITemplatesOptions): TWorker {
             template = readFileSync(templatePath, {encoding: 'utf-8'});
         } else {
             // get built-in template
-            template = readFileSync(
-                resolve(__dirname, '../templates/index.hbs'),
-                {encoding: 'utf-8'}
-            );
+            template = readFileSync(resolve(__dirname, 'templates/index.hbs'), {
+                encoding: 'utf-8',
+            });
 
             console.log(
                 `NOTICE: File '${templatePath}' not found. Using built-in template as default.`
