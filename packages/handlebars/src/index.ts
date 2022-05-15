@@ -64,7 +64,7 @@ export default function handlebars(options?: IHandlebarsOptions): TWorker {
                 );
             }
 
-            const data = {...lollygag._config, ...file};
+            const data = {...lollygag._meta, ...lollygag._config, ...file};
 
             file.content = handleHandlebars(file.content || '', options, data);
         }

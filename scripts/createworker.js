@@ -31,7 +31,7 @@ if(existsSync(outdir)) {
 }
 
 new Lollygag()
-    .config({workerName, properName})
+    .meta({workerName, properName})
     .in(indir)
     .out(outdir)
     .do(

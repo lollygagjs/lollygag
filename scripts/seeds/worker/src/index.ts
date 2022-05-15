@@ -43,7 +43,7 @@ export default function {{workerName}}(options?: IOptions): TWorker {
                 );
             }
 
-            const data = {...lollygag._config, ...file};
+            const data = {...lollygag._meta, ...lollygag._config, ...file};
 
             file.content = handle{{workerName}}(file.content || '', options, data);
         }

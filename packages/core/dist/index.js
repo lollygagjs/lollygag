@@ -53,10 +53,12 @@ const magic = new mmmagic_1.default.Magic(mmmagic_1.default.MAGIC_MIME_TYPE);
 class Lollygag {
     constructor(__config = {
         generator: 'Lollygag',
+        permalinks: true,
+    }, __meta = {
         year: new Date().getFullYear(),
-        permalinks: false,
     }, __in = 'files', __out = 'public', __files = [], __workers = []) {
         this.__config = __config;
+        this.__meta = __meta;
         this.__in = __in;
         this.__out = __out;
         this.__files = __files;
@@ -72,6 +74,13 @@ class Lollygag {
     }
     get _config() {
         return this.__config;
+    }
+    meta(meta) {
+        this.__meta = Object.assign(Object.assign({}, this._meta), meta);
+        return this;
+    }
+    get _meta() {
+        return this.__meta;
     }
     in(dir) {
         this.__in = (0, path_1.join)(dir);
@@ -137,7 +146,7 @@ class Lollygag {
                 return fs_1.promises
                     .readFile(file, { encoding: 'utf-8' })
                     .then((fileContent) => {
-                    const fmResult = (0, front_matter_1.default)(fileContent);
+                    const fmResult = (0, front_matter_1.default)(fileContent, { allowUnsafe: true });
                     return Object.assign({ path: file, content: fmResult.body, mimetype: fileMimetype, stats: fileStats }, fmResult.attributes);
                 });
             }

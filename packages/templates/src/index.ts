@@ -70,7 +70,7 @@ export function templates(options?: ITemplatesOptions): TWorker {
                 }
             }
 
-            const data = {...lollygag._config, ...file};
+            const data = {...lollygag._meta, ...lollygag._config, ...file};
 
             file.content = templatingHandler(
                 template,

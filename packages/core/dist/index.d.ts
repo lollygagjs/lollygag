@@ -13,26 +13,31 @@ export interface IFile {
 }
 export interface IConfig {
     generator?: string;
-    year?: number;
     permalinks?: boolean;
     subdir?: string;
+}
+export interface IMeta {
+    year?: number;
     [prop: string]: RaggedyAny;
 }
 export interface IBuildOptions {
     fullBuild?: boolean;
     globPattern?: string;
 }
-export declare type TFileHandler = (content: string, options?: unknown, data?: IConfig & IFile) => string;
+export declare type TFileHandler = (content: string, options?: unknown, data?: IMeta & IConfig & IFile) => string;
 export declare type TWorker = (files: IFile[], lollygag: Lollygag) => void | Promise<void>;
 export default class Lollygag {
     private __config;
+    private __meta;
     private __in;
     private __out;
     private __files;
     private __workers;
-    constructor(__config?: IConfig, __in?: string, __out?: string, __files?: IFile[], __workers?: TWorker[]);
+    constructor(__config?: IConfig, __meta?: IMeta, __in?: string, __out?: string, __files?: IFile[], __workers?: TWorker[]);
     config(config: IConfig): this;
     get _config(): IConfig;
+    meta(meta: IMeta): this;
+    get _meta(): IMeta;
     in(dir: string): this;
     get _in(): string;
     out(dir: string): this;

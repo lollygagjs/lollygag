@@ -40,7 +40,7 @@ export default function markdown(options?: IMarkdownOptions): TWorker {
                 );
             }
 
-            const data = {...lollygag._config, ...file};
+            const data = {...lollygag._meta, ...lollygag._config, ...file};
 
             file.content = templatingHandler(
                 file.content || '',

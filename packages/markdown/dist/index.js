@@ -25,7 +25,7 @@ function markdown(options) {
             if ((options === null || options === void 0 ? void 0 : options.newExtname) !== false) {
                 file.path = (0, core_1.changeExtname)(file.path, (options === null || options === void 0 ? void 0 : options.newExtname) || '.html');
             }
-            const data = Object.assign(Object.assign({}, lollygag._config), file);
+            const data = Object.assign(Object.assign(Object.assign({}, lollygag._meta), lollygag._config), file);
             file.content = templatingHandler(file.content || '', options === null || options === void 0 ? void 0 : options.templatingHandlerOptions, data);
             const mdOptions = Object.assign({ html: true }, options === null || options === void 0 ? void 0 : options.markdownOptions);
             file.content = (0, exports.handleMarkdown)(file.content || '', mdOptions, data);

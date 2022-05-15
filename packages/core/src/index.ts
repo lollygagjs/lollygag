@@ -30,9 +30,12 @@ export interface IFile {
 
 export interface IConfig {
     generator?: string;
-    year?: number;
     permalinks?: boolean;
     subdir?: string;
+}
+
+export interface IMeta {
+    year?: number;
     [prop: string]: RaggedyAny;
 }
 
@@ -44,7 +47,7 @@ export interface IBuildOptions {
 export type TFileHandler = (
     content: string,
     options?: unknown,
-    data?: IConfig & IFile
+    data?: IMeta & IConfig & IFile
 ) => string;
 
 export type TWorker = (
@@ -57,8 +60,10 @@ export default class Lollygag {
     constructor(
         private __config: IConfig = {
             generator: 'Lollygag',
+            permalinks: true,
+        },
+        private __meta: IMeta = {
             year: new Date().getFullYear(),
-            permalinks: false,
         },
         private __in: string = 'files',
         private __out: string = 'public',
@@ -77,6 +82,15 @@ export default class Lollygag {
 
     get _config(): IConfig {
         return this.__config;
+    }
+
+    meta(meta: IMeta): this {
+        this.__meta = {...this._meta, ...meta};
+        return this;
+    }
+
+    get _meta(): IMeta {
+        return this.__meta;
     }
 
     in(dir: string): this {
@@ -154,7 +168,7 @@ export default class Lollygag {
                 return fsp
                     .readFile(file, {encoding: 'utf-8'})
                     .then((fileContent): IFile => {
-                        const fmResult = fm(fileContent);
+                        const fmResult = fm(fileContent, {allowUnsafe: true});
 
                         return {
                             path: file,

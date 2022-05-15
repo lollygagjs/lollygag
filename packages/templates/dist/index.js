@@ -42,7 +42,7 @@ function templates(options) {
                     console.log(`NOTICE: File '${templatePath}' missing. Using default template.`);
                 }
             }
-            const data = Object.assign(Object.assign({}, lollygag._config), file);
+            const data = Object.assign(Object.assign(Object.assign({}, lollygag._meta), lollygag._config), file);
             file.content = templatingHandler(template, options === null || options === void 0 ? void 0 : options.templatingHandlerOptions, data);
             console.log(`Processing '${file.path}'... Done!`);
         }

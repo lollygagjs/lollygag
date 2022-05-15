@@ -29,7 +29,7 @@ function handlebars(options) {
             if ((options === null || options === void 0 ? void 0 : options.newExtname) !== false) {
                 file.path = (0, core_1.changeExtname)(file.path, (options === null || options === void 0 ? void 0 : options.newExtname) || '.html');
             }
-            const data = Object.assign(Object.assign({}, lollygag._config), file);
+            const data = Object.assign(Object.assign(Object.assign({}, lollygag._meta), lollygag._config), file);
             file.content = (0, exports.handleHandlebars)(file.content || '', options, data);
         }
     };
