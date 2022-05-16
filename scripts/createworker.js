@@ -1,6 +1,6 @@
-import {existsSync, unlinkSync} from 'fs';
-import {resolve, relative} from 'path';
-import {default as Lollygag, handlebars} from '../packages/core';
+const {existsSync, unlinkSync} = require('fs');
+const {resolve, relative} = require('path');
+const {default: Lollygag, handlebars} = require('../packages/core');
 
 const workerName = process.argv[2];
 const scriptPath = relative(process.cwd(), __filename);
