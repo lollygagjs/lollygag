@@ -30,7 +30,6 @@ if(existsSync(outdir)) {
 }
 
 new Lollygag()
-    .config({disableBuiltins: true})
     .meta({workerName, properName})
     .in(indir)
     .out(outdir)
