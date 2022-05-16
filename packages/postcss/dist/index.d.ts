@@ -7,4 +7,5 @@ export interface IOptions {
     plugins?: AcceptedPlugin[];
     processOptions?: ProcessOptions;
 }
-export default function postcss(options?: IOptions): TWorker;
+export declare function postcss(options?: IOptions): TWorker;
+export default postcss;

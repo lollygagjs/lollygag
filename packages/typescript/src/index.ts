@@ -9,7 +9,7 @@ export interface ITypescriptOptions {
     compilerOptions?: CompilerOptions;
 }
 
-export default function typescript(options?: ITypescriptOptions): TWorker {
+export function typescript(options?: ITypescriptOptions): TWorker {
     return function typescriptWorker(this: TWorker, files): void {
         if(!files) return;
 
@@ -36,3 +36,5 @@ export default function typescript(options?: ITypescriptOptions): TWorker {
         }
     };
 }
+
+export default typescript;

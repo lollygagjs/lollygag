@@ -12,7 +12,7 @@ export interface IOptions {
     processOptions?: ProcessOptions;
 }
 
-export default function postcss(options?: IOptions): TWorker {
+export function postcss(options?: IOptions): TWorker {
     const keepOriginal = options?.keepOriginal || true;
 
     return async function postcssWorker(this: TWorker, files): Promise<void> {
@@ -94,3 +94,5 @@ export default function postcss(options?: IOptions): TWorker {
         await Promise.all(promises);
     };
 }
+
+export default postcss;

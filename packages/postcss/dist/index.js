@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.postcss = void 0;
 /* eslint-disable no-continue */
 const path_1 = require("path");
 const core_1 = require("@lollygag/core");
@@ -77,4 +78,5 @@ function postcss(options) {
         });
     };
 }
+exports.postcss = postcss;
 exports.default = postcss;

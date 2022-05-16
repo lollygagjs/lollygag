@@ -5,4 +5,5 @@ export interface ISassOptions {
     targetExtnames?: string[];
     nodeSassOptions?: SyncOptions;
 }
-export default function sass(options?: ISassOptions): TWorker;
+export declare function sass(options?: ISassOptions): TWorker;
+export default sass;

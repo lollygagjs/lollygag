@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.livedev = void 0;
 /* eslint-disable no-continue */
 const path_1 = require("path");
 const http_1 = __importDefault(require("http"));
@@ -120,4 +121,5 @@ function livedev(options) {
         });
     };
 }
+exports.livedev = livedev;
 exports.default = livedev;

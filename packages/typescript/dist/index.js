@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.typescript = void 0;
 /* eslint-disable no-continue */
 const path_1 = require("path");
 const core_1 = require("@lollygag/core");
@@ -21,4 +22,5 @@ function typescript(options) {
         }
     };
 }
+exports.typescript = typescript;
 exports.default = typescript;

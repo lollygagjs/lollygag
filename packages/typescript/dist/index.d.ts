@@ -5,4 +5,5 @@ export interface ITypescriptOptions {
     targetExtnames?: string[];
     compilerOptions?: CompilerOptions;
 }
-export default function typescript(options?: ITypescriptOptions): TWorker;
+export declare function typescript(options?: ITypescriptOptions): TWorker;
+export default typescript;

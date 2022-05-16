@@ -81,7 +81,7 @@ async function rebuild(options: IRebuildOptions): Promise<void> {
 
 let serverStarted = false;
 
-export default function livedev(options: IWatchOptions): TWorker {
+export function livedev(options: IWatchOptions): TWorker {
     return async function livedevWorker(files, lollygag): Promise<void> {
         const serverPort = options.serverPort || 3000;
         const livereloadPort = options.livereloadPort || 35729;
@@ -168,3 +168,5 @@ export default function livedev(options: IWatchOptions): TWorker {
         });
     };
 }
+
+export default livedev;

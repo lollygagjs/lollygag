@@ -9,7 +9,7 @@ export interface ISassOptions {
     nodeSassOptions?: SyncOptions;
 }
 
-export default function sass(options?: ISassOptions): TWorker {
+export function sass(options?: ISassOptions): TWorker {
     return function sassWorker(this: TWorker, files): void {
         if(!files) return;
 
@@ -78,3 +78,5 @@ export default function sass(options?: ISassOptions): TWorker {
         }
     };
 }
+
+export default sass;

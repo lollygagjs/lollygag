@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.sass = void 0;
 /* eslint-disable no-continue */
 const path_1 = require("path");
 const node_sass_1 = require("node-sass");
@@ -47,4 +48,5 @@ function sass(options) {
         }
     };
 }
+exports.sass = sass;
 exports.default = sass;
