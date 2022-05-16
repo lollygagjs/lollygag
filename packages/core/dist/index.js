@@ -113,22 +113,22 @@ class Lollygag {
         return this.__workers;
     }
     getFileMimetype(filePath) {
-        return new Promise((resolve, reject) => {
+        return new Promise((res, rej) => {
             magic.detectFile(filePath, (err, result) => {
                 if (err)
-                    reject(err);
+                    rej(err);
                 else
-                    resolve(typeof result === 'string' ? result : result[0]);
+                    res(typeof result === 'string' ? result : result[0]);
             });
         });
     }
     getFiles(globPattern = (0, path_1.join)(this._in, '/**/*')) {
-        return new Promise((resolve, reject) => {
+        return new Promise((res, rej) => {
             (0, glob_1.default)(globPattern, { nodir: true, dot: true }, (err, files) => {
                 if (err)
-                    reject(err);
+                    rej(err);
                 else
-                    resolve(files);
+                    res(files);
             });
         });
     }
@@ -151,14 +151,13 @@ class Lollygag {
         return Promise.all(promises);
     }
     generatePrettyUrls(files) {
-        const promises = files.map((file) => __awaiter(this, void 0, void 0, function* () {
+        return files.map((file) => {
             if ((0, path_1.extname)(file.path) === '.html'
                 && (0, path_1.basename)(file.path) !== 'index.html') {
                 return Object.assign(Object.assign({}, file), { path: (0, path_1.join)((0, path_1.dirname)(file.path), (0, helpers_1.changeExtname)((0, path_1.basename)(file.path), ''), 'index.html') });
             }
             return file;
-        }));
-        return Promise.all(promises);
+        });
     }
     write(files) {
         const promises = files.map((file) => __awaiter(this, void 0, void 0, function* () {
@@ -220,7 +219,7 @@ class Lollygag {
             let toWrite = parsedFiles;
             if (this._config.prettyUrls) {
                 (0, console_1.time)('Generated pretty URLs');
-                toWrite = yield this.generatePrettyUrls(parsedFiles);
+                toWrite = this.generatePrettyUrls(parsedFiles);
                 (0, console_1.timeEnd)('Generated pretty URLs');
             }
             (0, console_1.time)('Files written');

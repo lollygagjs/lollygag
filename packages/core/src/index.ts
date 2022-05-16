@@ -133,19 +133,19 @@ export class Lollygag {
     }
 
     private getFileMimetype(filePath: string): Promise<string> {
-        return new Promise((resolve, reject) => {
+        return new Promise((res, rej) => {
             magic.detectFile(filePath, (err, result) => {
-                if(err) reject(err);
-                else resolve(typeof result === 'string' ? result : result[0]);
+                if(err) rej(err);
+                else res(typeof result === 'string' ? result : result[0]);
             });
         });
     }
 
     private getFiles(globPattern = join(this._in, '/**/*')): Promise<string[]> {
-        return new Promise((resolve, reject) => {
+        return new Promise((res, rej) => {
             glob(globPattern, {nodir: true, dot: true}, (err, files) => {
-                if(err) reject(err);
-                else resolve(files);
+                if(err) rej(err);
+                else res(files);
             });
         });
     }
@@ -195,8 +195,8 @@ export class Lollygag {
     private handleTemplating
         = this._config.templatingHandler || handleHandlebars;
 
-    private generatePrettyUrls(files: IFile[]): Promise<IFile[]> {
-        const promises = files.map(async(file): Promise<IFile> => {
+    private generatePrettyUrls(files: IFile[]): IFile[] {
+        return files.map((file): IFile => {
             if(
                 extname(file.path) === '.html'
                 && basename(file.path) !== 'index.html'
@@ -213,8 +213,6 @@ export class Lollygag {
 
             return file;
         });
-
-        return Promise.all(promises);
     }
 
     private write(files: IFile[]): Promise<void[]> {
@@ -318,7 +316,7 @@ export class Lollygag {
         if(this._config.prettyUrls) {
             time('Generated pretty URLs');
 
-            toWrite = await this.generatePrettyUrls(parsedFiles);
+            toWrite = this.generatePrettyUrls(parsedFiles);
 
             timeEnd('Generated pretty URLs');
         }
