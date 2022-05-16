@@ -236,5 +236,6 @@ process.on('unhandledRejection', (err) => {
     const dashes = '----------------------------------------';
     (0, console_1.log)((0, chalk_1.red)(`${dashes}\n${msg}\n${dashes}`));
     (0, console_1.error)(err);
+    process.exit(43);
 });
 exports.default = Lollygag;

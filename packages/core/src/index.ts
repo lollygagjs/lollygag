@@ -339,6 +339,8 @@ process.on('unhandledRejection', (err) => {
 
     log(red(`${dashes}\n${msg}\n${dashes}`));
     error(err);
+
+    process.exit(43);
 });
 
 export default Lollygag;
