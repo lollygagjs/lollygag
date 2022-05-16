@@ -5,8 +5,15 @@ import Handlebars from 'handlebars';
 import {changeExtname, IConfig, IFile, TFileHandler, TWorker} from '..';
 
 Handlebars.registerHelper('raw', (opts) => opts.fn());
-
 Handlebars.registerHelper('asIs', (opts) => opts.fn());
+
+Handlebars.registerHelper(
+    'cap',
+    (word: string) => word.charAt(0).toUpperCase() + word.substring(1)
+);
+
+Handlebars.registerHelper('capWords', (words: string[]) =>
+    words.map((word) => word.charAt(0).toUpperCase() + word.substring(1)));
 
 Handlebars.registerHelper('orDefault', (prop, defaultValue) =>
     (prop ? prop : defaultValue));

@@ -11,6 +11,8 @@ exports.Handlebars = handlebars_1.default;
 const __1 = require("..");
 handlebars_1.default.registerHelper('raw', (opts) => opts.fn());
 handlebars_1.default.registerHelper('asIs', (opts) => opts.fn());
+handlebars_1.default.registerHelper('cap', (word) => word.charAt(0).toUpperCase() + word.substring(1));
+handlebars_1.default.registerHelper('capWords', (words) => words.map((word) => word.charAt(0).toUpperCase() + word.substring(1)));
 handlebars_1.default.registerHelper('orDefault', (prop, defaultValue) => (prop ? prop : defaultValue));
 const handleHandlebars = (content, options, data) => {
     const o = options;
