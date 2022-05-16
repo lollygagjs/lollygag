@@ -1,4 +1,3 @@
-import { IMarkdownOptions, ITemplatesOptions } from './helpers';
 export * from './helpers';
 export declare type RaggedyAny = any;
 export declare type RaggedyObject = Record<string, RaggedyAny>;
@@ -20,12 +19,9 @@ export declare type TFileHandler = (content: string, options?: unknown, data?: I
 export interface IConfig {
     generator?: string;
     prettyUrls?: boolean;
-    disableBuiltins?: boolean;
     subdir?: string;
     templatingHandler?: TFileHandler;
     templatingHandlerOptions?: unknown;
-    markdownOptions?: IMarkdownOptions;
-    templatesOptions?: ITemplatesOptions;
 }
 export interface IBuildOptions {
     fullBuild?: boolean;

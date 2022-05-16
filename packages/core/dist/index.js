@@ -209,10 +209,6 @@ class Lollygag {
                 ...(yield this.parseFiles(fileList)),
             ];
             (0, console_1.timeEnd)('Files parsed');
-            if (!this._config.disableBuiltins) {
-                this.__workers.push((0, helpers_1.markdown)(this._config.markdownOptions));
-                this.__workers.push((0, helpers_1.templates)(this._config.templatesOptions));
-            }
             yield this._workers.reduce((possiblePromise, worker) => __awaiter(this, void 0, void 0, function* () {
                 const workerName = worker.name || 'unknown worker';
                 yield Promise.resolve(possiblePromise);

@@ -8,15 +8,7 @@ import minimatch from 'minimatch';
 import {red} from 'chalk';
 import mmm from 'mmmagic';
 
-import {
-    changeExtname,
-    removeParentFromPath,
-    handleHandlebars,
-    markdown,
-    templates,
-    IMarkdownOptions,
-    ITemplatesOptions,
-} from './helpers';
+import {changeExtname, removeParentFromPath, handleHandlebars} from './helpers';
 
 export * from './helpers';
 
@@ -51,12 +43,9 @@ export type TFileHandler = (
 export interface IConfig {
     generator?: string;
     prettyUrls?: boolean;
-    disableBuiltins?: boolean;
     subdir?: string;
     templatingHandler?: TFileHandler;
     templatingHandlerOptions?: unknown;
-    markdownOptions?: IMarkdownOptions;
-    templatesOptions?: ITemplatesOptions;
 }
 
 export interface IBuildOptions {
@@ -304,11 +293,6 @@ export class Lollygag {
         ];
 
         timeEnd('Files parsed');
-
-        if(!this._config.disableBuiltins) {
-            this.__workers.push(markdown(this._config.markdownOptions));
-            this.__workers.push(templates(this._config.templatesOptions));
-        }
 
         await this._workers.reduce(
             async(
