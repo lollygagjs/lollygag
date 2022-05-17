@@ -1,4 +1,4 @@
-import fs, {existsSync, promises as fsp} from 'fs';
+import fs, {existsSync, promises as fsp, Stats} from 'fs';
 import {log, error, time, timeEnd} from 'console';
 import {basename, dirname, extname, join, resolve} from 'path';
 import gm from 'gray-matter';
@@ -27,6 +27,7 @@ export type RaggedyObject = Record<string, RaggedyAny>;
 export interface IFile {
     path: string;
     mimetype: string;
+    stats: Stats;
     name?: string;
     title?: string;
     content?: string;
@@ -320,13 +321,8 @@ export class Lollygag {
         timeEnd('Files parsed');
 
         await this._workers.reduce(
-            async(
-                possiblePromise: void | Promise<void>,
-                worker: TWorker
-            ): Promise<void> => {
+            async(_possiblePromise, worker: TWorker): Promise<void> => {
                 const workerName = worker.name || 'unknown worker';
-
-                await Promise.resolve(possiblePromise);
 
                 log(`Running ${workerName}...`);
                 time(`Finished running ${workerName}`);

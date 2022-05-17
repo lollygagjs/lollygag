@@ -13,21 +13,40 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const jimp_1 = __importDefault(require("jimp"));
+const fs_1 = require("fs");
+const promises_1 = require("fs/promises");
 function images(options) {
     return function imagesWorker(files, lollygag) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!files)
                 return;
+            const metaFile = '.meta/lollygag-images.json';
+            if (!(0, fs_1.existsSync)('.meta/'))
+                (0, fs_1.mkdirSync)('.meta');
+            if (!(0, fs_1.existsSync)(metaFile)) {
+                (0, fs_1.writeFileSync)(metaFile, '{}');
+            }
+            const meta = JSON.parse((0, fs_1.readFileSync)(metaFile, { encoding: 'utf-8' }));
             const promises = files.map((file) => __awaiter(this, void 0, void 0, function* () {
                 if (!file.mimetype.startsWith('image'))
                     return;
+                if (meta[file.path]) {
+                    if (new Date(meta[file.path].birthtime)
+                        >= new Date(file.stats.birthtime)) {
+                        return;
+                    }
+                }
                 console.log(`Processing ${file.path}...`);
                 yield jimp_1.default.read(file.path).then((img) => {
                     img.quality(75).resize(1200, jimp_1.default.AUTO).write(file.path);
+                    meta[file.path] = {
+                        birthtime: file.stats.birthtime,
+                    };
                 });
                 console.log(`Processing ${file.path}... done!`);
             }));
             yield Promise.all(promises);
+            yield (0, promises_1.writeFile)(metaFile, JSON.stringify(meta));
         });
     };
 }

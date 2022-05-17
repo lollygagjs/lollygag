@@ -1,7 +1,9 @@
 /* eslint-disable no-continue */
 import {dirname, extname, join} from 'path';
 import Jimp from 'jimp';
-import {changeExtname, TWorker} from '@lollygag/core';
+import {TWorker} from '@lollygag/core';
+import {existsSync, mkdirSync, readFileSync, Stats, writeFileSync} from 'fs';
+import {writeFile} from 'fs/promises';
 
 export interface IImagesOptions {
     newExtname?: string | false;
@@ -17,18 +19,51 @@ export default function images(options?: IImagesOptions): TWorker {
     ): Promise<void> {
         if(!files) return;
 
+        const metaFile = '.meta/lollygag-images.json';
+
+        if(!existsSync('.meta/')) mkdirSync('.meta');
+
+        if(!existsSync(metaFile)) {
+            writeFileSync(metaFile, '{}');
+        }
+
+        interface IImagesMeta {
+            [path: string]: {
+                birthtime: Stats['birthtime'];
+            };
+        }
+
+        const meta: IImagesMeta = JSON.parse(
+            readFileSync(metaFile, {encoding: 'utf-8'})
+        );
+
         const promises = files.map(async(file) => {
             if(!file.mimetype.startsWith('image')) return;
+
+            if(meta[file.path]) {
+                if(
+                    new Date(meta[file.path].birthtime)
+                    >= new Date(file.stats.birthtime)
+                ) {
+                    return;
+                }
+            }
 
             console.log(`Processing ${file.path}...`);
 
             await Jimp.read(file.path).then((img) => {
                 img.quality(75).resize(1200, Jimp.AUTO).write(file.path);
+
+                meta[file.path] = {
+                    birthtime: file.stats.birthtime,
+                };
             });
 
             console.log(`Processing ${file.path}... done!`);
         });
 
         await Promise.all(promises);
+
+        await writeFile(metaFile, JSON.stringify(meta));
     };
 }
