@@ -1,3 +1,4 @@
+import {promises as fsp, statSync} from 'fs';
 import {extname, basename, dirname, join} from 'path';
 
 export * from './workers/handlebars';
@@ -41,4 +42,26 @@ export function removeParentFromPath(parent: string, path: string): string {
     const cleanParent = join(parent).replace(/^\/|\/$/g, '');
 
     return join(path.replace(`${cleanParent}/`, ''));
+}
+
+export async function deleteEmptyDirs(dir: string) {
+    if(!statSync(dir).isDirectory()) return;
+
+    let files = await fsp.readdir(dir);
+
+    if(files.length > 0) {
+        await Promise.all(
+            files.map(async(file) => {
+                await deleteEmptyDirs(join(dir, file));
+            })
+        );
+
+        files = await fsp.readdir(dir);
+    }
+
+    if(files.length === 0) await fsp.rmdir(dir);
+}
+
+export function deleteFiles(files: string[]) {
+    return Promise.all(files.map((f) => fsp.unlink(f)));
 }

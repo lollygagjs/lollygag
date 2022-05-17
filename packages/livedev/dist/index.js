@@ -30,23 +30,23 @@ function rebuild(options) {
         const msg = `File \`${triggeredPath}\` ${eventSuffix}.\nRebuilding...`;
         const dashes = '----------------------------------------';
         (0, console_1.log)((0, chalk_1.green)(`${dashes}\n${msg}\n${dashes}`));
-        let globPattern = '';
+        let globPattern = null;
         if (!watchOptions.fullBuild) {
             let toRebuild = true;
-            Object.keys(watchOptions.patterns).forEach((pattern) => {
-                if ((0, minimatch_1.default)(triggeredPath, pattern)) {
-                    toRebuild = watchOptions.patterns[pattern];
+            Object.keys(watchOptions.patterns).forEach((patternKey) => {
+                if ((0, minimatch_1.default)(triggeredPath, patternKey)) {
+                    toRebuild = watchOptions.patterns[patternKey];
                 }
             });
             let validTriggeredPath = '';
             if ((0, minimatch_1.default)(triggeredPath, (0, path_1.join)(lollygag._in, '**/*'))) {
-                validTriggeredPath = triggeredPath;
+                validTriggeredPath = (0, core_1.removeParentFromPath)(lollygag._in, triggeredPath);
             }
             if (typeof toRebuild === 'boolean') {
                 globPattern = validTriggeredPath;
             }
             else {
-                globPattern = (0, core_1.addParentToPath)(lollygag._in, toRebuild);
+                globPattern = toRebuild;
             }
         }
         return lollygag.build({
@@ -115,6 +115,14 @@ function livedev(options) {
                     eventSuffix: 'changed',
                     triggeredPath: path,
                     watchOptions: options,
+                    lollygag,
+                });
+            }));
+            watched.on('unlink', (path) => __awaiter(this, void 0, void 0, function* () {
+                yield rebuild({
+                    eventSuffix: 'removed',
+                    triggeredPath: path,
+                    watchOptions: Object.assign(Object.assign({}, options), { fullBuild: true }),
                     lollygag,
                 });
             }));

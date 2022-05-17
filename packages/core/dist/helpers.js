@@ -13,8 +13,18 @@ var __createBinding = (this && this.__createBinding) || (Object.create ? (functi
 var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeParentFromPath = exports.addParentToPath = exports.changeFullExtname = exports.changeExtname = exports.fullExtname = void 0;
+exports.deleteFiles = exports.deleteEmptyDirs = exports.removeParentFromPath = exports.addParentToPath = exports.changeFullExtname = exports.changeExtname = exports.fullExtname = void 0;
+const fs_1 = require("fs");
 const path_1 = require("path");
 __exportStar(require("./workers/handlebars"), exports);
 __exportStar(require("./workers/markdown"), exports);
@@ -47,3 +57,23 @@ function removeParentFromPath(parent, path) {
     return (0, path_1.join)(path.replace(`${cleanParent}/`, ''));
 }
 exports.removeParentFromPath = removeParentFromPath;
+function deleteEmptyDirs(dir) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!(0, fs_1.statSync)(dir).isDirectory())
+            return;
+        let files = yield fs_1.promises.readdir(dir);
+        if (files.length > 0) {
+            yield Promise.all(files.map((file) => __awaiter(this, void 0, void 0, function* () {
+                yield deleteEmptyDirs((0, path_1.join)(dir, file));
+            })));
+            files = yield fs_1.promises.readdir(dir);
+        }
+        if (files.length === 0)
+            yield fs_1.promises.rmdir(dir);
+    });
+}
+exports.deleteEmptyDirs = deleteEmptyDirs;
+function deleteFiles(files) {
+    return Promise.all(files.map((f) => fs_1.promises.unlink(f)));
+}
+exports.deleteFiles = deleteFiles;

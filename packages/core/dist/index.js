@@ -43,7 +43,6 @@ const fs_1 = __importStar(require("fs"));
 const console_1 = require("console");
 const path_1 = require("path");
 const gray_matter_1 = __importDefault(require("gray-matter"));
-const rimraf_1 = __importDefault(require("rimraf"));
 const glob_1 = __importDefault(require("glob"));
 const minimatch_1 = __importDefault(require("minimatch"));
 const chalk_1 = require("chalk");
@@ -178,26 +177,33 @@ class Lollygag {
         }));
         return Promise.all(promises);
     }
+    validate() {
+        const cwd = (0, path_1.resolve)(process.cwd());
+        const inDir = (0, path_1.resolve)(this._in);
+        const outDir = (0, path_1.resolve)(this._out);
+        if (!this._files && !(0, fs_1.existsSync)(inDir)) {
+            throw new Error(`Input directory '${inDir}' does not exist.`);
+        }
+        if (inDir === cwd) {
+            throw new Error(`Input directory '${inDir}' is the same as the current working directory.`);
+        }
+        if (!(0, minimatch_1.default)(inDir, (0, path_1.join)(cwd, '**/*'))) {
+            throw new Error(`Input directory '${inDir}' is outside the current working directory.`);
+        }
+        if (outDir === cwd) {
+            throw new Error(`Output directory '${outDir}' is the same as the current working directory.`);
+        }
+        if (!(0, minimatch_1.default)(outDir, (0, path_1.join)(cwd, '**/*'))) {
+            throw new Error(`Output directory '${outDir}' is outside the current working directory.`);
+        }
+    }
     build(options) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!this._files && !(0, fs_1.existsSync)(this._in)) {
-                (0, console_1.error)(`Input directory '${this._in}' does not exist.`);
-                return;
-            }
+            this.validate();
+            const defaultGlobPattern = '**/*';
+            const opts = Object.assign({ fullBuild: false }, options);
+            opts.globPattern = (0, path_1.join)(this._in, opts.globPattern || defaultGlobPattern);
             (0, console_1.time)('Total build time');
-            const defaultGlobPattern = (0, path_1.join)(this._in, '/**/*');
-            const opts = Object.assign({ fullBuild: false, globPattern: defaultGlobPattern }, options);
-            if (opts.fullBuild) {
-                opts.globPattern = defaultGlobPattern;
-                (0, console_1.time)(`Deleted '${this._out}' directory`);
-                yield new Promise((resolve, reject) => (0, rimraf_1.default)(this._out, (err) => {
-                    if (err)
-                        reject(err);
-                    else
-                        resolve(0);
-                }));
-                (0, console_1.timeEnd)(`Deleted '${this._out}' directory`);
-            }
             (0, console_1.time)('Files collected');
             const fileList = yield this.getFiles(opts.globPattern);
             (0, console_1.timeEnd)('Files collected');
@@ -225,15 +231,23 @@ class Lollygag {
             (0, console_1.time)('Files written');
             yield this.write(toWrite);
             (0, console_1.timeEnd)('Files written');
+            if (opts.fullBuild) {
+                (0, console_1.time)(`Cleaned '${this._out}' directory`);
+                const written = toWrite.map((file) => (0, helpers_1.addParentToPath)(this._out, (0, helpers_1.removeParentFromPath)(this._in, file.path)));
+                const existing = yield this.getFiles((0, path_1.join)(this._out, '/**/*'));
+                const difference = existing.filter((ex) => !written.includes(ex));
+                // Delete old files and leftover directories
+                yield (0, helpers_1.deleteFiles)(difference);
+                yield (0, helpers_1.deleteEmptyDirs)(this._out);
+                (0, console_1.timeEnd)(`Cleaned '${this._out}' directory`);
+            }
             (0, console_1.timeEnd)('Total build time');
         });
     }
 }
 exports.Lollygag = Lollygag;
 process.on('unhandledRejection', (err) => {
-    const msg = 'Build failed...';
-    const dashes = '----------------------------------------';
-    (0, console_1.log)((0, chalk_1.red)(`${dashes}\n${msg}\n${dashes}`));
+    (0, console_1.log)((0, chalk_1.red)('Build failed...'));
     (0, console_1.error)(err);
     process.exit(43);
 });

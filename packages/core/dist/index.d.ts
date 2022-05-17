@@ -25,7 +25,7 @@ export interface IConfig {
 }
 export interface IBuildOptions {
     fullBuild?: boolean;
-    globPattern?: string;
+    globPattern?: string | null;
 }
 export declare type TWorker = (files: IFile[], lollygag: Lollygag) => void | Promise<void>;
 export declare class Lollygag {
@@ -54,6 +54,7 @@ export declare class Lollygag {
     private handleTemplating;
     private generatePrettyUrls;
     private write;
+    private validate;
     build(options?: IBuildOptions): Promise<void>;
 }
 export default Lollygag;

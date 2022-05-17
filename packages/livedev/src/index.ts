@@ -8,7 +8,7 @@ import minimatch from 'minimatch';
 import handler from 'serve-handler';
 import livereload from 'livereload';
 import {parse} from 'node-html-parser';
-import Lollygag, {addParentToPath, TWorker} from '@lollygag/core';
+import Lollygag, {removeParentFromPath, TWorker} from '@lollygag/core';
 
 /**
  * Glob path of files to watch.
@@ -49,27 +49,30 @@ async function rebuild(options: IRebuildOptions): Promise<void> {
 
     log(green(`${dashes}\n${msg}\n${dashes}`));
 
-    let globPattern = '';
+    let globPattern = null;
 
     if(!watchOptions.fullBuild) {
         let toRebuild: TToRebuild = true;
 
-        Object.keys(watchOptions.patterns).forEach((pattern) => {
-            if(minimatch(triggeredPath, pattern)) {
-                toRebuild = watchOptions.patterns[pattern];
+        Object.keys(watchOptions.patterns).forEach((patternKey) => {
+            if(minimatch(triggeredPath, patternKey)) {
+                toRebuild = watchOptions.patterns[patternKey];
             }
         });
 
         let validTriggeredPath = '';
 
         if(minimatch(triggeredPath, join(lollygag._in, '**/*'))) {
-            validTriggeredPath = triggeredPath;
+            validTriggeredPath = removeParentFromPath(
+                lollygag._in,
+                triggeredPath
+            );
         }
 
         if(typeof toRebuild === 'boolean') {
             globPattern = validTriggeredPath;
         } else {
-            globPattern = addParentToPath(lollygag._in, toRebuild);
+            globPattern = toRebuild;
         }
     }
 
@@ -163,6 +166,15 @@ export function livedev(options: IWatchOptions): TWorker {
                 eventSuffix: 'changed',
                 triggeredPath: path,
                 watchOptions: options,
+                lollygag,
+            });
+        });
+
+        watched.on('unlink', async(path) => {
+            await rebuild({
+                eventSuffix: 'removed',
+                triggeredPath: path,
+                watchOptions: {...options, fullBuild: true},
                 lollygag,
             });
         });

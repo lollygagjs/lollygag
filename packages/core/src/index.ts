@@ -1,14 +1,20 @@
 import fs, {existsSync, promises as fsp} from 'fs';
 import {log, error, time, timeEnd} from 'console';
-import {basename, dirname, extname, join} from 'path';
+import {basename, dirname, extname, join, resolve} from 'path';
 import gm from 'gray-matter';
-import rimraf from 'rimraf';
 import glob from 'glob';
 import minimatch from 'minimatch';
 import {red} from 'chalk';
 import mmm from 'mmmagic';
 
-import {changeExtname, removeParentFromPath, handleHandlebars} from './helpers';
+import {
+    changeExtname,
+    removeParentFromPath,
+    handleHandlebars,
+    addParentToPath,
+    deleteEmptyDirs,
+    deleteFiles,
+} from './helpers';
 
 export * from './helpers';
 
@@ -50,7 +56,7 @@ export interface IConfig {
 
 export interface IBuildOptions {
     fullBuild?: boolean;
-    globPattern?: string;
+    globPattern?: string | null;
 }
 
 export type TWorker = (
@@ -244,35 +250,56 @@ export class Lollygag {
         return Promise.all(promises);
     }
 
-    async build(options?: IBuildOptions): Promise<void> {
-        if(!this._files && !existsSync(this._in)) {
-            error(`Input directory '${this._in}' does not exist.`);
-            return;
+    private validate() {
+        const cwd = resolve(process.cwd());
+        const inDir = resolve(this._in);
+        const outDir = resolve(this._out);
+
+        if(!this._files && !existsSync(inDir)) {
+            throw new Error(`Input directory '${inDir}' does not exist.`);
         }
 
-        time('Total build time');
+        if(inDir === cwd) {
+            throw new Error(
+                `Input directory '${inDir}' is the same as the current working directory.`
+            );
+        }
 
-        const defaultGlobPattern = join(this._in, '/**/*');
+        if(!minimatch(inDir, join(cwd, '**/*'))) {
+            throw new Error(
+                `Input directory '${inDir}' is outside the current working directory.`
+            );
+        }
+
+        if(outDir === cwd) {
+            throw new Error(
+                `Output directory '${outDir}' is the same as the current working directory.`
+            );
+        }
+
+        if(!minimatch(outDir, join(cwd, '**/*'))) {
+            throw new Error(
+                `Output directory '${outDir}' is outside the current working directory.`
+            );
+        }
+    }
+
+    async build(options?: IBuildOptions): Promise<void> {
+        this.validate();
+
+        const defaultGlobPattern = '**/*';
 
         const opts: IBuildOptions = {
             fullBuild: false,
-            globPattern: defaultGlobPattern,
             ...options,
         };
 
-        if(opts.fullBuild) {
-            opts.globPattern = defaultGlobPattern;
+        opts.globPattern = join(
+            this._in,
+            opts.globPattern || defaultGlobPattern
+        );
 
-            time(`Deleted '${this._out}' directory`);
-
-            await new Promise((resolve, reject) =>
-                rimraf(this._out, (err) => {
-                    if(err) reject(err);
-                    else resolve(0);
-                }));
-
-            timeEnd(`Deleted '${this._out}' directory`);
-        }
+        time('Total build time');
 
         time('Files collected');
 
@@ -327,15 +354,31 @@ export class Lollygag {
 
         timeEnd('Files written');
 
+        if(opts.fullBuild) {
+            time(`Cleaned '${this._out}' directory`);
+
+            const written = toWrite.map((file) =>
+                addParentToPath(
+                    this._out,
+                    removeParentFromPath(this._in, file.path)
+                ));
+
+            const existing = await this.getFiles(join(this._out, '/**/*'));
+            const difference = existing.filter((ex) => !written.includes(ex));
+
+            // Delete old files and leftover directories
+            await deleteFiles(difference);
+            await deleteEmptyDirs(this._out);
+
+            timeEnd(`Cleaned '${this._out}' directory`);
+        }
+
         timeEnd('Total build time');
     }
 }
 
 process.on('unhandledRejection', (err) => {
-    const msg = 'Build failed...';
-    const dashes = '----------------------------------------';
-
-    log(red(`${dashes}\n${msg}\n${dashes}`));
+    log(red('Build failed...'));
     error(err);
 
     process.exit(43);
