@@ -27,7 +27,7 @@ export type RaggedyObject = Record<string, RaggedyAny>;
 export interface IFile {
     path: string;
     mimetype: string;
-    stats: Stats;
+    stats?: Stats;
     name?: string;
     title?: string;
     content?: string;

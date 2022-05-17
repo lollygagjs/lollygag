@@ -1,8 +1,7 @@
 /* eslint-disable no-continue */
 import {extname, join} from 'path';
-import {changeExtname, fullExtname, TWorker} from '@lollygag/core';
-
 import pcss, {AcceptedPlugin, ProcessOptions} from 'postcss';
+import {changeExtname, fullExtname, TWorker} from '@lollygag/core';
 
 export interface IOptions {
     newExtname?: string | false;

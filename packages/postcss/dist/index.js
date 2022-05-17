@@ -15,8 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.postcss = void 0;
 /* eslint-disable no-continue */
 const path_1 = require("path");
-const core_1 = require("@lollygag/core");
 const postcss_1 = __importDefault(require("postcss"));
+const core_1 = require("@lollygag/core");
 function postcss(options) {
     const keepOriginal = (options === null || options === void 0 ? void 0 : options.keepOriginal) || true;
     return function postcssWorker(files) {

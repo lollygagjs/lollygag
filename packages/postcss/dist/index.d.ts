@@ -1,5 +1,5 @@
-import { TWorker } from '@lollygag/core';
 import { AcceptedPlugin, ProcessOptions } from 'postcss';
+import { TWorker } from '@lollygag/core';
 export interface IOptions {
     newExtname?: string | false;
     targetExtnames?: string[];

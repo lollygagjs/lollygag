@@ -40,7 +40,7 @@ export default function images(options?: IImagesOptions): TWorker {
         const promises = files.map(async(file) => {
             if(!file.mimetype.startsWith('image')) return;
 
-            if(meta[file.path]) {
+            if(meta[file.path] && file.stats) {
                 if(
                     new Date(meta[file.path].birthtime)
                     >= new Date(file.stats.birthtime)
@@ -54,9 +54,11 @@ export default function images(options?: IImagesOptions): TWorker {
             await Jimp.read(file.path).then((img) => {
                 img.quality(75).resize(1200, Jimp.AUTO).write(file.path);
 
-                meta[file.path] = {
-                    birthtime: file.stats.birthtime,
-                };
+                if(file.stats) {
+                    meta[file.path] = {
+                        birthtime: file.stats.birthtime,
+                    };
+                }
             });
 
             console.log(`Processing ${file.path}... done!`);
