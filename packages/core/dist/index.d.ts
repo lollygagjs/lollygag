@@ -1,9 +1,12 @@
+/// <reference types="node" />
+import { Stats } from 'fs';
 export * from './helpers';
 export declare type RaggedyAny = any;
 export declare type RaggedyObject = Record<string, RaggedyAny>;
 export interface IFile {
     path: string;
     mimetype: string;
+    stats: Stats;
     name?: string;
     title?: string;
     content?: string;

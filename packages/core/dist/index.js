@@ -214,9 +214,8 @@ class Lollygag {
                 ...(yield this.parseFiles(fileList)),
             ];
             (0, console_1.timeEnd)('Files parsed');
-            yield this._workers.reduce((possiblePromise, worker) => __awaiter(this, void 0, void 0, function* () {
+            yield this._workers.reduce((_possiblePromise, worker) => __awaiter(this, void 0, void 0, function* () {
                 const workerName = worker.name || 'unknown worker';
-                yield Promise.resolve(possiblePromise);
                 (0, console_1.log)(`Running ${workerName}...`);
                 (0, console_1.time)(`Finished running ${workerName}`);
                 yield worker(parsedFiles, this);
