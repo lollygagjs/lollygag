@@ -47,7 +47,7 @@ function templates(options) {
             }
             const data = Object.assign(Object.assign(Object.assign({}, lollygag._meta), lollygag._config), file);
             file.content = templatingHandler(template, options === null || options === void 0 ? void 0 : options.templatingHandlerOptions, data);
-            console.log(`Processing '${file.path}'... Done!`);
+            console.log(`Processing '${file.path}'... done!`);
         }
     };
 }

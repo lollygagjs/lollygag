@@ -78,7 +78,7 @@ export function templates(options?: ITemplatesOptions): TWorker {
                 data
             );
 
-            console.log(`Processing '${file.path}'... Done!`);
+            console.log(`Processing '${file.path}'... done!`);
         }
     };
 }
