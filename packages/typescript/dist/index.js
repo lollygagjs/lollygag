@@ -11,13 +11,13 @@ function typescript(options) {
             return;
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
-            const targetExtnames = (options === null || options === void 0 ? void 0 : options.targetExtnames) || ['.ts'];
-            if (!targetExtnames.includes((0, path_1.extname)(file.path))) {
+            const { targetExtnames, compilerOptions, newExtname } = options || {};
+            if (!(targetExtnames !== null && targetExtnames !== void 0 ? targetExtnames : ['.ts']).includes((0, path_1.extname)(file.path))) {
                 continue;
             }
-            file.content = (0, typescript_1.transpile)(file.content || '', options === null || options === void 0 ? void 0 : options.compilerOptions);
-            if ((options === null || options === void 0 ? void 0 : options.newExtname) !== false) {
-                file.path = (0, core_1.changeExtname)(file.path, (options === null || options === void 0 ? void 0 : options.newExtname) || '.js');
+            file.content = (0, typescript_1.transpile)(file.content || '', compilerOptions);
+            if (newExtname !== false) {
+                file.path = (0, core_1.changeExtname)(file.path, newExtname !== null && newExtname !== void 0 ? newExtname : '.js');
             }
         }
     };
