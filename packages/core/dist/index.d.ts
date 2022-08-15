@@ -55,8 +55,8 @@ export declare class Lollygag {
     get _workers(): TWorker[];
     private getFileMimetype;
     private getFiles;
-    private parseFiles;
     private handleTemplating;
+    private parseFiles;
     private generatePrettyUrls;
     private write;
     private validate;

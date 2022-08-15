@@ -1,22 +1,15 @@
 /* eslint-disable no-continue */
-import {dirname, extname, join} from 'path';
 import Jimp from 'jimp';
-import {IFile, TWorker} from '@lollygag/core';
+import {TWorker} from '@lollygag/core';
 import {existsSync, mkdirSync, readFileSync, Stats, writeFileSync} from 'fs';
 import {writeFile} from 'fs/promises';
 
 export interface IImagesOptions {
-    newExtname?: string | false;
-    targetExtnames?: string[];
     imageCompressorOptions?: any;
 }
 
 export default function images(options?: IImagesOptions): TWorker {
-    return async function imagesWorker(
-        this: TWorker,
-        files,
-        lollygag
-    ): Promise<void> {
+    return async function imagesWorker(this: TWorker, files): Promise<void> {
         if(!files) return;
 
         const metaFile = '.meta/lollygag-images.json';

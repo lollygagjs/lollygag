@@ -12,11 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/* eslint-disable no-continue */
 const jimp_1 = __importDefault(require("jimp"));
 const fs_1 = require("fs");
 const promises_1 = require("fs/promises");
 function images(options) {
-    return function imagesWorker(files, lollygag) {
+    return function imagesWorker(files) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             if (!files)

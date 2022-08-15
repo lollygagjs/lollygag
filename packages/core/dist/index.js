@@ -176,9 +176,11 @@ class Lollygag {
             else {
                 yield fs_1.promises.copyFile(file.path, filePath);
             }
-            yield fs_1.promises.writeFile('.timestamp', new Date().getTime().toString());
         }));
-        return Promise.all(promises);
+        return Promise.all([
+            ...promises,
+            fs_1.promises.writeFile('.timestamp', new Date().getTime().toString()),
+        ]);
     }
     validate({ allowExternalDirectories = false, allowWorkingDirectoryOutput = false, }) {
         const cwd = (0, path_1.resolve)(process.cwd());

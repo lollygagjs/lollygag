@@ -159,6 +159,9 @@ export class Lollygag {
         });
     }
 
+    private handleTemplating
+        = this._config.templatingHandler ?? handleHandlebars;
+
     private parseFiles(files: string[]): Promise<IFile[]> {
         const promises = files.map(async(file): Promise<IFile> => {
             const fileMimetype = await this.getFileMimetype(file);
@@ -200,9 +203,6 @@ export class Lollygag {
 
         return Promise.all(promises);
     }
-
-    private handleTemplating
-        = this._config.templatingHandler ?? handleHandlebars;
 
     private generatePrettyUrls(files: IFile[]): IFile[] {
         return files.map((file): IFile => {
@@ -246,11 +246,12 @@ export class Lollygag {
             } else {
                 await fsp.copyFile(file.path, filePath);
             }
-
-            await fsp.writeFile('.timestamp', new Date().getTime().toString());
         });
 
-        return Promise.all(promises);
+        return Promise.all([
+            ...promises,
+            fsp.writeFile('.timestamp', new Date().getTime().toString()),
+        ]);
     }
 
     private validate({
