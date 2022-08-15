@@ -16,16 +16,27 @@ export function templates(options?: ITemplatesOptions): TWorker {
     return function templatesWorker(this: TWorker, files, lollygag): void {
         if(!files) return;
 
-        const templatingHandler
-            = options?.templatingHandler
-            || lollygag._config.templatingHandler
-            || handleHandlebars;
+        const {
+            newExtname,
+            targetExtnames,
+            templatesDirectory,
+            defaultTemplate,
+            templatingHandler,
+            templatingHandlerOptions,
+        } = options ?? {};
 
-        const templatesDirectory = options?.templatesDirectory || 'templates';
-        const defaultTemplate = options?.defaultTemplate || 'index.hbs';
+        const _newExtname = newExtname ?? '.html';
+        const _targetExtnames = targetExtnames ?? ['.hbs', '.html'];
+        const _templatesDirectory = templatesDirectory ?? 'templates';
+        const _defaultTemplate = defaultTemplate ?? 'index.hbs';
+
+        const _templatingHandler
+            = templatingHandler
+            ?? lollygag._config.templatingHandler
+            ?? handleHandlebars;
 
         let template = '';
-        let templatePath = join(templatesDirectory, defaultTemplate);
+        let templatePath = join(_templatesDirectory, _defaultTemplate);
 
         if(existsSync(templatePath)) {
             template = readFileSync(templatePath, {encoding: 'utf-8'});
@@ -43,23 +54,14 @@ export function templates(options?: ITemplatesOptions): TWorker {
         for(let i = 0; i < files.length; i++) {
             const file = files[i];
 
-            const targetExtnames = options?.targetExtnames || ['.hbs', '.html'];
-
-            if(!targetExtnames.includes(extname(file.path))) {
+            if(!_targetExtnames.includes(extname(file.path))) {
                 continue;
             }
 
             console.log(`Processing '${file.path}'...`);
 
-            if(options?.newExtname !== false) {
-                file.path = changeExtname(
-                    file.path,
-                    options?.newExtname || '.html'
-                );
-            }
-
-            if(file.template && file.template !== defaultTemplate) {
-                templatePath = join(templatesDirectory, file.template);
+            if(file.template && file.template !== _defaultTemplate) {
+                templatePath = join(_templatesDirectory, file.template);
 
                 if(existsSync(templatePath)) {
                     template = readFileSync(templatePath, {encoding: 'utf-8'});
@@ -72,13 +74,17 @@ export function templates(options?: ITemplatesOptions): TWorker {
 
             const data = {...lollygag._meta, ...lollygag._config, ...file};
 
-            file.content = templatingHandler(
+            file.content = _templatingHandler(
                 template,
-                options?.templatingHandlerOptions,
+                templatingHandlerOptions,
                 data
             );
 
             console.log(`Processing '${file.path}'... done!`);
+
+            if(_newExtname !== false) {
+                file.path = changeExtname(file.path, _newExtname);
+            }
         }
     };
 }

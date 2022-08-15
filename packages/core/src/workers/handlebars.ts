@@ -53,16 +53,16 @@ export function handlebars(options?: IHandlebarsOptions): TWorker {
     return function handlebarsWorker(this: TWorker, files, lollygag): void {
         if(!files) return;
 
+        const {newExtname, targetExtnames, compileOptions, runtimeOptions}
+            = options ?? {};
+
+        const _newExtname = newExtname ?? '.html';
+        const _targetExtnames = targetExtnames ?? ['.hbs', '.html'];
+
         for(let i = 0; i < files.length; i++) {
             const file = files[i];
-            const {targetExtnames, newExtname, compileOptions, runtimeOptions}
-                = options ?? {};
 
-            if(
-                !(targetExtnames ?? ['.hbs', '.html']).includes(
-                    extname(file.path)
-                )
-            ) {
+            if(!_targetExtnames.includes(extname(file.path))) {
                 continue;
             }
 
@@ -74,8 +74,8 @@ export function handlebars(options?: IHandlebarsOptions): TWorker {
                 data
             );
 
-            if(newExtname !== false) {
-                file.path = changeExtname(file.path, newExtname ?? '.html');
+            if(_newExtname !== false) {
+                file.path = changeExtname(file.path, _newExtname);
             }
         }
     };

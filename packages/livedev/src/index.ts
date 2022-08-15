@@ -86,8 +86,8 @@ let serverStarted = false;
 
 export function livedev(options: IWatchOptions): TWorker {
     return async function livedevWorker(files, lollygag): Promise<void> {
-        const serverPort = options.serverPort || 3000;
-        const livereloadPort = options.livereloadPort || 35729;
+        const serverPort = options.serverPort ?? 3000;
+        const livereloadPort = options.livereloadPort ?? 35729;
 
         if(options.injectLivereloadScript) {
             for(let i = 0; i < files.length; i++) {
@@ -95,7 +95,7 @@ export function livedev(options: IWatchOptions): TWorker {
 
                 if(extname(file.path) !== '.html') continue;
 
-                const doc = parse(file.content || '');
+                const doc = parse(file.content ?? '');
                 const body = doc.querySelector('body');
 
                 if(!body) continue;
@@ -151,14 +151,6 @@ export function livedev(options: IWatchOptions): TWorker {
         });
 
         const watched = watcher(toWatch, {ignoreInitial: true});
-
-        const test = new Proxy([], {
-            set: (target, property, value) => {
-                console.log('fff');
-
-                return true;
-            },
-        });
 
         async function onAddOrChange(path: string) {
             watched.off('add', onAddOrChange);

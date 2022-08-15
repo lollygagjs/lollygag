@@ -13,18 +13,22 @@ export function typescript(options?: ITypescriptOptions): TWorker {
     return function typescriptWorker(this: TWorker, files): void {
         if(!files) return;
 
+        const {newExtname, targetExtnames, compilerOptions} = options ?? {};
+
+        const _newExtname = newExtname ?? '.js';
+        const _targetExtnames = targetExtnames ?? ['.ts'];
+
         for(let i = 0; i < files.length; i++) {
             const file = files[i];
-            const {targetExtnames, compilerOptions, newExtname} = options || {};
 
-            if(!(targetExtnames ?? ['.ts']).includes(extname(file.path))) {
+            if(!_targetExtnames.includes(extname(file.path))) {
                 continue;
             }
 
-            file.content = transpile(file.content || '', compilerOptions);
+            file.content = transpile(file.content ?? '', compilerOptions);
 
-            if(newExtname !== false) {
-                file.path = changeExtname(file.path, newExtname ?? '.js');
+            if(_newExtname !== false) {
+                file.path = changeExtname(file.path, _newExtname);
             }
         }
     };

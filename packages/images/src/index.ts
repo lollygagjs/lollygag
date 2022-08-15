@@ -34,7 +34,7 @@ export default function images(options?: IImagesOptions): TWorker {
         }
 
         const meta: IImagesMeta = JSON.parse(
-            readFileSync(metaFile, {encoding: 'utf-8'}) || '{}'
+            readFileSync(metaFile, {encoding: 'utf-8'}) ?? '{}'
         );
 
         const promises = files.map(async(file) => {

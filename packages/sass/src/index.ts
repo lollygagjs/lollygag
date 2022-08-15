@@ -13,42 +13,40 @@ export function sass(options?: ISassOptions): TWorker {
     return function sassWorker(this: TWorker, files): void {
         if(!files) return;
 
-        const excludes: number[] = [];
+        const {newExtname, targetExtnames, nodeSassOptions} = options ?? {};
 
-        const nodeSassOptions: SyncOptions = {
+        const _newExtname = newExtname ?? '.css';
+        const _targetExtnames = targetExtnames ?? ['.scss', '.sass'];
+
+        const _nodeSassOptions = {
             sourceMap: true,
             sourceMapContents: true,
-            ...options?.nodeSassOptions,
+            ...nodeSassOptions,
         };
+
+        const excludes: number[] = [];
 
         for(let i = 0; i < files.length; i++) {
             const file = files[i];
 
-            const targetExtnames = options?.targetExtnames || [
-                '.scss',
-                '.sass',
-            ];
-
-            if(!targetExtnames.includes(extname(file.path))) {
+            if(!_targetExtnames.includes(extname(file.path))) {
                 continue;
             }
 
             if(basename(file.path).startsWith('_')) {
                 excludes.push(i);
+
                 continue;
             }
 
             let outFile = file.path;
 
-            if(options?.newExtname !== false) {
-                outFile = changeExtname(
-                    file.path,
-                    options?.newExtname || '.css'
-                );
+            if(_newExtname !== false) {
+                outFile = changeExtname(file.path, _newExtname);
             }
 
             const result = renderSync({
-                ...nodeSassOptions,
+                ..._nodeSassOptions,
                 file: file.path,
                 outFile,
             });
@@ -56,7 +54,7 @@ export function sass(options?: ISassOptions): TWorker {
             file.path = outFile;
             file.content = result.css.toString();
 
-            if(nodeSassOptions.sourceMap) {
+            if(_nodeSassOptions.sourceMap) {
                 const sourcemapPath = join(`${outFile}.map`);
 
                 file.map = sourcemapPath;

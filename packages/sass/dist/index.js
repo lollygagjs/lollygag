@@ -9,15 +9,14 @@ function sass(options) {
     return function sassWorker(files) {
         if (!files)
             return;
+        const { newExtname, targetExtnames, nodeSassOptions } = options !== null && options !== void 0 ? options : {};
+        const _newExtname = newExtname !== null && newExtname !== void 0 ? newExtname : '.css';
+        const _targetExtnames = targetExtnames !== null && targetExtnames !== void 0 ? targetExtnames : ['.scss', '.sass'];
+        const _nodeSassOptions = Object.assign({ sourceMap: true, sourceMapContents: true }, nodeSassOptions);
         const excludes = [];
-        const nodeSassOptions = Object.assign({ sourceMap: true, sourceMapContents: true }, options === null || options === void 0 ? void 0 : options.nodeSassOptions);
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
-            const targetExtnames = (options === null || options === void 0 ? void 0 : options.targetExtnames) || [
-                '.scss',
-                '.sass',
-            ];
-            if (!targetExtnames.includes((0, path_1.extname)(file.path))) {
+            if (!_targetExtnames.includes((0, path_1.extname)(file.path))) {
                 continue;
             }
             if ((0, path_1.basename)(file.path).startsWith('_')) {
@@ -25,13 +24,13 @@ function sass(options) {
                 continue;
             }
             let outFile = file.path;
-            if ((options === null || options === void 0 ? void 0 : options.newExtname) !== false) {
-                outFile = (0, core_1.changeExtname)(file.path, (options === null || options === void 0 ? void 0 : options.newExtname) || '.css');
+            if (_newExtname !== false) {
+                outFile = (0, core_1.changeExtname)(file.path, _newExtname);
             }
-            const result = (0, node_sass_1.renderSync)(Object.assign(Object.assign({}, nodeSassOptions), { file: file.path, outFile }));
+            const result = (0, node_sass_1.renderSync)(Object.assign(Object.assign({}, _nodeSassOptions), { file: file.path, outFile }));
             file.path = outFile;
             file.content = result.css.toString();
-            if (nodeSassOptions.sourceMap) {
+            if (_nodeSassOptions.sourceMap) {
                 const sourcemapPath = (0, path_1.join)(`${outFile}.map`);
                 file.map = sourcemapPath;
                 const sourcemapContent = result.map.toString();

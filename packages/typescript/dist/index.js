@@ -7,17 +7,20 @@ const core_1 = require("@lollygag/core");
 const typescript_1 = require("typescript");
 function typescript(options) {
     return function typescriptWorker(files) {
+        var _a;
         if (!files)
             return;
+        const { newExtname, targetExtnames, compilerOptions } = options !== null && options !== void 0 ? options : {};
+        const _newExtname = newExtname !== null && newExtname !== void 0 ? newExtname : '.js';
+        const _targetExtnames = targetExtnames !== null && targetExtnames !== void 0 ? targetExtnames : ['.ts'];
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
-            const { targetExtnames, compilerOptions, newExtname } = options || {};
-            if (!(targetExtnames !== null && targetExtnames !== void 0 ? targetExtnames : ['.ts']).includes((0, path_1.extname)(file.path))) {
+            if (!_targetExtnames.includes((0, path_1.extname)(file.path))) {
                 continue;
             }
-            file.content = (0, typescript_1.transpile)(file.content || '', compilerOptions);
-            if (newExtname !== false) {
-                file.path = (0, core_1.changeExtname)(file.path, newExtname !== null && newExtname !== void 0 ? newExtname : '.js');
+            file.content = (0, typescript_1.transpile)((_a = file.content) !== null && _a !== void 0 ? _a : '', compilerOptions);
+            if (_newExtname !== false) {
+                file.path = (0, core_1.changeExtname)(file.path, _newExtname);
             }
         }
     };

@@ -12,20 +12,28 @@ export interface IOptions {
 }
 
 export function postcss(options?: IOptions): TWorker {
-    const keepOriginal = options?.keepOriginal || true;
-
     return async function postcssWorker(this: TWorker, files): Promise<void> {
         if(!files) return;
+
+        const {
+            newExtname,
+            targetExtnames,
+            keepOriginal,
+            plugins,
+            processOptions,
+        } = options ?? {};
+
+        const _newExtname = newExtname ?? '.css';
+        const _targetExtnames = targetExtnames ?? ['.css', '.pcss'];
+        const _keepOriginal = keepOriginal ?? true;
 
         const promises = files.map(async(file) => {
             let _file = file;
 
-            if(options?.newExtname && keepOriginal) _file = {...file};
-
-            const targetExtnames = options?.targetExtnames || ['.css', '.pcss'];
+            if(_newExtname && _keepOriginal) _file = {...file};
 
             if(
-                !targetExtnames.includes(extname(_file.path))
+                !_targetExtnames.includes(extname(_file.path))
                 || fullExtname(_file.path).endsWith('.min.css')
             ) {
                 return;
@@ -37,38 +45,30 @@ export function postcss(options?: IOptions): TWorker {
 
             let filePath = _file.path;
 
-            if(options?.newExtname !== false) {
-                filePath = changeExtname(
-                    _file.path,
-                    options?.newExtname || '.css'
-                );
+            if(_newExtname !== false) {
+                filePath = changeExtname(_file.path, _newExtname);
             }
 
-            const result = await pcss(options?.plugins).process(
-                _file.content || '',
-                {
-                    from: file.path,
-                    to: filePath,
-                    map: {
-                        inline: false,
-                        prev: existingSourcemap
-                            ? existingSourcemap.content
-                            : false,
-                    },
-                    ...options?.processOptions,
-                }
-            );
+            const result = await pcss(plugins).process(_file.content ?? '', {
+                from: file.path,
+                to: filePath,
+                map: {
+                    inline: false,
+                    prev: existingSourcemap ? existingSourcemap.content : false,
+                },
+                ...processOptions,
+            });
 
             _file.path = filePath;
             _file.content = result.css;
 
-            if(options?.newExtname && keepOriginal) {
+            if(options?.newExtname && _keepOriginal) {
                 files.push(_file);
             }
 
             if(result.map) {
                 if(options?.newExtname) {
-                    if(!keepOriginal && existingSourcemap) {
+                    if(!_keepOriginal && existingSourcemap) {
                         existingSourcemap.path = join(`${filePath}.map`);
                         existingSourcemap.content = result.map.toString();
                     } else {

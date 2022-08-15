@@ -29,16 +29,18 @@ function handlebars(options) {
         var _a;
         if (!files)
             return;
+        const { newExtname, targetExtnames, compileOptions, runtimeOptions } = options !== null && options !== void 0 ? options : {};
+        const _newExtname = newExtname !== null && newExtname !== void 0 ? newExtname : '.html';
+        const _targetExtnames = targetExtnames !== null && targetExtnames !== void 0 ? targetExtnames : ['.hbs', '.html'];
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
-            const { targetExtnames, newExtname, compileOptions, runtimeOptions } = options !== null && options !== void 0 ? options : {};
-            if (!(targetExtnames !== null && targetExtnames !== void 0 ? targetExtnames : ['.hbs', '.html']).includes((0, path_1.extname)(file.path))) {
+            if (!_targetExtnames.includes((0, path_1.extname)(file.path))) {
                 continue;
             }
             const data = Object.assign(Object.assign(Object.assign({}, lollygag._meta), lollygag._config), file);
             file.content = (0, exports.handleHandlebars)((_a = file.content) !== null && _a !== void 0 ? _a : '', { compileOptions, runtimeOptions }, data);
-            if (newExtname !== false) {
-                file.path = (0, __1.changeExtname)(file.path, newExtname !== null && newExtname !== void 0 ? newExtname : '.html');
+            if (_newExtname !== false) {
+                file.path = (0, __1.changeExtname)(file.path, _newExtname);
             }
         }
     };

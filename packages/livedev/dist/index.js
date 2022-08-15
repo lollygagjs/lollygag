@@ -58,15 +58,16 @@ function rebuild(options) {
 let serverStarted = false;
 function livedev(options) {
     return function livedevWorker(files, lollygag) {
+        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
-            const serverPort = options.serverPort || 3000;
-            const livereloadPort = options.livereloadPort || 35729;
+            const serverPort = (_a = options.serverPort) !== null && _a !== void 0 ? _a : 3000;
+            const livereloadPort = (_b = options.livereloadPort) !== null && _b !== void 0 ? _b : 35729;
             if (options.injectLivereloadScript) {
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i];
                     if ((0, path_1.extname)(file.path) !== '.html')
                         continue;
-                    const doc = (0, node_html_parser_1.parse)(file.content || '');
+                    const doc = (0, node_html_parser_1.parse)((_c = file.content) !== null && _c !== void 0 ? _c : '');
                     const body = doc.querySelector('body');
                     if (!body)
                         continue;
@@ -102,12 +103,6 @@ function livedev(options) {
                 toWatch.push(pattern);
             });
             const watched = (0, chokidar_1.watch)(toWatch, { ignoreInitial: true });
-            const test = new Proxy([], {
-                set: (target, property, value) => {
-                    console.log('fff');
-                    return true;
-                },
-            });
             function onAddOrChange(path) {
                 return __awaiter(this, void 0, void 0, function* () {
                     watched.off('add', onAddOrChange);
