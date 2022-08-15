@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "rimraf dist && tsc -d",
-    "start": "rimraf dist && tsc -d -w"
+    "start": "tsc -d -w"
   },
   "dependencies": {
     "@types/markdown-it": "^12.2.3",

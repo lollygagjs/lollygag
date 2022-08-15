@@ -1,7 +1,7 @@
 /* eslint-disable no-continue */
 import {dirname, extname, join} from 'path';
 import Jimp from 'jimp';
-import {TWorker} from '@lollygag/core';
+import {IFile, TWorker} from '@lollygag/core';
 import {existsSync, mkdirSync, readFileSync, Stats, writeFileSync} from 'fs';
 import {writeFile} from 'fs/promises';
 
@@ -34,7 +34,7 @@ export default function images(options?: IImagesOptions): TWorker {
         }
 
         const meta: IImagesMeta = JSON.parse(
-            readFileSync(metaFile, {encoding: 'utf-8'})
+            readFileSync(metaFile, {encoding: 'utf-8'}) || '{}'
         );
 
         const promises = files.map(async(file) => {

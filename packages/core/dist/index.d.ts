@@ -28,6 +28,8 @@ export interface IConfig {
 }
 export interface IBuildOptions {
     fullBuild?: boolean;
+    allowExternalDirectories?: boolean;
+    allowWorkingDirectoryOutput?: boolean;
     globPattern?: string | null;
 }
 export declare type TWorker = (files: IFile[], lollygag: Lollygag) => void | Promise<void>;

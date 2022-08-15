@@ -57,6 +57,8 @@ export interface IConfig {
 
 export interface IBuildOptions {
     fullBuild?: boolean;
+    allowExternalDirectories?: boolean;
+    allowWorkingDirectoryOutput?: boolean;
     globPattern?: string | null;
 }
 
@@ -172,7 +174,7 @@ export class Lollygag {
 
                 rawFileContent = this.handleTemplating(
                     rawFileContent,
-                    this._config.templatingHandlerOptions || null,
+                    this._config.templatingHandlerOptions ?? null,
                     {...this._config, ...this._meta}
                 );
 
@@ -180,7 +182,7 @@ export class Lollygag {
 
                 gmResult.content = this.handleTemplating(
                     gmResult.content,
-                    this._config.templatingHandlerOptions || null,
+                    this._config.templatingHandlerOptions ?? null,
                     gmResult.data
                 );
 
@@ -200,7 +202,7 @@ export class Lollygag {
     }
 
     private handleTemplating
-        = this._config.templatingHandler || handleHandlebars;
+        = this._config.templatingHandler ?? handleHandlebars;
 
     private generatePrettyUrls(files: IFile[]): IFile[] {
         return files.map((file): IFile => {
@@ -240,7 +242,7 @@ export class Lollygag {
                 || file.mimetype === 'inode/x-empty'
                 || file.mimetype === 'application/json'
             ) {
-                await fsp.writeFile(filePath, file.content || '');
+                await fsp.writeFile(filePath, file.content ?? '');
             } else {
                 await fsp.copyFile(file.path, filePath);
             }
@@ -251,7 +253,10 @@ export class Lollygag {
         return Promise.all(promises);
     }
 
-    private validate() {
+    private validate({
+        allowExternalDirectories = false,
+        allowWorkingDirectoryOutput = false,
+    }) {
         const cwd = resolve(process.cwd());
         const inDir = resolve(this._in);
         const outDir = resolve(this._out);
@@ -260,44 +265,59 @@ export class Lollygag {
             throw new Error(`Input directory '${inDir}' does not exist.`);
         }
 
+        if(inDir === outDir) {
+            throw new Error(
+                'Input directory cannot be the same as the output directory.'
+            );
+        }
+
         if(inDir === cwd) {
             throw new Error(
                 `Input directory '${inDir}' is the same as the current working directory.`
             );
         }
 
-        if(!minimatch(inDir, join(cwd, '**/*'))) {
-            throw new Error(
-                `Input directory '${inDir}' is outside the current working directory.`
-            );
+        if(!allowWorkingDirectoryOutput) {
+            if(outDir === cwd) {
+                throw new Error(
+                    `Output directory '${outDir}' is the same as the current working directory.`
+                );
+            }
         }
 
-        if(outDir === cwd) {
-            throw new Error(
-                `Output directory '${outDir}' is the same as the current working directory.`
-            );
-        }
+        if(!allowExternalDirectories) {
+            if(!minimatch(inDir, join(cwd, '**/*'))) {
+                throw new Error(
+                    `Input directory '${inDir}' is outside the current working directory.`
+                );
+            }
 
-        if(!minimatch(outDir, join(cwd, '**/*'))) {
-            throw new Error(
-                `Output directory '${outDir}' is outside the current working directory.`
-            );
+            if(!minimatch(outDir, join(cwd, '**/*'))) {
+                throw new Error(
+                    `Output directory '${outDir}' is outside the current working directory.`
+                );
+            }
         }
     }
 
     async build(options?: IBuildOptions): Promise<void> {
-        this.validate();
-
-        const defaultGlobPattern = '**/*';
-
         const opts: IBuildOptions = {
             fullBuild: false,
+            allowExternalDirectories: false,
+            allowWorkingDirectoryOutput: false,
             ...options,
         };
 
+        this.validate({
+            allowExternalDirectories: opts.allowExternalDirectories,
+            allowWorkingDirectoryOutput: opts.allowWorkingDirectoryOutput,
+        });
+
+        const defaultGlobPattern = '**/*';
+
         opts.globPattern = join(
             this._in,
-            opts.globPattern || defaultGlobPattern
+            opts.globPattern ?? defaultGlobPattern
         );
 
         time('Total build time');
@@ -321,8 +341,10 @@ export class Lollygag {
         timeEnd('Files parsed');
 
         await this._workers.reduce(
-            async(_possiblePromise, worker: TWorker): Promise<void> => {
-                const workerName = worker.name || 'unknown worker';
+            async(possiblePromise, worker: TWorker): Promise<void> => {
+                const workerName = worker.name ?? 'unknown worker';
+
+                await Promise.resolve(possiblePromise);
 
                 log(`Running ${workerName}...`);
                 time(`Finished running ${workerName}`);

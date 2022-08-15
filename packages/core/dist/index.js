@@ -57,13 +57,14 @@ class Lollygag {
     }, __meta = {
         year: new Date().getFullYear(),
     }, __in = 'files', __out = 'public', __files = [], __workers = []) {
+        var _a;
         this.__config = __config;
         this.__meta = __meta;
         this.__in = __in;
         this.__out = __out;
         this.__files = __files;
         this.__workers = __workers;
-        this.handleTemplating = this._config.templatingHandler || helpers_1.handleHandlebars;
+        this.handleTemplating = (_a = this._config.templatingHandler) !== null && _a !== void 0 ? _a : helpers_1.handleHandlebars;
         (0, console_1.log)('Hello from Lollygag!');
     }
     config(config) {
@@ -133,6 +134,7 @@ class Lollygag {
     }
     parseFiles(files) {
         const promises = files.map((file) => __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             const fileMimetype = yield this.getFileMimetype(file);
             const fileStats = yield fs_1.promises.stat(file);
             if (fileMimetype.startsWith('text/')
@@ -140,9 +142,9 @@ class Lollygag {
                 let rawFileContent = yield fs_1.promises.readFile(file, {
                     encoding: 'utf-8',
                 });
-                rawFileContent = this.handleTemplating(rawFileContent, this._config.templatingHandlerOptions || null, Object.assign(Object.assign({}, this._config), this._meta));
+                rawFileContent = this.handleTemplating(rawFileContent, (_a = this._config.templatingHandlerOptions) !== null && _a !== void 0 ? _a : null, Object.assign(Object.assign({}, this._config), this._meta));
                 const gmResult = (0, gray_matter_1.default)(rawFileContent);
-                gmResult.content = this.handleTemplating(gmResult.content, this._config.templatingHandlerOptions || null, gmResult.data);
+                gmResult.content = this.handleTemplating(gmResult.content, (_b = this._config.templatingHandlerOptions) !== null && _b !== void 0 ? _b : null, gmResult.data);
                 return Object.assign(Object.assign({ path: file, content: gmResult.content, mimetype: fileMimetype }, gmResult.data), { stats: fileStats });
             }
             return { path: file, mimetype: fileMimetype, stats: fileStats };
@@ -160,6 +162,7 @@ class Lollygag {
     }
     write(files) {
         const promises = files.map((file) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
             const filePath = (0, path_1.join)(this._out, (0, helpers_1.removeParentFromPath)(this._in, file.path));
             const fileDir = (0, path_1.dirname)(filePath);
             if (!fs_1.default.existsSync(fileDir)) {
@@ -168,7 +171,7 @@ class Lollygag {
             if (file.mimetype.startsWith('text/')
                 || file.mimetype === 'inode/x-empty'
                 || file.mimetype === 'application/json') {
-                yield fs_1.promises.writeFile(filePath, file.content || '');
+                yield fs_1.promises.writeFile(filePath, (_a = file.content) !== null && _a !== void 0 ? _a : '');
             }
             else {
                 yield fs_1.promises.copyFile(file.path, filePath);
@@ -177,32 +180,43 @@ class Lollygag {
         }));
         return Promise.all(promises);
     }
-    validate() {
+    validate({ allowExternalDirectories = false, allowWorkingDirectoryOutput = false, }) {
         const cwd = (0, path_1.resolve)(process.cwd());
         const inDir = (0, path_1.resolve)(this._in);
         const outDir = (0, path_1.resolve)(this._out);
         if (!this._files && !(0, fs_1.existsSync)(inDir)) {
             throw new Error(`Input directory '${inDir}' does not exist.`);
         }
+        if (inDir === outDir) {
+            throw new Error('Input directory cannot be the same as the output directory.');
+        }
         if (inDir === cwd) {
             throw new Error(`Input directory '${inDir}' is the same as the current working directory.`);
         }
-        if (!(0, minimatch_1.default)(inDir, (0, path_1.join)(cwd, '**/*'))) {
-            throw new Error(`Input directory '${inDir}' is outside the current working directory.`);
+        if (!allowWorkingDirectoryOutput) {
+            if (outDir === cwd) {
+                throw new Error(`Output directory '${outDir}' is the same as the current working directory.`);
+            }
         }
-        if (outDir === cwd) {
-            throw new Error(`Output directory '${outDir}' is the same as the current working directory.`);
-        }
-        if (!(0, minimatch_1.default)(outDir, (0, path_1.join)(cwd, '**/*'))) {
-            throw new Error(`Output directory '${outDir}' is outside the current working directory.`);
+        if (!allowExternalDirectories) {
+            if (!(0, minimatch_1.default)(inDir, (0, path_1.join)(cwd, '**/*'))) {
+                throw new Error(`Input directory '${inDir}' is outside the current working directory.`);
+            }
+            if (!(0, minimatch_1.default)(outDir, (0, path_1.join)(cwd, '**/*'))) {
+                throw new Error(`Output directory '${outDir}' is outside the current working directory.`);
+            }
         }
     }
     build(options) {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            this.validate();
+            const opts = Object.assign({ fullBuild: false, allowExternalDirectories: false, allowWorkingDirectoryOutput: false }, options);
+            this.validate({
+                allowExternalDirectories: opts.allowExternalDirectories,
+                allowWorkingDirectoryOutput: opts.allowWorkingDirectoryOutput,
+            });
             const defaultGlobPattern = '**/*';
-            const opts = Object.assign({ fullBuild: false }, options);
-            opts.globPattern = (0, path_1.join)(this._in, opts.globPattern || defaultGlobPattern);
+            opts.globPattern = (0, path_1.join)(this._in, (_a = opts.globPattern) !== null && _a !== void 0 ? _a : defaultGlobPattern);
             (0, console_1.time)('Total build time');
             (0, console_1.time)('Files collected');
             const fileList = yield this.getFiles(opts.globPattern);
@@ -214,8 +228,10 @@ class Lollygag {
                 ...(yield this.parseFiles(fileList)),
             ];
             (0, console_1.timeEnd)('Files parsed');
-            yield this._workers.reduce((_possiblePromise, worker) => __awaiter(this, void 0, void 0, function* () {
-                const workerName = worker.name || 'unknown worker';
+            yield this._workers.reduce((possiblePromise, worker) => __awaiter(this, void 0, void 0, function* () {
+                var _b;
+                const workerName = (_b = worker.name) !== null && _b !== void 0 ? _b : 'unknown worker';
+                yield Promise.resolve(possiblePromise);
                 (0, console_1.log)(`Running ${workerName}...`);
                 (0, console_1.time)(`Finished running ${workerName}`);
                 yield worker(parsedFiles, this);

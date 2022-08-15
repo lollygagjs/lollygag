@@ -76,7 +76,7 @@ async function rebuild(options: IRebuildOptions): Promise<void> {
         }
     }
 
-    return lollygag.build({
+    await lollygag.build({
         fullBuild: watchOptions.fullBuild,
         globPattern,
     });
@@ -152,32 +152,31 @@ export function livedev(options: IWatchOptions): TWorker {
 
         const watched = watcher(toWatch, {ignoreInitial: true});
 
-        watched.on('add', async(path) => {
-            await rebuild({
-                eventSuffix: 'added',
-                triggeredPath: path,
-                watchOptions: options,
-                lollygag,
-            });
+        const test = new Proxy([], {
+            set: (target, property, value) => {
+                console.log('fff');
+
+                return true;
+            },
         });
 
-        watched.on('change', async(path) => {
+        async function onAddOrChange(path: string) {
+            watched.off('add', onAddOrChange);
+            watched.off('change', onAddOrChange);
+
             await rebuild({
                 eventSuffix: 'changed',
                 triggeredPath: path,
                 watchOptions: options,
                 lollygag,
             });
-        });
 
-        watched.on('unlink', async(path) => {
-            await rebuild({
-                eventSuffix: 'removed',
-                triggeredPath: path,
-                watchOptions: {...options, fullBuild: true},
-                lollygag,
-            });
-        });
+            watched.on('add', onAddOrChange);
+            watched.on('change', onAddOrChange);
+        }
+
+        watched.on('add', onAddOrChange);
+        watched.on('change', onAddOrChange);
     };
 }
 

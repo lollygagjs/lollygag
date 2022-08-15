@@ -49,7 +49,7 @@ function rebuild(options) {
                 globPattern = toRebuild;
             }
         }
-        return lollygag.build({
+        yield lollygag.build({
             fullBuild: watchOptions.fullBuild,
             globPattern,
         });
@@ -102,30 +102,28 @@ function livedev(options) {
                 toWatch.push(pattern);
             });
             const watched = (0, chokidar_1.watch)(toWatch, { ignoreInitial: true });
-            watched.on('add', (path) => __awaiter(this, void 0, void 0, function* () {
-                yield rebuild({
-                    eventSuffix: 'added',
-                    triggeredPath: path,
-                    watchOptions: options,
-                    lollygag,
+            const test = new Proxy([], {
+                set: (target, property, value) => {
+                    console.log('fff');
+                    return true;
+                },
+            });
+            function onAddOrChange(path) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    watched.off('add', onAddOrChange);
+                    watched.off('change', onAddOrChange);
+                    yield rebuild({
+                        eventSuffix: 'changed',
+                        triggeredPath: path,
+                        watchOptions: options,
+                        lollygag,
+                    });
+                    watched.on('add', onAddOrChange);
+                    watched.on('change', onAddOrChange);
                 });
-            }));
-            watched.on('change', (path) => __awaiter(this, void 0, void 0, function* () {
-                yield rebuild({
-                    eventSuffix: 'changed',
-                    triggeredPath: path,
-                    watchOptions: options,
-                    lollygag,
-                });
-            }));
-            watched.on('unlink', (path) => __awaiter(this, void 0, void 0, function* () {
-                yield rebuild({
-                    eventSuffix: 'removed',
-                    triggeredPath: path,
-                    watchOptions: Object.assign(Object.assign({}, options), { fullBuild: true }),
-                    lollygag,
-                });
-            }));
+            }
+            watched.on('add', onAddOrChange);
+            watched.on('change', onAddOrChange);
         });
     };
 }

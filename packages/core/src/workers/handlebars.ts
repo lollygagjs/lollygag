@@ -4,17 +4,21 @@ import Handlebars from 'handlebars';
 
 import {changeExtname, IConfig, IFile, TFileHandler, TWorker} from '..';
 
-Handlebars.registerHelper('raw', (opts) => opts.fn());
-Handlebars.registerHelper('asIs', (opts) => opts.fn());
+// Return content as is
+Handlebars.registerHelper('raw', (any) => any.fn());
+Handlebars.registerHelper('asIs', (any) => any.fn());
 
+// Capitalize first word of a string
 Handlebars.registerHelper(
     'cap',
     (word: string) => word.charAt(0).toUpperCase() + word.substring(1)
 );
 
+// Capitalize all words in a string
 Handlebars.registerHelper('capWords', (words: string[]) =>
     words.map((word) => word.charAt(0).toUpperCase() + word.substring(1)));
 
+// Return prop if it `exists`, `defaultValue` otherwise
 Handlebars.registerHelper('orDefault', (prop, defaultValue) =>
     (prop ? prop : defaultValue));
 
@@ -30,8 +34,8 @@ export interface IHandlebarsOptions {
 export type TTemplateData = IConfig & IFile;
 
 export interface IHandleHandlebarsOptions {
-    runtimeOptions?: RuntimeOptions;
     compileOptions?: CompileOptions;
+    runtimeOptions?: RuntimeOptions;
 }
 
 export const handleHandlebars: TFileHandler = (
@@ -39,12 +43,10 @@ export const handleHandlebars: TFileHandler = (
     options?,
     data?
 ): string => {
-    const o = options as IHandleHandlebarsOptions | undefined;
+    const {compileOptions, runtimeOptions}
+        = (options as IHandleHandlebarsOptions | undefined) ?? {};
 
-    return Handlebars.compile(content, o?.compileOptions)(
-        data,
-        o?.runtimeOptions
-    );
+    return Handlebars.compile(content, compileOptions)(data, runtimeOptions);
 };
 
 export function handlebars(options?: IHandlebarsOptions): TWorker {
@@ -53,23 +55,28 @@ export function handlebars(options?: IHandlebarsOptions): TWorker {
 
         for(let i = 0; i < files.length; i++) {
             const file = files[i];
+            const {targetExtnames, newExtname, compileOptions, runtimeOptions}
+                = options ?? {};
 
-            const targetExtnames = options?.targetExtnames || ['.hbs', '.html'];
-
-            if(!targetExtnames.includes(extname(file.path))) {
+            if(
+                !(targetExtnames ?? ['.hbs', '.html']).includes(
+                    extname(file.path)
+                )
+            ) {
                 continue;
-            }
-
-            if(options?.newExtname !== false) {
-                file.path = changeExtname(
-                    file.path,
-                    options?.newExtname || '.html'
-                );
             }
 
             const data = {...lollygag._meta, ...lollygag._config, ...file};
 
-            file.content = handleHandlebars(file.content || '', options, data);
+            file.content = handleHandlebars(
+                file.content ?? '',
+                {compileOptions, runtimeOptions},
+                data
+            );
+
+            if(newExtname !== false) {
+                file.path = changeExtname(file.path, newExtname ?? '.html');
+            }
         }
     };
 }

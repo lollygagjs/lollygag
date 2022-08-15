@@ -9,8 +9,8 @@ export interface IHandlebarsOptions {
 }
 export declare type TTemplateData = IConfig & IFile;
 export interface IHandleHandlebarsOptions {
-    runtimeOptions?: RuntimeOptions;
     compileOptions?: CompileOptions;
+    runtimeOptions?: RuntimeOptions;
 }
 export declare const handleHandlebars: TFileHandler;
 export declare function handlebars(options?: IHandlebarsOptions): TWorker;

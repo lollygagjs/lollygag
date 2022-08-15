@@ -26,7 +26,7 @@ function images(options) {
             if (!(0, fs_1.existsSync)(metaFile)) {
                 (0, fs_1.writeFileSync)(metaFile, '{}');
             }
-            const meta = JSON.parse((0, fs_1.readFileSync)(metaFile, { encoding: 'utf-8' }));
+            const meta = JSON.parse((0, fs_1.readFileSync)(metaFile, { encoding: 'utf-8' }) || '{}');
             const promises = files.map((file) => __awaiter(this, void 0, void 0, function* () {
                 if (!file.mimetype.startsWith('image'))
                     return;
