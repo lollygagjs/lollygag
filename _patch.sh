@@ -11,8 +11,8 @@ for dir in "${1:-packages}"/*/; do
         && echo "$dir $lastmsg" \
         && \
         if ! issemver "$lastmsg";
-        then yarn version --patch --no-git-tag-version && yarn publish;
-        else echo "$lastmsg is not semver";
+        then yarn version --patch --no-git-tag-version && yarn publish
+        else echo "No changes to publish";
         fi
     )
 done
