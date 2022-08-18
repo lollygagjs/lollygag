@@ -8,7 +8,10 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "create:worker": "node scripts/createworker.js",
+    "do:tsc": "bash scripts/tsc.sh",
+    "do:build": "bash scripts/build.sh",
+    "do:publish": "yarn do:build && bash scripts/publish.sh",
+    "do:createworker": "node scripts/createworker.js",
     "eslint:panadero": "npx install-peerdeps --dev eslint-config-panadero",
     "prettier": "prettier --write .",
     "eslint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
