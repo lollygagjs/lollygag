@@ -18,7 +18,7 @@ if ! isvalidarg "$1"; then
     echo "Accepted: ${pkgsarray[*]}"
     echo "Sample usage: $(basename "$0") ${pkgsarray[2]}"
     echo "Exiting..."
-    exit 0
+    exit
 fi
 
-(cd "packages/$1" || exit 0 && yarn start)
+(cd "packages/$1" || exit && yarn start)

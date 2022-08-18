@@ -10,7 +10,7 @@
   "scripts": {
     "do:tsc": "bash scripts/tsc.sh",
     "do:build": "bash scripts/build.sh",
-    "do:publish": "yarn do:build && bash scripts/publish.sh",
+    "do:publish": "bash scripts/publish.sh",
     "do:createworker": "node scripts/createworker.js",
     "eslint:panadero": "npx install-peerdeps --dev eslint-config-panadero",
     "prettier": "prettier --write .",

@@ -43,6 +43,9 @@ issemver() {
     [[ $1 =~ ^v[0-9]+\.+[0-9]+\.+[0-9]+(\-[0-9A-Za-z]+)?$ ]]
 }
 
+# Run build before attempting to bump and publish
+yarn do:build
+
 sep="----------------------------"
 
 echo "$sep"
@@ -58,7 +61,7 @@ for dir in packages/*/; do
         if isdirty "$dir"*; then
             echo "Uncommitted changes found. Skipping..."
             echo "$sep"
-            exit 0
+            exit
         fi
 
         # Skip if `$lastmsg` is a semver
@@ -72,6 +75,6 @@ for dir in packages/*/; do
         fi
 
         echo "$sep"
-        exit 0
+        exit
     )
 done
