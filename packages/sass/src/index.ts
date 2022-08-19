@@ -1,27 +1,28 @@
 /* eslint-disable no-continue */
 import {basename, extname, join} from 'path';
-import {renderSync, SyncOptions} from 'node-sass';
+import {compile, Options} from 'sass';
 import {changeExtname, TWorker} from '@lollygag/core';
 
 export interface ISassOptions {
     newExtname?: string | false;
     targetExtnames?: string[];
-    nodeSassOptions?: SyncOptions;
+    sassOptions?: Options<'sync'>;
 }
 
 export function sass(options?: ISassOptions): TWorker {
     return function sassWorker(this: TWorker, files): void {
         if(!files) return;
 
-        const {newExtname, targetExtnames, nodeSassOptions} = options ?? {};
+        const {newExtname, targetExtnames, sassOptions} = options ?? {};
 
         const _newExtname = newExtname ?? '.css';
         const _targetExtnames = targetExtnames ?? ['.scss', '.sass'];
 
-        const _nodeSassOptions = {
+        const _sassOptions: typeof sassOptions = {
             sourceMap: true,
-            sourceMapContents: true,
-            ...nodeSassOptions,
+            sourceMapIncludeSources: true,
+            style: 'expanded',
+            ...sassOptions,
         };
 
         const excludes: number[] = [];
@@ -45,21 +46,21 @@ export function sass(options?: ISassOptions): TWorker {
                 outFile = changeExtname(file.path, _newExtname);
             }
 
-            const result = renderSync({
-                ..._nodeSassOptions,
-                file: file.path,
-                outFile,
-            });
+            const result = compile(file.path, _sassOptions);
 
             file.path = outFile;
-            file.content = result.css.toString();
+            file.content = result.css;
 
-            if(_nodeSassOptions.sourceMap) {
+            if(_sassOptions.sourceMap && file.content) {
                 const sourcemapPath = join(`${outFile}.map`);
 
                 file.map = sourcemapPath;
 
-                const sourcemapContent = result.map.toString();
+                file.content += `\n\n/*# sourceMappingURL=${basename(
+                    sourcemapPath
+                )} */\n`;
+
+                const sourcemapContent = JSON.stringify(result.sourceMap);
 
                 files.push({
                     path: sourcemapPath,

@@ -1,9 +1,9 @@
-import { SyncOptions } from 'node-sass';
+import { Options } from 'sass';
 import { TWorker } from '@lollygag/core';
 export interface ISassOptions {
     newExtname?: string | false;
     targetExtnames?: string[];
-    nodeSassOptions?: SyncOptions;
+    sassOptions?: Options<'sync'>;
 }
 export declare function sass(options?: ISassOptions): TWorker;
 export default sass;
