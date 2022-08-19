@@ -11,6 +11,8 @@
     "do:tsc": "bash scripts/do/tsc.sh",
     "do:build": "bash scripts/do/build.sh",
     "do:publish": "bash scripts/do/publish.sh",
+    "do:linkcore": "bash scripts/do/linkcore.sh",
+    "do:upgrade": "bash scripts/do/upgrade.sh",
     "create:worker": "node scripts/create/worker.js",
     "eslint:panadero": "npx install-peerdeps --dev eslint-config-panadero",
     "prettier": "prettier --write .",
