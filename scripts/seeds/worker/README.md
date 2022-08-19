@@ -1,3 +1,3 @@
-# @lollygag/{{workerName}}
+# @lollygag/{{lc workerName}}
 
-{{properName}} worker for Lollygag.
+{{cap properName}} worker for Lollygag.

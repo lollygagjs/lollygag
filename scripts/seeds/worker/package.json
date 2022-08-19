@@ -1,7 +1,7 @@
 {
-  "name": "@lollygag/{{workerName}}",
+  "name": "@lollygag/{{lc workerName}}",
   "version": "0.0.1",
-  "description": "{{properName}} worker for Lollygag.",
+  "description": "{{cap properName}} worker for Lollygag.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "author": "John Romeral",
@@ -12,7 +12,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/jegwastaken/lollygag.git",
-    "directory": "packages/{{workerName}}"
+    "directory": "packages/{{lc workerName}}"
   },
   "scripts": {
     "build": "rimraf dist && tsc -d",

@@ -1,4 +1,4 @@
-const {existsSync, unlinkSync} = require('fs');
+const {existsSync} = require('fs');
 const {resolve, basename} = require('path');
 const {default: Lollygag, handlebars} = require('../../packages/core/dist');
 
@@ -34,6 +34,10 @@ if(existsSync(outdir)) {
 }
 
 new Lollygag()
+    .config({
+        prettyUrls: false,
+        generateTimestamp: false,
+    })
     .meta({workerName, properName})
     .in(indir)
     .out(outdir)
@@ -44,5 +48,3 @@ new Lollygag()
         })
     )
     .build();
-
-unlinkSync('.timestamp');

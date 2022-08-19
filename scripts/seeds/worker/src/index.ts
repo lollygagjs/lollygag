@@ -8,7 +8,7 @@ export interface IOptions {
     options?: any;
 }
 
-export const handle{{workerName}}: TFileHandler = (
+export const handle{{cap (lc workerName)}}: TFileHandler = (
     content,
     options?,
     data?
@@ -20,8 +20,8 @@ export const handle{{workerName}}: TFileHandler = (
     return '';
 }
 
-export default function {{workerName}}(options?: IOptions): TWorker {
-    return function {{workerName}}Worker(this: TWorker, files, lollygag): void {
+export default function {{lc workerName}}(options?: IOptions): TWorker {
+    return function {{lc workerName}}Worker(this: TWorker, files, lollygag): void {
         if(!files) return;
 
         for(let i = 0; i < files.length; i++) {
@@ -45,7 +45,7 @@ export default function {{workerName}}(options?: IOptions): TWorker {
 
             const data = {...lollygag._meta, ...lollygag._config, ...file};
 
-            file.content = handle{{workerName}}(file.content || '', options, data);
+            file.content = handle{{cap (lc workerName)}}(file.content || '', options, data);
         }
     };
 }
