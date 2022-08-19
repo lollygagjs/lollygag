@@ -42,8 +42,8 @@ exports.Lollygag = void 0;
 const fs_1 = __importStar(require("fs"));
 const console_1 = require("console");
 const path_1 = require("path");
-const gray_matter_1 = __importDefault(require("gray-matter"));
 const glob_1 = __importDefault(require("glob"));
+const gray_matter_1 = __importDefault(require("gray-matter"));
 const minimatch_1 = __importDefault(require("minimatch"));
 const chalk_1 = require("chalk");
 const mmmagic_1 = __importDefault(require("mmmagic"));
@@ -54,6 +54,7 @@ class Lollygag {
     constructor(__config = {
         generator: 'Lollygag',
         prettyUrls: true,
+        generateTimestamp: true,
     }, __meta = {
         year: new Date().getFullYear(),
     }, __in = 'files', __out = 'public', __files = [], __workers = []) {
@@ -143,9 +144,9 @@ class Lollygag {
                     encoding: 'utf-8',
                 });
                 rawFileContent = this.handleTemplating(rawFileContent, (_a = this._config.templatingHandlerOptions) !== null && _a !== void 0 ? _a : null, Object.assign(Object.assign({}, this._config), this._meta));
-                const gmResult = (0, gray_matter_1.default)(rawFileContent);
-                gmResult.content = this.handleTemplating(gmResult.content, (_b = this._config.templatingHandlerOptions) !== null && _b !== void 0 ? _b : null, gmResult.data);
-                return Object.assign(Object.assign({ path: file, content: gmResult.content, mimetype: fileMimetype }, gmResult.data), { stats: fileStats });
+                const grayMatterResult = (0, gray_matter_1.default)(rawFileContent);
+                grayMatterResult.content = this.handleTemplating(grayMatterResult.content, (_b = this._config.templatingHandlerOptions) !== null && _b !== void 0 ? _b : null, grayMatterResult.data);
+                return Object.assign(Object.assign({ path: file, content: grayMatterResult.content, mimetype: fileMimetype }, grayMatterResult.data), { stats: fileStats });
             }
             return { path: file, mimetype: fileMimetype, stats: fileStats };
         }));
@@ -177,10 +178,10 @@ class Lollygag {
                 yield fs_1.promises.copyFile(file.path, filePath);
             }
         }));
-        return Promise.all([
-            ...promises,
-            fs_1.promises.writeFile('.timestamp', new Date().getTime().toString()),
-        ]);
+        const timestamp = this._config.generateTimestamp
+            ? fs_1.promises.writeFile('.timestamp', new Date().getTime().toString())
+            : Promise.resolve();
+        return Promise.all([...promises, timestamp]);
     }
     validate({ allowExternalDirectories = false, allowWorkingDirectoryOutput = false, }) {
         const cwd = (0, path_1.resolve)(process.cwd());

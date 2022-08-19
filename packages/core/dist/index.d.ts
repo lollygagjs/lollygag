@@ -22,6 +22,7 @@ export declare type TFileHandler = (content: string, options?: unknown, data?: I
 export interface IConfig {
     generator?: string;
     prettyUrls?: boolean;
+    generateTimestamp?: boolean;
     subdir?: string;
     templatingHandler?: TFileHandler;
     templatingHandlerOptions?: unknown;

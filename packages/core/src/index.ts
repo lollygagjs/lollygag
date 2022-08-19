@@ -1,19 +1,19 @@
 import fs, {existsSync, promises as fsp, Stats} from 'fs';
 import {log, error, time, timeEnd} from 'console';
 import {basename, dirname, extname, join, resolve} from 'path';
-import gm from 'gray-matter';
 import glob from 'glob';
+import grayMatter from 'gray-matter';
 import minimatch from 'minimatch';
 import {red} from 'chalk';
 import mmm from 'mmmagic';
 
 import {
-    changeExtname,
-    removeParentFromPath,
-    handleHandlebars,
     addParentToPath,
+    changeExtname,
     deleteEmptyDirs,
     deleteFiles,
+    handleHandlebars,
+    removeParentFromPath,
 } from './helpers';
 
 export * from './helpers';
@@ -50,6 +50,7 @@ export type TFileHandler = (
 export interface IConfig {
     generator?: string;
     prettyUrls?: boolean;
+    generateTimestamp?: boolean;
     subdir?: string;
     templatingHandler?: TFileHandler;
     templatingHandlerOptions?: unknown;
@@ -73,6 +74,7 @@ export class Lollygag {
         private __config: IConfig = {
             generator: 'Lollygag',
             prettyUrls: true,
+            generateTimestamp: true,
         },
         private __meta: IMeta = {
             year: new Date().getFullYear(),
@@ -181,19 +183,19 @@ export class Lollygag {
                     {...this._config, ...this._meta}
                 );
 
-                const gmResult = gm(rawFileContent);
+                const grayMatterResult = grayMatter(rawFileContent);
 
-                gmResult.content = this.handleTemplating(
-                    gmResult.content,
+                grayMatterResult.content = this.handleTemplating(
+                    grayMatterResult.content,
                     this._config.templatingHandlerOptions ?? null,
-                    gmResult.data
+                    grayMatterResult.data
                 );
 
                 return {
                     path: file,
-                    content: gmResult.content,
+                    content: grayMatterResult.content,
                     mimetype: fileMimetype,
-                    ...gmResult.data,
+                    ...grayMatterResult.data,
                     stats: fileStats,
                 };
             }
@@ -248,10 +250,11 @@ export class Lollygag {
             }
         });
 
-        return Promise.all([
-            ...promises,
-            fsp.writeFile('.timestamp', new Date().getTime().toString()),
-        ]);
+        const timestamp = this._config.generateTimestamp
+            ? fsp.writeFile('.timestamp', new Date().getTime().toString())
+            : Promise.resolve();
+
+        return Promise.all([...promises, timestamp]);
     }
 
     private validate({
