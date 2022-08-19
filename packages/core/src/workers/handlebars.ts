@@ -8,6 +8,12 @@ import {changeExtname, IConfig, IFile, TFileHandler, TWorker} from '..';
 Handlebars.registerHelper('raw', (any) => any.fn());
 Handlebars.registerHelper('asIs', (any) => any.fn());
 
+// Uppercase string
+Handlebars.registerHelper('uc', (str: string) => str.toUpperCase());
+
+// Lowercase string
+Handlebars.registerHelper('lc', (str: string) => str.toLowerCase());
+
 // Capitalize first word of a string
 Handlebars.registerHelper(
     'cap',

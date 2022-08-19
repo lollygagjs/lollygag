@@ -12,6 +12,10 @@ const __1 = require("..");
 // Return content as is
 handlebars_1.default.registerHelper('raw', (any) => any.fn());
 handlebars_1.default.registerHelper('asIs', (any) => any.fn());
+// Uppercase string
+handlebars_1.default.registerHelper('uc', (str) => str.toUpperCase());
+// Lowercase string
+handlebars_1.default.registerHelper('lc', (str) => str.toLowerCase());
 // Capitalize first word of a string
 handlebars_1.default.registerHelper('cap', (word) => word.charAt(0).toUpperCase() + word.substring(1));
 // Capitalize all words in a string
