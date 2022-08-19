@@ -1,13 +1,17 @@
 const {existsSync, unlinkSync} = require('fs');
-const {resolve, relative} = require('path');
-const {default: Lollygag, handlebars} = require('../packages/core');
+const {resolve, basename} = require('path');
+const {default: Lollygag, handlebars} = require('../../packages/core/dist');
 
 const workerName = process.argv[2];
-const scriptPath = relative(process.cwd(), __filename);
 
 if(!workerName) {
-    console.log(`Usage: 'node ${scriptPath} [workername]'`);
-    console.log('No [workername] provided. Exiting...');
+    console.log('No <workerName> provided');
+    console.log(
+        `Sample usage: ${basename(
+            __filename
+        )} <workerName> [--properName <properName>]`
+    );
+    console.log('Exiting...');
     process.exit(0);
 }
 
@@ -21,8 +25,8 @@ if(properNameIndex > -1) {
 
 const properName = properNameValue || workerName;
 
-const indir = resolve(__dirname, './seeds/worker');
-const outdir = resolve(__dirname, `../packages/${workerName}`);
+const indir = resolve(__dirname, '../seeds/worker');
+const outdir = resolve(__dirname, `../../packages/${workerName}`);
 
 if(existsSync(outdir)) {
     console.log(`Directory '${outdir}' exists. Exiting...`);
