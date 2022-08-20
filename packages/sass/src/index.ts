@@ -13,16 +13,14 @@ export function sass(options?: ISassOptions): TWorker {
     return function sassWorker(this: TWorker, files): void {
         if(!files) return;
 
-        const {newExtname, targetExtnames, sassOptions} = options ?? {};
+        const newExtname = options?.newExtname ?? '.css';
+        const targetExtnames = options?.targetExtnames ?? ['.scss', '.sass'];
 
-        const _newExtname = newExtname ?? '.css';
-        const _targetExtnames = targetExtnames ?? ['.scss', '.sass'];
-
-        const _sassOptions: typeof sassOptions = {
+        const sassOptions: ISassOptions['sassOptions'] = {
             sourceMap: true,
             sourceMapIncludeSources: true,
             style: 'expanded',
-            ...sassOptions,
+            ...options?.sassOptions,
         };
 
         const excludes: number[] = [];
@@ -30,7 +28,7 @@ export function sass(options?: ISassOptions): TWorker {
         for(let i = 0; i < files.length; i++) {
             const file = files[i];
 
-            if(!_targetExtnames.includes(extname(file.path))) {
+            if(!targetExtnames.includes(extname(file.path))) {
                 continue;
             }
 
@@ -42,16 +40,16 @@ export function sass(options?: ISassOptions): TWorker {
 
             let outFile = file.path;
 
-            if(_newExtname !== false) {
-                outFile = changeExtname(file.path, _newExtname);
+            if(newExtname !== false) {
+                outFile = changeExtname(file.path, newExtname);
             }
 
-            const result = compile(file.path, _sassOptions);
+            const result = compile(file.path, sassOptions);
 
             file.path = outFile;
             file.content = result.css;
 
-            if(_sassOptions.sourceMap && file.content) {
+            if(sassOptions.sourceMap && file.content) {
                 const sourcemapPath = join(`${outFile}.map`);
 
                 file.map = sourcemapPath;

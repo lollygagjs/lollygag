@@ -21,37 +21,30 @@ export function markdown(options?: IMarkdownOptions): TWorker {
     return function markdownWorker(this: TWorker, files, lollygag): void {
         if(!files) return;
 
-        const {
-            targetExtnames,
-            newExtname,
-            markdownOptions,
-            templatingHandler,
-            templatingHandlerOptions,
-        } = options ?? {};
+        const {templatingHandlerOptions} = options ?? {};
+        const newExtname = options?.newExtname ?? '.html';
+        const targetExtnames = options?.targetExtnames ?? ['.md', '.html'];
 
-        const _targetExtnames = targetExtnames ?? ['.md', '.html'];
-        const _newExtname = newExtname ?? '.html';
-
-        const _markdownOptions = {
+        const markdownOptions = {
             html: true,
-            ...markdownOptions,
+            ...options?.markdownOptions,
         };
 
-        const _templatingHandler
-            = templatingHandler
+        const templatingHandler
+            = options?.templatingHandler
             ?? lollygag._config.templatingHandler
             ?? handleHandlebars;
 
         for(let i = 0; i < files.length; i++) {
             const file = files[i];
 
-            if(!_targetExtnames.includes(extname(file.path))) {
+            if(!targetExtnames.includes(extname(file.path))) {
                 continue;
             }
 
             const data = {...lollygag._meta, ...lollygag._config, ...file};
 
-            file.content = _templatingHandler(
+            file.content = templatingHandler(
                 file.content ?? '',
                 templatingHandlerOptions,
                 data
@@ -59,12 +52,12 @@ export function markdown(options?: IMarkdownOptions): TWorker {
 
             file.content = handleMarkdown(
                 file.content ?? '',
-                _markdownOptions,
+                markdownOptions,
                 data
             );
 
-            if(_newExtname !== false) {
-                file.path = changeExtname(file.path, _newExtname);
+            if(newExtname !== false) {
+                file.path = changeExtname(file.path, newExtname);
             }
         }
     };

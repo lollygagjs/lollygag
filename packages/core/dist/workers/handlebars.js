@@ -30,21 +30,21 @@ const handleHandlebars = (content, options, data) => {
 exports.handleHandlebars = handleHandlebars;
 function handlebars(options) {
     return function handlebarsWorker(files, lollygag) {
-        var _a;
+        var _a, _b, _c;
         if (!files)
             return;
-        const { newExtname, targetExtnames, compileOptions, runtimeOptions } = options !== null && options !== void 0 ? options : {};
-        const _newExtname = newExtname !== null && newExtname !== void 0 ? newExtname : '.html';
-        const _targetExtnames = targetExtnames !== null && targetExtnames !== void 0 ? targetExtnames : ['.hbs', '.html'];
+        const { compileOptions, runtimeOptions } = options !== null && options !== void 0 ? options : {};
+        const newExtname = (_a = options === null || options === void 0 ? void 0 : options.newExtname) !== null && _a !== void 0 ? _a : '.html';
+        const targetExtnames = (_b = options === null || options === void 0 ? void 0 : options.targetExtnames) !== null && _b !== void 0 ? _b : ['.hbs', '.html'];
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
-            if (!_targetExtnames.includes((0, path_1.extname)(file.path))) {
+            if (!targetExtnames.includes((0, path_1.extname)(file.path))) {
                 continue;
             }
             const data = Object.assign(Object.assign(Object.assign({}, lollygag._meta), lollygag._config), file);
-            file.content = (0, exports.handleHandlebars)((_a = file.content) !== null && _a !== void 0 ? _a : '', { compileOptions, runtimeOptions }, data);
-            if (_newExtname !== false) {
-                file.path = (0, __1.changeExtname)(file.path, _newExtname);
+            file.content = (0, exports.handleHandlebars)((_c = file.content) !== null && _c !== void 0 ? _c : '', { compileOptions, runtimeOptions }, data);
+            if (newExtname !== false) {
+                file.path = (0, __1.changeExtname)(file.path, newExtname);
             }
         }
     };

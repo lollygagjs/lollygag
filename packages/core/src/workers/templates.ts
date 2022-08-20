@@ -16,27 +16,19 @@ export function templates(options?: ITemplatesOptions): TWorker {
     return function templatesWorker(this: TWorker, files, lollygag): void {
         if(!files) return;
 
-        const {
-            newExtname,
-            targetExtnames,
-            templatesDirectory,
-            defaultTemplate,
-            templatingHandler,
-            templatingHandlerOptions,
-        } = options ?? {};
+        const {templatingHandlerOptions} = options ?? {};
+        const newExtname = options?.newExtname ?? '.html';
+        const targetExtnames = options?.targetExtnames ?? ['.hbs', '.html'];
+        const templatesDirectory = options?.templatesDirectory ?? 'templates';
+        const defaultTemplate = options?.defaultTemplate ?? 'index.hbs';
 
-        const _newExtname = newExtname ?? '.html';
-        const _targetExtnames = targetExtnames ?? ['.hbs', '.html'];
-        const _templatesDirectory = templatesDirectory ?? 'templates';
-        const _defaultTemplate = defaultTemplate ?? 'index.hbs';
-
-        const _templatingHandler
-            = templatingHandler
+        const templatingHandler
+            = options?.templatingHandler
             ?? lollygag._config.templatingHandler
             ?? handleHandlebars;
 
         let template = '';
-        let templatePath = join(_templatesDirectory, _defaultTemplate);
+        let templatePath = join(templatesDirectory, defaultTemplate);
 
         if(existsSync(templatePath)) {
             template = readFileSync(templatePath, {encoding: 'utf-8'});
@@ -54,14 +46,14 @@ export function templates(options?: ITemplatesOptions): TWorker {
         for(let i = 0; i < files.length; i++) {
             const file = files[i];
 
-            if(!_targetExtnames.includes(extname(file.path))) {
+            if(!targetExtnames.includes(extname(file.path))) {
                 continue;
             }
 
             console.log(`Processing '${file.path}'...`);
 
-            if(file.template && file.template !== _defaultTemplate) {
-                templatePath = join(_templatesDirectory, file.template);
+            if(file.template && file.template !== defaultTemplate) {
+                templatePath = join(templatesDirectory, file.template);
 
                 if(existsSync(templatePath)) {
                     template = readFileSync(templatePath, {encoding: 'utf-8'});
@@ -74,7 +66,7 @@ export function templates(options?: ITemplatesOptions): TWorker {
 
             const data = {...lollygag._meta, ...lollygag._config, ...file};
 
-            file.content = _templatingHandler(
+            file.content = templatingHandler(
                 template,
                 templatingHandlerOptions,
                 data
@@ -82,8 +74,8 @@ export function templates(options?: ITemplatesOptions): TWorker {
 
             console.log(`Processing '${file.path}'... done!`);
 
-            if(_newExtname !== false) {
-                file.path = changeExtname(file.path, _newExtname);
+            if(newExtname !== false) {
+                file.path = changeExtname(file.path, newExtname);
             }
         }
     };

@@ -1,5 +1,5 @@
-import { TWorker } from '@lollygag/core';
+import { RaggedyObject, TWorker } from '@lollygag/core';
 export interface IImagesOptions {
-    imageCompressorOptions?: any;
+    imageCompressorOptions?: RaggedyObject;
 }
 export default function images(options?: IImagesOptions): TWorker;

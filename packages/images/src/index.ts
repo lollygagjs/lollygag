@@ -1,11 +1,11 @@
 /* eslint-disable no-continue */
 import Jimp from 'jimp';
-import {TWorker} from '@lollygag/core';
+import {RaggedyObject, TWorker} from '@lollygag/core';
 import {existsSync, mkdirSync, readFileSync, Stats, writeFileSync} from 'fs';
 import {writeFile} from 'fs/promises';
 
 export interface IImagesOptions {
-    imageCompressorOptions?: any;
+    imageCompressorOptions?: RaggedyObject;
 }
 
 export default function images(options?: IImagesOptions): TWorker {

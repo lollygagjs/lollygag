@@ -7,17 +7,17 @@ const fs_1 = require("fs");
 const __1 = require("..");
 function templates(options) {
     return function templatesWorker(files, lollygag) {
-        var _a;
+        var _a, _b, _c, _d, _e, _f;
         if (!files)
             return;
-        const { newExtname, targetExtnames, templatesDirectory, defaultTemplate, templatingHandler, templatingHandlerOptions, } = options !== null && options !== void 0 ? options : {};
-        const _newExtname = newExtname !== null && newExtname !== void 0 ? newExtname : '.html';
-        const _targetExtnames = targetExtnames !== null && targetExtnames !== void 0 ? targetExtnames : ['.hbs', '.html'];
-        const _templatesDirectory = templatesDirectory !== null && templatesDirectory !== void 0 ? templatesDirectory : 'templates';
-        const _defaultTemplate = defaultTemplate !== null && defaultTemplate !== void 0 ? defaultTemplate : 'index.hbs';
-        const _templatingHandler = (_a = templatingHandler !== null && templatingHandler !== void 0 ? templatingHandler : lollygag._config.templatingHandler) !== null && _a !== void 0 ? _a : __1.handleHandlebars;
+        const { templatingHandlerOptions } = options !== null && options !== void 0 ? options : {};
+        const newExtname = (_a = options === null || options === void 0 ? void 0 : options.newExtname) !== null && _a !== void 0 ? _a : '.html';
+        const targetExtnames = (_b = options === null || options === void 0 ? void 0 : options.targetExtnames) !== null && _b !== void 0 ? _b : ['.hbs', '.html'];
+        const templatesDirectory = (_c = options === null || options === void 0 ? void 0 : options.templatesDirectory) !== null && _c !== void 0 ? _c : 'templates';
+        const defaultTemplate = (_d = options === null || options === void 0 ? void 0 : options.defaultTemplate) !== null && _d !== void 0 ? _d : 'index.hbs';
+        const templatingHandler = (_f = (_e = options === null || options === void 0 ? void 0 : options.templatingHandler) !== null && _e !== void 0 ? _e : lollygag._config.templatingHandler) !== null && _f !== void 0 ? _f : __1.handleHandlebars;
         let template = '';
-        let templatePath = (0, path_1.join)(_templatesDirectory, _defaultTemplate);
+        let templatePath = (0, path_1.join)(templatesDirectory, defaultTemplate);
         if ((0, fs_1.existsSync)(templatePath)) {
             template = (0, fs_1.readFileSync)(templatePath, { encoding: 'utf-8' });
         }
@@ -30,12 +30,12 @@ function templates(options) {
         }
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
-            if (!_targetExtnames.includes((0, path_1.extname)(file.path))) {
+            if (!targetExtnames.includes((0, path_1.extname)(file.path))) {
                 continue;
             }
             console.log(`Processing '${file.path}'...`);
-            if (file.template && file.template !== _defaultTemplate) {
-                templatePath = (0, path_1.join)(_templatesDirectory, file.template);
+            if (file.template && file.template !== defaultTemplate) {
+                templatePath = (0, path_1.join)(templatesDirectory, file.template);
                 if ((0, fs_1.existsSync)(templatePath)) {
                     template = (0, fs_1.readFileSync)(templatePath, { encoding: 'utf-8' });
                 }
@@ -44,10 +44,10 @@ function templates(options) {
                 }
             }
             const data = Object.assign(Object.assign(Object.assign({}, lollygag._meta), lollygag._config), file);
-            file.content = _templatingHandler(template, templatingHandlerOptions, data);
+            file.content = templatingHandler(template, templatingHandlerOptions, data);
             console.log(`Processing '${file.path}'... done!`);
-            if (_newExtname !== false) {
-                file.path = (0, __1.changeExtname)(file.path, _newExtname);
+            if (newExtname !== false) {
+                file.path = (0, __1.changeExtname)(file.path, newExtname);
             }
         }
     };
