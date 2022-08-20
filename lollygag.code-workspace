@@ -23,6 +23,9 @@
             "path": "packages/sass"
         },
         {
+            "path": "packages/terser"
+        },
+        {
             "path": "packages/typescript"
         }
     ],

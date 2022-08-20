@@ -1,0 +1,32 @@
+{
+  "name": "@lollygag/terser",
+  "version": "0.0.1",
+  "description": "Terser worker for Lollygag.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "John Romeral",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jegwastaken/lollygag.git",
+    "directory": "packages/terser"
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc -d",
+    "start": "tsc -d -w"
+  },
+  "dependencies": {
+    "@types/node": "^17.0.31",
+    "terser": "^5.14.2"
+  },
+  "devDependencies": {
+    "@lollygag/core": "*",
+    "typescript": "^4.6.4"
+  },
+  "peerDependencies": {
+    "@lollygag/core": "*"
+  }
+}
