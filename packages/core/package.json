@@ -21,6 +21,7 @@
   "dependencies": {
     "@types/markdown-it": "^12.2.3",
     "@types/mmmagic": "^0.4.30",
+    "@types/node": "^17.0.31",
     "@types/rimraf": "^3.0.2",
     "chalk": "^4.1.2",
     "gray-matter": "^4.0.3",
