@@ -1,6 +1,7 @@
 /* eslint-disable no-continue */
-import {dirname, extname, join} from 'path';
-import glob from 'glob';
+import {extname, join} from 'path';
+import minimatch from 'minimatch';
+
 import {
     addParentToPath,
     changeExtname,
@@ -37,12 +38,13 @@ export function archives(options: IArchivesOptions): TWorker {
         const targetExtnames = options?.targetExtnames ?? ['.hbs', '.html'];
         const renameToTitle = options?.renameToTitle ?? true;
 
-        console.log('dir', dir);
-
         for(let i = 0; i < files.length; i++) {
             const file = files[i];
 
-            if(!targetExtnames.includes(extname(file.path))) {
+            if(
+                !targetExtnames.includes(extname(file.path))
+                || !minimatch(file.path, join(dir, '/*'))
+            ) {
                 continue;
             }
 
@@ -51,12 +53,8 @@ export function archives(options: IArchivesOptions): TWorker {
             }
 
             if(file.title && renameToTitle) {
-                console.log('dirname(file.path)', dirname(file.path));
-                console.log('slugify(file.title)', slugify(file.title));
-                console.log('fullExtname(file.path)', fullExtname(file.path));
-
                 file.path = join(
-                    dirname(file.path),
+                    dir,
                     slugify(file.title) + fullExtname(file.path)
                 );
             }
