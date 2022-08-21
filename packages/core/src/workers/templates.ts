@@ -50,8 +50,6 @@ export function templates(options?: ITemplatesOptions): TWorker {
                 continue;
             }
 
-            console.log(`Processing '${file.path}'...`);
-
             if(file.template && file.template !== defaultTemplate) {
                 templatePath = join(templatesDirectory, file.template);
 
@@ -71,8 +69,6 @@ export function templates(options?: ITemplatesOptions): TWorker {
                 templatingHandlerOptions,
                 data
             );
-
-            console.log(`Processing '${file.path}'... done!`);
 
             if(newExtname !== false) {
                 file.path = changeExtname(file.path, newExtname);

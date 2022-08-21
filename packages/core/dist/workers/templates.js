@@ -33,7 +33,6 @@ function templates(options) {
             if (!targetExtnames.includes((0, path_1.extname)(file.path))) {
                 continue;
             }
-            console.log(`Processing '${file.path}'...`);
             if (file.template && file.template !== defaultTemplate) {
                 templatePath = (0, path_1.join)(templatesDirectory, file.template);
                 if ((0, fs_1.existsSync)(templatePath)) {
@@ -45,7 +44,6 @@ function templates(options) {
             }
             const data = Object.assign(Object.assign(Object.assign({}, lollygag._meta), lollygag._config), file);
             file.content = templatingHandler(template, templatingHandlerOptions, data);
-            console.log(`Processing '${file.path}'... done!`);
             if (newExtname !== false) {
                 file.path = (0, __1.changeExtname)(file.path, newExtname);
             }
