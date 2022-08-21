@@ -7,12 +7,14 @@ export interface IOptions {
     newExtname?: string | false;
     targetExtnames?: string[];
     keepOriginal?: boolean;
+    minifyOptions?: t.MinifyOptions;
 }
 
 export default function terser(options?: IOptions): TWorker {
     return async function terserWorker(this: TWorker, files): Promise<void> {
         if(!files) return;
 
+        const {minifyOptions} = options ?? {};
         const defaultExtname = '.js';
         const newExtname = options?.newExtname ?? defaultExtname;
         const targetExtnames = options?.targetExtnames ?? ['.js'];
@@ -37,7 +39,7 @@ export default function terser(options?: IOptions): TWorker {
                 filePath = changeExtname(_file.path, newExtname);
             }
 
-            const {code} = await t.minify(_file.content ?? '');
+            const {code} = await t.minify(_file.content ?? '', minifyOptions);
 
             _file.path = filePath;
             _file.content = code;

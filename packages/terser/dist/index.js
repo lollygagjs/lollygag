@@ -22,6 +22,7 @@ function terser(options) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!files)
                 return;
+            const { minifyOptions } = options !== null && options !== void 0 ? options : {};
             const defaultExtname = '.js';
             const newExtname = (_a = options === null || options === void 0 ? void 0 : options.newExtname) !== null && _a !== void 0 ? _a : defaultExtname;
             const targetExtnames = (_b = options === null || options === void 0 ? void 0 : options.targetExtnames) !== null && _b !== void 0 ? _b : ['.js'];
@@ -40,7 +41,7 @@ function terser(options) {
                 if (newExtname !== false) {
                     filePath = (0, core_1.changeExtname)(_file.path, newExtname);
                 }
-                const { code } = yield terser_1.default.minify((_d = _file.content) !== null && _d !== void 0 ? _d : '');
+                const { code } = yield terser_1.default.minify((_d = _file.content) !== null && _d !== void 0 ? _d : '', minifyOptions);
                 _file.path = filePath;
                 _file.content = code;
                 if (makeNewFile)
