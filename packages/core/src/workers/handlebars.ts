@@ -1,6 +1,6 @@
 /* eslint-disable no-continue */
 import {extname} from 'path';
-import {glob} from 'glob';
+import glob from 'glob';
 import Handlebars from 'handlebars';
 
 import {changeExtname, IConfig, IFile, TFileHandler, TWorker} from '..';
