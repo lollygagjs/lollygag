@@ -11,6 +11,9 @@
             "path": "packages/core/src/workers"
         },
         {
+            "path": "packages/archives"
+        },
+        {
             "path": "packages/images"
         },
         {
