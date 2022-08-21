@@ -6,8 +6,10 @@ import {
     addParentToPath,
     changeExtname,
     fullExtname,
+    IFile,
     TWorker,
 } from '@lollygag/core';
+import {writeFileSync} from 'fs';
 
 export interface IArchivesOptions {
     newExtname?: string | false;
@@ -38,12 +40,15 @@ export function archives(options: IArchivesOptions): TWorker {
         const targetExtnames = options?.targetExtnames ?? ['.hbs', '.html'];
         const renameToTitle = options?.renameToTitle ?? true;
 
+        // TODO: Temp
+        const x: IFile[] = [];
+
         for(let i = 0; i < files.length; i++) {
             const file = files[i];
 
             if(
                 !targetExtnames.includes(extname(file.path))
-                || !minimatch(file.path, join(dir, '/*'))
+                || !minimatch(file.path, join(dir, '/**/*'))
             ) {
                 continue;
             }
@@ -58,7 +63,24 @@ export function archives(options: IArchivesOptions): TWorker {
                     slugify(file.title) + fullExtname(file.path)
                 );
             }
+
+            x.push(file);
         }
+
+        // TODO: Create archive pages
+        writeFileSync(
+            'temp.json',
+            JSON.stringify(
+                x.sort(
+                    (a, b) =>
+                        // Sort descending based on file creation time
+                        ((b.stats ?? {}).birthtimeMs ?? 0)
+                        - ((a.stats ?? {}).birthtimeMs ?? 0)
+                ),
+                null,
+                2
+            )
+        );
     };
 }
 
