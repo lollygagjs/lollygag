@@ -1,8 +1,10 @@
 /* eslint-disable no-continue */
 import {extname} from 'path';
+import {glob} from 'glob';
 import Handlebars from 'handlebars';
 
 import {changeExtname, IConfig, IFile, TFileHandler, TWorker} from '..';
+import {readFileSync} from 'fs';
 
 // Return content as is
 Handlebars.registerHelper('raw', (any) => any.fn());
@@ -43,6 +45,15 @@ export interface IHandleHandlebarsOptions {
     compileOptions?: CompileOptions;
     runtimeOptions?: RuntimeOptions;
 }
+
+export const registerPartials = (dir: string) => {
+    glob.sync(`${dir}/*.hbs`).forEach((file) => {
+        const name = (file.split('/').pop() ?? file).split('.')[0];
+        const partial = readFileSync(file, 'utf8');
+
+        Handlebars.registerPartial(name, partial);
+    });
+};
 
 export const handleHandlebars: TFileHandler = (
     content,
