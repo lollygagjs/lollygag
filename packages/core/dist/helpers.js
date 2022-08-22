@@ -23,7 +23,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteFiles = exports.deleteEmptyDirs = exports.removeParentFromPath = exports.addParentToPath = exports.changeFullExtname = exports.changeExtname = exports.fullExtname = void 0;
+exports.deepCopy = exports.deleteFiles = exports.deleteEmptyDirs = exports.removeParentFromPath = exports.addParentToPath = exports.changeFullExtname = exports.changeExtname = exports.fullExtname = void 0;
 const fs_1 = require("fs");
 const path_1 = require("path");
 __exportStar(require("./workers/handlebars"), exports);
@@ -77,3 +77,7 @@ function deleteFiles(files) {
     return Promise.all(files.map((f) => fs_1.promises.unlink(f)));
 }
 exports.deleteFiles = deleteFiles;
+function deepCopy(original) {
+    return JSON.parse(JSON.stringify(original));
+}
+exports.deepCopy = deepCopy;

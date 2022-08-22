@@ -1,3 +1,4 @@
+import { RaggedyAny, RaggedyObject } from '.';
 export * from './workers/handlebars';
 export * from './workers/markdown';
 export * from './workers/templates';
@@ -8,3 +9,4 @@ export declare function addParentToPath(parent: string, path: string): string;
 export declare function removeParentFromPath(parent: string, path: string): string;
 export declare function deleteEmptyDirs(dir: string): Promise<void>;
 export declare function deleteFiles(files: string[]): Promise<void[]>;
+export declare function deepCopy(original: RaggedyAny[] | RaggedyObject): any;

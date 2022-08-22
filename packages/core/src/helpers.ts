@@ -1,5 +1,6 @@
 import {promises as fsp, statSync} from 'fs';
 import {extname, basename, dirname, join} from 'path';
+import {RaggedyAny, RaggedyObject} from '.';
 
 export * from './workers/handlebars';
 export * from './workers/markdown';
@@ -64,4 +65,8 @@ export async function deleteEmptyDirs(dir: string) {
 
 export function deleteFiles(files: string[]) {
     return Promise.all(files.map((f) => fsp.unlink(f)));
+}
+
+export function deepCopy(original: RaggedyAny[] | RaggedyObject) {
+    return JSON.parse(JSON.stringify(original));
 }
