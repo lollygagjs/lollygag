@@ -10,6 +10,7 @@
   "scripts": {
     "do:tsc": "bash scripts/do/tsc.sh",
     "do:build": "bash scripts/do/build.sh",
+    "do:watch": "bash scripts/do/watch.sh",
     "do:publish": "bash scripts/do/publish.sh",
     "do:linkcore": "bash scripts/do/linkcore.sh",
     "do:upgrade": "bash scripts/do/upgrade.sh",
