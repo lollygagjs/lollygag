@@ -5,11 +5,11 @@ import minimatch from 'minimatch';
 import {
     addParentToPath,
     changeExtname,
+    deepCopy,
     fullExtname,
     IFile,
     TWorker,
 } from '@lollygag/core';
-import {writeFileSync} from 'fs';
 
 export interface IArchivesOptions {
     newExtname?: string | false;
@@ -40,8 +40,7 @@ export function archives(options: IArchivesOptions): TWorker {
         const targetExtnames = options?.targetExtnames ?? ['.hbs', '.html'];
         const renameToTitle = options?.renameToTitle ?? true;
 
-        // TODO: Temp
-        const x: IFile[] = [];
+        const list: IFile[] = [];
 
         for(let i = 0; i < files.length; i++) {
             const file = files[i];
@@ -64,23 +63,34 @@ export function archives(options: IArchivesOptions): TWorker {
                 );
             }
 
-            x.push(file);
+            // TODO: Temp
+            list.push(file);
         }
 
-        // TODO: Create archive pages
-        writeFileSync(
-            'temp.json',
-            JSON.stringify(
-                x.sort(
-                    (a, b) =>
-                        // Sort descending based on file creation time
-                        ((b.stats ?? {}).birthtimeMs ?? 0)
-                        - ((a.stats ?? {}).birthtimeMs ?? 0)
-                ),
-                null,
-                2
-            )
+        list.sort(
+            (a, b) =>
+                // Sort descending based on file creation time
+                ((b.stats ?? {}).birthtimeMs ?? 0)
+                - ((a.stats ?? {}).birthtimeMs ?? 0)
         );
+
+        const pageLimit = 10;
+
+        // eslint-disable-next-line no-mixed-operators
+        for(let i = 1; i <= list.length / pageLimit + 1; i++) {
+            const items = deepCopy(
+                // eslint-disable-next-line no-mixed-operators
+                list.slice(i * pageLimit - pageLimit, i * pageLimit)
+            );
+
+            files.push({
+                path: join(dir, i === 1 ? 'index.html' : `${i}.html`),
+                title: `Archives: Page ${i}`,
+                template: 'archives.hbs',
+                items,
+                mimetype: 'text/plain',
+            });
+        }
     };
 }
 
