@@ -32,7 +32,7 @@ function terser(options) {
                 var _d;
                 let _file = file;
                 if (makeNewFile)
-                    _file = Object.assign({}, file);
+                    _file = (0, core_1.deepCopy)(file);
                 if (!targetExtnames.includes((0, path_1.extname)(_file.path))
                     || (0, core_1.fullExtname)(_file.path).endsWith('.min.js')) {
                     return;

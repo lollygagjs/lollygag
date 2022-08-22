@@ -1,7 +1,7 @@
 /* eslint-disable no-continue */
 import {extname} from 'path';
 import t from 'terser';
-import {changeExtname, fullExtname, TWorker} from '@lollygag/core';
+import {changeExtname, deepCopy, fullExtname, TWorker} from '@lollygag/core';
 
 export interface IOptions {
     newExtname?: string | false;
@@ -24,7 +24,7 @@ export default function terser(options?: IOptions): TWorker {
         const promises = files.map(async(file) => {
             let _file = file;
 
-            if(makeNewFile) _file = {...file};
+            if(makeNewFile) _file = deepCopy(file);
 
             if(
                 !targetExtnames.includes(extname(_file.path))

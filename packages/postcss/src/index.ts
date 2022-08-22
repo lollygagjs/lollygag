@@ -1,7 +1,7 @@
 /* eslint-disable no-continue */
 import {extname, join} from 'path';
 import pcss, {AcceptedPlugin, ProcessOptions} from 'postcss';
-import {changeExtname, fullExtname, TWorker} from '@lollygag/core';
+import {changeExtname, deepCopy, fullExtname, TWorker} from '@lollygag/core';
 
 export interface IOptions {
     newExtname?: string | false;
@@ -26,7 +26,7 @@ export function postcss(options?: IOptions): TWorker {
         const promises = files.map(async(file) => {
             let _file = file;
 
-            if(makeNewFile) _file = {...file};
+            if(makeNewFile) _file = deepCopy(file);
 
             if(
                 !targetExtnames.includes(extname(_file.path))
