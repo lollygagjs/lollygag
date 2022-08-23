@@ -2,6 +2,7 @@ import { TWorker } from '@lollygag/core';
 export interface IArchivesOptions {
     newExtname?: string | false;
     targetExtnames?: string[];
+    pageLimit?: number;
     dir: string;
     renameToTitle?: boolean;
 }

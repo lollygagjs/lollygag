@@ -14,6 +14,7 @@ import {
 export interface IArchivesOptions {
     newExtname?: string | false;
     targetExtnames?: string[];
+    pageLimit?: number;
     dir: string;
     renameToTitle?: boolean;
 }
@@ -31,23 +32,72 @@ export const slugify = (s: string) =>
         .replace(/^-+|-+$/g, '')
         .toLowerCase();
 
+interface IPaginateArchivesArgs {
+    archive: IFile[];
+    files: IFile[];
+    pretty?: boolean;
+    pageLimit: number;
+    relativeDir: string;
+    prewriteDir: string;
+}
+
+function paginateArchive(args: IPaginateArchivesArgs) {
+    const {archive, files, relativeDir, prewriteDir, pretty, pageLimit} = args;
+
+    const pageCount = Math.ceil(archive.length / pageLimit);
+
+    function page(pageNumber: string) {
+        const num = pageNumber === '1' ? '' : pageNumber;
+        const uglyNum = num === '' ? num : `${num}.html`;
+
+        return join(relativeDir, pretty ? `${num}` : uglyNum);
+    }
+
+    // eslint-disable-next-line no-mixed-operators
+    for(let i = 1; i <= pageCount; i++) {
+        const items = deepCopy(
+            // eslint-disable-next-line no-mixed-operators
+            archive.slice(i * pageLimit - pageLimit, i * pageLimit)
+        );
+
+        const nextLink = pageCount > i ? page(`${i + 1}`) : false;
+        const prevLink = i > 1 ? page(`${i - 1}`) : false;
+
+        files.push({
+            path: join(prewriteDir, i === 1 ? 'index.html' : `${i}.html`),
+            title: `Archives: Page ${i}`,
+            template: 'archives.hbs',
+            nextLink,
+            prevLink,
+            items,
+            mimetype: 'text/plain',
+        });
+    }
+}
+
 export function archives(options: IArchivesOptions): TWorker {
     return function archivesWorker(this: TWorker, files, lollygag): void {
         if(!files) return;
 
-        const dir = addParentToPath(lollygag._in, options.dir);
-        const newExtname = options?.newExtname ?? '.html';
-        const targetExtnames = options?.targetExtnames ?? ['.hbs', '.html'];
-        const renameToTitle = options?.renameToTitle ?? true;
+        const {
+            pageLimit = 10,
+            renameToTitle = true,
+            newExtname = '.html',
+            targetExtnames = ['.hbs', '.html'],
+            dir,
+        } = options;
 
-        const list: IFile[] = [];
+        const relativeDir = dir.replace(/^\/|\/$/g, '');
+        const prewriteDir = addParentToPath(lollygag._in, relativeDir);
+
+        const archive: IFile[] = [];
 
         for(let i = 0; i < files.length; i++) {
             const file = files[i];
 
             if(
                 !targetExtnames.includes(extname(file.path))
-                || !minimatch(file.path, join(dir, '/**/*'))
+                || !minimatch(file.path, join(prewriteDir, '/**/*'))
             ) {
                 continue;
             }
@@ -58,39 +108,29 @@ export function archives(options: IArchivesOptions): TWorker {
 
             if(file.title && renameToTitle) {
                 file.path = join(
-                    dir,
+                    prewriteDir,
                     slugify(file.title) + fullExtname(file.path)
                 );
             }
 
-            // TODO: Temp
-            list.push(file);
+            archive.push(file);
         }
 
-        list.sort(
+        archive.sort(
             (a, b) =>
                 // Sort descending based on file creation time
                 ((b.stats ?? {}).birthtimeMs ?? 0)
                 - ((a.stats ?? {}).birthtimeMs ?? 0)
         );
 
-        const pageLimit = 10;
-
-        // eslint-disable-next-line no-mixed-operators
-        for(let i = 1; i <= list.length / pageLimit + 1; i++) {
-            const items = deepCopy(
-                // eslint-disable-next-line no-mixed-operators
-                list.slice(i * pageLimit - pageLimit, i * pageLimit)
-            );
-
-            files.push({
-                path: join(dir, i === 1 ? 'index.html' : `${i}.html`),
-                title: `Archives: Page ${i}`,
-                template: 'archives.hbs',
-                items,
-                mimetype: 'text/plain',
-            });
-        }
+        paginateArchive({
+            archive,
+            files,
+            pretty: lollygag._config.prettyUrls,
+            pageLimit,
+            relativeDir,
+            prewriteDir,
+        });
     };
 }
 
