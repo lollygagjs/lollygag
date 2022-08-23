@@ -1,10 +1,9 @@
 /* eslint-disable no-continue */
-import {extname, join} from 'path';
+import {basename, extname, join} from 'path';
 import minimatch from 'minimatch';
 
 import {
     addParentToPath,
-    changeExtname,
     deepCopy,
     fullExtname,
     IFile,
@@ -12,10 +11,8 @@ import {
 } from '@lollygag/core';
 
 export interface IArchivesOptions {
-    newExtname?: string | false;
-    targetExtnames?: string[];
-    pageLimit?: number;
     dir: string;
+    pageLimit?: number;
     renameToTitle?: boolean;
 }
 
@@ -46,12 +43,12 @@ function paginateArchive(args: IPaginateArchivesArgs) {
 
     const pageCount = Math.ceil(archive.length / pageLimit);
 
-    function page(pageNumber: string) {
+    const nav = (pageNumber: string) => {
         const num = pageNumber === '1' ? '' : pageNumber;
         const uglyNum = num === '' ? num : `${num}.html`;
 
         return join(relativeDir, pretty ? `${num}` : uglyNum);
-    }
+    };
 
     // eslint-disable-next-line no-mixed-operators
     for(let i = 1; i <= pageCount; i++) {
@@ -60,8 +57,8 @@ function paginateArchive(args: IPaginateArchivesArgs) {
             archive.slice(i * pageLimit - pageLimit, i * pageLimit)
         );
 
-        const nextLink = pageCount > i ? page(`${i + 1}`) : false;
-        const prevLink = i > 1 ? page(`${i - 1}`) : false;
+        const nextLink = pageCount > i ? nav(`${i + 1}`) : false;
+        const prevLink = i > 1 ? nav(`${i - 1}`) : false;
 
         files.push({
             path: join(prewriteDir, i === 1 ? 'index.html' : `${i}.html`),
@@ -79,13 +76,7 @@ export function archives(options: IArchivesOptions): TWorker {
     return function archivesWorker(this: TWorker, files, lollygag): void {
         if(!files) return;
 
-        const {
-            pageLimit = 10,
-            renameToTitle = true,
-            newExtname = '.html',
-            targetExtnames = ['.hbs', '.html'],
-            dir,
-        } = options;
+        const {dir, pageLimit = 10, renameToTitle = true} = options;
 
         const relativeDir = dir.replace(/^\/|\/$/g, '');
         const prewriteDir = addParentToPath(lollygag._in, relativeDir);
@@ -96,14 +87,10 @@ export function archives(options: IArchivesOptions): TWorker {
             const file = files[i];
 
             if(
-                !targetExtnames.includes(extname(file.path))
+                extname(file.path) !== '.html'
                 || !minimatch(file.path, join(prewriteDir, '/**/*'))
             ) {
                 continue;
-            }
-
-            if(newExtname !== false) {
-                file.path = changeExtname(file.path, newExtname);
             }
 
             if(file.title && renameToTitle) {
@@ -111,6 +98,8 @@ export function archives(options: IArchivesOptions): TWorker {
                     prewriteDir,
                     slugify(file.title) + fullExtname(file.path)
                 );
+            } else {
+                file.path = join(prewriteDir, basename(file.path));
             }
 
             archive.push(file);

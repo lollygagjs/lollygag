@@ -22,18 +22,18 @@ exports.slugify = slugify;
 function paginateArchive(args) {
     const { archive, files, relativeDir, prewriteDir, pretty, pageLimit } = args;
     const pageCount = Math.ceil(archive.length / pageLimit);
-    function page(pageNumber) {
+    const nav = (pageNumber) => {
         const num = pageNumber === '1' ? '' : pageNumber;
         const uglyNum = num === '' ? num : `${num}.html`;
         return (0, path_1.join)(relativeDir, pretty ? `${num}` : uglyNum);
-    }
+    };
     // eslint-disable-next-line no-mixed-operators
     for (let i = 1; i <= pageCount; i++) {
         const items = (0, core_1.deepCopy)(
         // eslint-disable-next-line no-mixed-operators
         archive.slice(i * pageLimit - pageLimit, i * pageLimit));
-        const nextLink = pageCount > i ? page(`${i + 1}`) : false;
-        const prevLink = i > 1 ? page(`${i - 1}`) : false;
+        const nextLink = pageCount > i ? nav(`${i + 1}`) : false;
+        const prevLink = i > 1 ? nav(`${i - 1}`) : false;
         files.push({
             path: (0, path_1.join)(prewriteDir, i === 1 ? 'index.html' : `${i}.html`),
             title: `Archives: Page ${i}`,
@@ -49,21 +49,21 @@ function archives(options) {
     return function archivesWorker(files, lollygag) {
         if (!files)
             return;
-        const { pageLimit = 10, renameToTitle = true, newExtname = '.html', targetExtnames = ['.hbs', '.html'], dir, } = options;
+        const { dir, pageLimit = 10, renameToTitle = true } = options;
         const relativeDir = dir.replace(/^\/|\/$/g, '');
         const prewriteDir = (0, core_1.addParentToPath)(lollygag._in, relativeDir);
         const archive = [];
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
-            if (!targetExtnames.includes((0, path_1.extname)(file.path))
+            if ((0, path_1.extname)(file.path) !== '.html'
                 || !(0, minimatch_1.default)(file.path, (0, path_1.join)(prewriteDir, '/**/*'))) {
                 continue;
             }
-            if (newExtname !== false) {
-                file.path = (0, core_1.changeExtname)(file.path, newExtname);
-            }
             if (file.title && renameToTitle) {
                 file.path = (0, path_1.join)(prewriteDir, (0, exports.slugify)(file.title) + (0, core_1.fullExtname)(file.path));
+            }
+            else {
+                file.path = (0, path_1.join)(prewriteDir, (0, path_1.basename)(file.path));
             }
             archive.push(file);
         }
