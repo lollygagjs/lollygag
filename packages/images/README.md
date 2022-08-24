@@ -1,3 +1,3 @@
 # @lollygag/images
 
-images worker for Lollygag.
+Images worker for Lollygag.
