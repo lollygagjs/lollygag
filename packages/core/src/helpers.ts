@@ -65,6 +65,6 @@ export function deleteFiles(files: string[]) {
     return Promise.all(files.map((f) => fsp.unlink(f)));
 }
 
-export function deepCopy(original: RaggedyAny[] | RaggedyObject) {
-    return JSON.parse(JSON.stringify(original));
+export function deepCopy<T>(original: T): T {
+    return JSON.parse(JSON.stringify(original)) as T;
 }
