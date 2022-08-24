@@ -18,9 +18,13 @@ export function typescript(options?: ITypescriptOptions): TWorker {
     return function typescriptWorker(this: TWorker, files): void {
         if(!files) return;
 
-        const {target, module} = options?.compilerOptions ?? {};
-        const newExtname = options?.newExtname ?? '.js';
-        const targetExtnames = options?.targetExtnames ?? ['.ts'];
+        const {
+            newExtname = ',js',
+            targetExtnames = ['.ts'],
+            compilerOptions,
+        } = options ?? {};
+
+        const {target, module} = compilerOptions ?? {};
 
         for(let i = 0; i < files.length; i++) {
             const file = files[i];
@@ -30,8 +34,8 @@ export function typescript(options?: ITypescriptOptions): TWorker {
             }
 
             file.content = transpile(file.content ?? '', {
-                module: ModuleKind[module || 'ES2015'],
-                target: ScriptTarget[target || 'ES2015'],
+                module: ModuleKind[module ?? 'ES2015'],
+                target: ScriptTarget[target ?? 'ES2015'],
             });
 
             if(newExtname !== false) {

@@ -15,38 +15,42 @@ export function postcss(options?: IOptions): TWorker {
     return async function postcssWorker(this: TWorker, files): Promise<void> {
         if(!files) return;
 
-        const {plugins, processOptions} = options ?? {};
-
         const defaultExtname = '.css';
-        const newExtname = options?.newExtname ?? defaultExtname;
-        const targetExtnames = options?.targetExtnames ?? ['.css', '.pcss'];
-        const keepOriginal = options?.keepOriginal ?? true;
+
+        const {
+            newExtname = defaultExtname,
+            targetExtnames = ['.css', '.pcss'],
+            keepOriginal = true,
+            plugins,
+            processOptions,
+        } = options ?? {};
+
         const makeNewFile = keepOriginal && newExtname !== defaultExtname;
 
-        const promises = files.map(async(file) => {
-            let _file = file;
+        const promises = files.map(async(f) => {
+            let file = f;
 
-            if(makeNewFile) _file = deepCopy(file);
+            if(makeNewFile) file = deepCopy(f);
 
             if(
-                !targetExtnames.includes(extname(_file.path))
-                || fullExtname(_file.path).endsWith('.min.css')
+                !targetExtnames.includes(extname(file.path))
+                || fullExtname(file.path).endsWith('.min.css')
             ) {
                 return;
             }
 
             const existingSourcemap = files.find(
-                (f) => f.path === join(`${file.path}.map`)
+                (x) => x.path === join(`${f.path}.map`)
             );
 
-            let filePath = _file.path;
+            let filePath = file.path;
 
             if(newExtname !== false) {
-                filePath = changeExtname(_file.path, newExtname);
+                filePath = changeExtname(file.path, newExtname);
             }
 
-            const result = await pcss(plugins).process(_file.content ?? '', {
-                from: file.path,
+            const result = await pcss(plugins).process(file.content ?? '', {
+                from: f.path,
                 to: filePath,
                 map: {
                     inline: false,
@@ -55,10 +59,10 @@ export function postcss(options?: IOptions): TWorker {
                 ...processOptions,
             });
 
-            _file.path = filePath;
-            _file.content = result.css;
+            file.path = filePath;
+            file.content = result.css;
 
-            if(makeNewFile) files.push(_file);
+            if(makeNewFile) files.push(file);
 
             if(result.map) {
                 if(newExtname) {
