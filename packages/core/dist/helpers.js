@@ -27,8 +27,6 @@ exports.deepCopy = exports.deleteFiles = exports.deleteEmptyDirs = exports.remov
 const fs_1 = require("fs");
 const path_1 = require("path");
 __exportStar(require("./workers/handlebars"), exports);
-__exportStar(require("./workers/markdown"), exports);
-__exportStar(require("./workers/templates"), exports);
 function fullExtname(filePath) {
     const extensions = (0, path_1.basename)(filePath).split('.');
     extensions.shift();

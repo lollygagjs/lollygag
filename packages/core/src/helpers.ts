@@ -3,8 +3,6 @@ import {extname, basename, dirname, join} from 'path';
 import {RaggedyAny, RaggedyObject} from '.';
 
 export * from './workers/handlebars';
-export * from './workers/markdown';
-export * from './workers/templates';
 
 export function fullExtname(filePath: string): string {
     const extensions = basename(filePath).split('.');

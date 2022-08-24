@@ -20,10 +20,16 @@
             "path": "packages/livedev"
         },
         {
+            "path": "packages/markdown"
+        },
+        {
             "path": "packages/postcss"
         },
         {
             "path": "packages/sass"
+        },
+        {
+            "path": "packages/templates"
         },
         {
             "path": "packages/terser"

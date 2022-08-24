@@ -1,7 +1,5 @@
 import { RaggedyAny, RaggedyObject } from '.';
 export * from './workers/handlebars';
-export * from './workers/markdown';
-export * from './workers/templates';
 export declare function fullExtname(filePath: string): string;
 export declare function changeExtname(filePath: string, newExtension: string): string;
 export declare function changeFullExtname(filePath: string, newExtension: string): string;

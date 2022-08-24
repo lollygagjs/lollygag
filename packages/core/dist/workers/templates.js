@@ -7,15 +7,10 @@ const fs_1 = require("fs");
 const __1 = require("..");
 function templates(options) {
     return function templatesWorker(files, lollygag) {
-        var _a, _b, _c, _d, _e, _f;
+        var _a;
         if (!files)
             return;
-        const { templatingHandlerOptions } = options !== null && options !== void 0 ? options : {};
-        const newExtname = (_a = options === null || options === void 0 ? void 0 : options.newExtname) !== null && _a !== void 0 ? _a : '.html';
-        const targetExtnames = (_b = options === null || options === void 0 ? void 0 : options.targetExtnames) !== null && _b !== void 0 ? _b : ['.hbs', '.html'];
-        const templatesDirectory = (_c = options === null || options === void 0 ? void 0 : options.templatesDirectory) !== null && _c !== void 0 ? _c : 'templates';
-        const defaultTemplate = (_d = options === null || options === void 0 ? void 0 : options.defaultTemplate) !== null && _d !== void 0 ? _d : 'index.hbs';
-        const templatingHandler = (_f = (_e = options === null || options === void 0 ? void 0 : options.templatingHandler) !== null && _e !== void 0 ? _e : lollygag._config.templatingHandler) !== null && _f !== void 0 ? _f : __1.handleHandlebars;
+        const { newExtname = '.html', targetExtnames = ['.hbs', '.html'], templatesDirectory = 'templates', defaultTemplate = 'index.hbs', templatingHandler = (_a = lollygag._config.templatingHandler) !== null && _a !== void 0 ? _a : __1.handleHandlebars, templatingHandlerOptions, } = options !== null && options !== void 0 ? options : {};
         let template = '';
         let templatePath = (0, path_1.join)(templatesDirectory, defaultTemplate);
         if ((0, fs_1.existsSync)(templatePath)) {
@@ -42,8 +37,7 @@ function templates(options) {
                     console.log(`NOTICE: File '${templatePath}' missing. Using default template.`);
                 }
             }
-            const data = Object.assign(Object.assign(Object.assign({}, lollygag._meta), lollygag._config), file);
-            file.content = templatingHandler(template, templatingHandlerOptions, data);
+            file.content = templatingHandler(template, templatingHandlerOptions, Object.assign(Object.assign(Object.assign({}, lollygag._meta), lollygag._config), file));
             if (newExtname !== false) {
                 file.path = (0, __1.changeExtname)(file.path, newExtname);
             }
