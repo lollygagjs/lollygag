@@ -1,10 +1,9 @@
 /* eslint-disable no-continue */
 import {extname} from 'path';
+import {readFileSync} from 'fs';
 import glob from 'glob';
 import Handlebars from 'handlebars';
-
 import {changeExtname, IConfig, IFile, TFileHandler, TWorker} from '..';
-import {readFileSync} from 'fs';
 
 // Return content as is
 Handlebars.registerHelper('raw', (any) => any.fn());
@@ -29,6 +28,15 @@ Handlebars.registerHelper('capWords', (words: string[]) =>
 // Return prop if it `exists`, `defaultValue` otherwise
 Handlebars.registerHelper('orDefault', (prop, defaultValue) =>
     (prop ? prop : defaultValue));
+
+// Renders a registered partial
+Handlebars.registerHelper('partial', (path, context) => {
+    let partial = Handlebars.partials[path];
+
+    if(typeof partial !== 'function') partial = Handlebars.compile(partial);
+
+    return new Handlebars.SafeString(partial(context));
+});
 
 export {Handlebars};
 
@@ -70,10 +78,12 @@ export function handlebars(options?: IHandlebarsOptions): TWorker {
     return function handlebarsWorker(this: TWorker, files, lollygag): void {
         if(!files) return;
 
-        const {compileOptions, runtimeOptions} = options ?? {};
-
-        const newExtname = options?.newExtname ?? '.html';
-        const targetExtnames = options?.targetExtnames ?? ['.hbs', '.html'];
+        const {
+            newExtname = '.html',
+            targetExtnames = ['.hbs', '.html'],
+            compileOptions,
+            runtimeOptions,
+        } = options ?? {};
 
         for(let i = 0; i < files.length; i++) {
             const file = files[i];
@@ -82,12 +92,10 @@ export function handlebars(options?: IHandlebarsOptions): TWorker {
                 continue;
             }
 
-            const data = {...lollygag._meta, ...lollygag._config, ...file};
-
             file.content = handleHandlebars(
                 file.content ?? '',
                 {compileOptions, runtimeOptions},
-                data
+                {...lollygag._meta, ...lollygag._config, ...file}
             );
 
             if(newExtname !== false) {

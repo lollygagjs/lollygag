@@ -13,14 +13,17 @@ export function sass(options?: ISassOptions): TWorker {
     return function sassWorker(this: TWorker, files): void {
         if(!files) return;
 
-        const newExtname = options?.newExtname ?? '.css';
-        const targetExtnames = options?.targetExtnames ?? ['.scss', '.sass'];
+        const {
+            newExtname = '.css',
+            targetExtnames = ['.scss', '.sass'],
+            sassOptions,
+        } = options ?? {};
 
-        const sassOptions: ISassOptions['sassOptions'] = {
+        const mergedSassOptions: ISassOptions['sassOptions'] = {
             sourceMap: true,
             sourceMapIncludeSources: true,
             style: 'expanded',
-            ...options?.sassOptions,
+            ...sassOptions,
         };
 
         const excludes: number[] = [];
@@ -44,12 +47,12 @@ export function sass(options?: ISassOptions): TWorker {
                 outFile = changeExtname(file.path, newExtname);
             }
 
-            const result = compile(file.path, sassOptions);
+            const result = compile(file.path, mergedSassOptions);
 
             file.path = outFile;
             file.content = result.css;
 
-            if(sassOptions.sourceMap && file.content) {
+            if(mergedSassOptions.sourceMap && file.content) {
                 const sourcemapPath = join(`${outFile}.map`);
 
                 file.map = sourcemapPath;
@@ -69,9 +72,11 @@ export function sass(options?: ISassOptions): TWorker {
         }
 
         while(excludes.length) {
-            const indexToRemove = excludes.pop() as number;
+            const indexToRemove = excludes.pop();
 
-            files.splice(indexToRemove, 1);
+            if(typeof indexToRemove === 'number') {
+                files.splice(indexToRemove, 1);
+            }
         }
     };
 }

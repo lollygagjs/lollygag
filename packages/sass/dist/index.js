@@ -7,12 +7,10 @@ const sass_1 = require("sass");
 const core_1 = require("@lollygag/core");
 function sass(options) {
     return function sassWorker(files) {
-        var _a, _b;
         if (!files)
             return;
-        const newExtname = (_a = options === null || options === void 0 ? void 0 : options.newExtname) !== null && _a !== void 0 ? _a : '.css';
-        const targetExtnames = (_b = options === null || options === void 0 ? void 0 : options.targetExtnames) !== null && _b !== void 0 ? _b : ['.scss', '.sass'];
-        const sassOptions = Object.assign({ sourceMap: true, sourceMapIncludeSources: true, style: 'expanded' }, options === null || options === void 0 ? void 0 : options.sassOptions);
+        const { newExtname = '.css', targetExtnames = ['.scss', '.sass'], sassOptions, } = options !== null && options !== void 0 ? options : {};
+        const mergedSassOptions = Object.assign({ sourceMap: true, sourceMapIncludeSources: true, style: 'expanded' }, sassOptions);
         const excludes = [];
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
@@ -27,10 +25,10 @@ function sass(options) {
             if (newExtname !== false) {
                 outFile = (0, core_1.changeExtname)(file.path, newExtname);
             }
-            const result = (0, sass_1.compile)(file.path, sassOptions);
+            const result = (0, sass_1.compile)(file.path, mergedSassOptions);
             file.path = outFile;
             file.content = result.css;
-            if (sassOptions.sourceMap && file.content) {
+            if (mergedSassOptions.sourceMap && file.content) {
                 const sourcemapPath = (0, path_1.join)(`${outFile}.map`);
                 file.map = sourcemapPath;
                 file.content += `\n\n/*# sourceMappingURL=${(0, path_1.basename)(sourcemapPath)} */\n`;
@@ -44,7 +42,9 @@ function sass(options) {
         }
         while (excludes.length) {
             const indexToRemove = excludes.pop();
-            files.splice(indexToRemove, 1);
+            if (typeof indexToRemove === 'number') {
+                files.splice(indexToRemove, 1);
+            }
         }
     };
 }
