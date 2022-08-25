@@ -1,24 +1,11 @@
-import fs, {existsSync, promises as fsp, Stats} from 'fs';
-import {log, error, time, timeEnd} from 'console';
-import {basename, dirname, extname, join, resolve} from 'path';
-import glob from 'glob';
-import grayMatter from 'gray-matter';
-import minimatch from 'minimatch';
+import {Stats} from 'fs';
+import {log, error} from 'console';
+import {join} from 'path';
 import {red} from 'chalk';
-import mmm from 'mmmagic';
+import {handleHandlebars} from './helpers/general';
+import build, {IBuildOptions} from './helpers/build';
 
-import {
-    addParentToPath,
-    changeExtname,
-    deleteEmptyDirs,
-    deleteFiles,
-    handleHandlebars,
-    removeParentFromPath,
-} from './helpers';
-
-export * from './helpers';
-
-const magic = new mmm.Magic(mmm.MAGIC_MIME_TYPE);
+export * from './helpers/general';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type RaggedyAny = any;
@@ -41,7 +28,7 @@ export interface IMeta {
     [prop: string]: RaggedyAny;
 }
 
-export type TFileHandler = (
+export type FileHandler = (
     content: string,
     options?: unknown,
     data?: IMeta
@@ -52,18 +39,11 @@ export interface IConfig {
     prettyUrls?: boolean;
     generateTimestamp?: boolean;
     subdir?: string;
-    templatingHandler?: TFileHandler;
+    templatingHandler?: FileHandler;
     templatingHandlerOptions?: unknown;
 }
 
-export interface IBuildOptions {
-    fullBuild?: boolean;
-    allowExternalDirectories?: boolean;
-    allowWorkingDirectoryOutput?: boolean;
-    globPattern?: string | null;
-}
-
-export type TWorker = (
+export type Worker = (
     files: IFile[],
     // eslint-disable-next-line no-use-before-define
     lollygag: Lollygag
@@ -71,26 +51,27 @@ export type TWorker = (
 
 export class Lollygag {
     constructor(
-        private __config: IConfig = {
+        protected __config: IConfig = {
             generator: 'Lollygag',
             prettyUrls: true,
             generateTimestamp: true,
         },
-        private __meta: IMeta = {
+        protected __meta: IMeta = {
             year: new Date().getFullYear(),
         },
-        private __in: string = 'files',
-        private __out: string = 'public',
-        private __files: IFile[] = [],
-        private __workers: TWorker[] = []
+        protected __in: string = 'files',
+        protected __out: string = 'public',
+        protected __files: IFile[] = [],
+        protected __workers: Worker[] = []
     ) {
         log('Hello from Lollygag!');
     }
 
     config(config: IConfig): this {
         const c = config;
+        // add leading and remove trailing slash
         if(c.subdir) c.subdir = join('/', c.subdir).replace(/\/$/, '');
-        this.__config = {...this._config, ...c};
+        this.__config = {...this._config, subdir: c.subdir};
         return this;
     }
 
@@ -134,269 +115,19 @@ export class Lollygag {
         return this.__files;
     }
 
-    do(worker: TWorker): this {
+    do(worker: Worker): this {
         this.__workers.push(worker);
         return this;
     }
 
-    get _workers(): TWorker[] {
+    get _workers(): Worker[] {
         return this.__workers;
     }
 
-    private getFileMimetype(filePath: string): Promise<string> {
-        return new Promise((res, rej) => {
-            magic.detectFile(filePath, (err, result) => {
-                if(err) rej(err);
-                else res(typeof result === 'string' ? result : result[0]);
-            });
-        });
-    }
-
-    private getFiles(globPattern = join(this._in, '/**/*')): Promise<string[]> {
-        return new Promise((res, rej) => {
-            glob(globPattern, {nodir: true, dot: true}, (err, files) => {
-                if(err) rej(err);
-                else res(files);
-            });
-        });
-    }
-
-    private handleTemplating
+    protected handleTemplating
         = this._config.templatingHandler ?? handleHandlebars;
 
-    private parseFiles(files: string[]): Promise<IFile[]> {
-        const promises = files.map(async(file): Promise<IFile> => {
-            const fileMimetype = await this.getFileMimetype(file);
-            const fileStats = await fsp.stat(file);
-
-            if(
-                fileMimetype.startsWith('text/')
-                || fileMimetype === 'inode/x-empty'
-            ) {
-                let rawFileContent = await fsp.readFile(file, {
-                    encoding: 'utf-8',
-                });
-
-                rawFileContent = this.handleTemplating(
-                    rawFileContent,
-                    this._config.templatingHandlerOptions ?? null,
-                    {...this._config, ...this._meta}
-                );
-
-                const grayMatterResult = grayMatter(rawFileContent);
-
-                grayMatterResult.content = this.handleTemplating(
-                    grayMatterResult.content,
-                    this._config.templatingHandlerOptions ?? null,
-                    grayMatterResult.data
-                );
-
-                return {
-                    path: file,
-                    content: grayMatterResult.content,
-                    mimetype: fileMimetype,
-                    ...grayMatterResult.data,
-                    stats: fileStats,
-                };
-            }
-
-            return {path: file, mimetype: fileMimetype, stats: fileStats};
-        });
-
-        return Promise.all(promises);
-    }
-
-    private generatePrettyUrls(files: IFile[]): IFile[] {
-        return files.map((file): IFile => {
-            if(
-                extname(file.path) === '.html'
-                && basename(file.path) !== 'index.html'
-            ) {
-                return {
-                    ...file,
-                    path: join(
-                        dirname(file.path),
-                        changeExtname(basename(file.path), ''),
-                        'index.html'
-                    ),
-                };
-            }
-
-            return file;
-        });
-    }
-
-    private write(files: IFile[]): Promise<void[]> {
-        const promises = files.map(async(file): Promise<void> => {
-            const filePath = join(
-                this._out,
-                removeParentFromPath(this._in, file.path)
-            );
-
-            const fileDir = dirname(filePath);
-
-            if(!fs.existsSync(fileDir)) {
-                await fsp.mkdir(fileDir, {recursive: true});
-            }
-
-            if(
-                file.mimetype.startsWith('text/')
-                || file.mimetype === 'inode/x-empty'
-                || file.mimetype === 'application/json'
-            ) {
-                await fsp.writeFile(filePath, file.content ?? '');
-            } else {
-                await fsp.copyFile(file.path, filePath);
-            }
-        });
-
-        const timestamp = this._config.generateTimestamp
-            ? fsp.writeFile('.timestamp', new Date().getTime().toString())
-            : Promise.resolve();
-
-        return Promise.all([...promises, timestamp]);
-    }
-
-    private validate({
-        allowExternalDirectories = false,
-        allowWorkingDirectoryOutput = false,
-    }) {
-        const cwd = resolve(process.cwd());
-        const inDir = resolve(this._in);
-        const outDir = resolve(this._out);
-
-        if(!this._files && !existsSync(inDir)) {
-            throw new Error(`Input directory '${inDir}' does not exist.`);
-        }
-
-        if(inDir === outDir) {
-            throw new Error(
-                'Input directory cannot be the same as the output directory.'
-            );
-        }
-
-        if(inDir === cwd) {
-            throw new Error(
-                `Input directory '${inDir}' is the same as the current working directory.`
-            );
-        }
-
-        if(!allowWorkingDirectoryOutput) {
-            if(outDir === cwd) {
-                throw new Error(
-                    `Output directory '${outDir}' is the same as the current working directory.`
-                );
-            }
-        }
-
-        if(!allowExternalDirectories) {
-            if(!minimatch(inDir, join(cwd, '**/*'))) {
-                throw new Error(
-                    `Input directory '${inDir}' is outside the current working directory.`
-                );
-            }
-
-            if(!minimatch(outDir, join(cwd, '**/*'))) {
-                throw new Error(
-                    `Output directory '${outDir}' is outside the current working directory.`
-                );
-            }
-        }
-    }
-
-    async build(options?: IBuildOptions): Promise<void> {
-        const opts: IBuildOptions = {
-            fullBuild: false,
-            allowExternalDirectories: false,
-            allowWorkingDirectoryOutput: false,
-            ...options,
-        };
-
-        this.validate({
-            allowExternalDirectories: opts.allowExternalDirectories,
-            allowWorkingDirectoryOutput: opts.allowWorkingDirectoryOutput,
-        });
-
-        const defaultGlobPattern = '**/*';
-
-        opts.globPattern = join(
-            this._in,
-            opts.globPattern ?? defaultGlobPattern
-        );
-
-        time('Total build time');
-
-        time('Files collected');
-
-        const fileList = await this.getFiles(opts.globPattern);
-
-        timeEnd('Files collected');
-
-        time('Files parsed');
-
-        const fileObjects = this._files.filter((file) =>
-            minimatch(file.path, opts.globPattern || defaultGlobPattern));
-
-        const parsedFiles = [
-            ...fileObjects,
-            ...(await this.parseFiles(fileList)),
-        ];
-
-        timeEnd('Files parsed');
-
-        await this._workers.reduce(
-            async(possiblePromise, worker: TWorker): Promise<void> => {
-                const workerName = worker.name ?? 'unknown worker';
-
-                await Promise.resolve(possiblePromise);
-
-                log(`Running ${workerName}...`);
-                time(`Finished running ${workerName}`);
-
-                await worker(parsedFiles, this);
-
-                timeEnd(`Finished running ${workerName}`);
-            },
-            Promise.resolve()
-        );
-
-        let toWrite = parsedFiles;
-
-        if(this._config.prettyUrls) {
-            time('Generated pretty URLs');
-
-            toWrite = this.generatePrettyUrls(parsedFiles);
-
-            timeEnd('Generated pretty URLs');
-        }
-
-        time('Files written');
-
-        await this.write(toWrite);
-
-        timeEnd('Files written');
-
-        if(opts.fullBuild) {
-            time(`Cleaned '${this._out}' directory`);
-
-            const written = toWrite.map((file) =>
-                addParentToPath(
-                    this._out,
-                    removeParentFromPath(this._in, file.path)
-                ));
-
-            const existing = await this.getFiles(join(this._out, '/**/*'));
-            const difference = existing.filter((ex) => !written.includes(ex));
-
-            // Delete old files and leftover directories
-            await deleteFiles(difference);
-            await deleteEmptyDirs(this._out);
-
-            timeEnd(`Cleaned '${this._out}' directory`);
-        }
-
-        timeEnd('Total build time');
-    }
+    build = (options: IBuildOptions) => build.call(this, options);
 }
 
 process.on('unhandledRejection', (err) => {

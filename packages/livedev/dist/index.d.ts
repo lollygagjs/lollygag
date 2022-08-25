@@ -1,16 +1,16 @@
-import { TWorker } from '@lollygag/core';
+import { Worker } from '@lollygag/core';
 /**
  * Glob path of files to watch.
  */
-export declare type TToWatch = string;
+export declare type ToWatch = string;
 /**
  * Boolean or glob path of files to rebuild. Glob path is
  * relative to the `Lollygag` instance's `__in` directory. When
  * set to true, only the edited/added file will get rebuilt.
  */
-export declare type TToRebuild = string | boolean;
+export declare type ToRebuild = string | boolean;
 export interface IWatchPatterns {
-    [prop: string]: TToRebuild;
+    [prop: string]: ToRebuild;
 }
 export interface IWatchOptions {
     serverPort?: number;
@@ -19,5 +19,5 @@ export interface IWatchOptions {
     patterns: IWatchPatterns;
     fullBuild?: boolean;
 }
-export declare function livedev(options: IWatchOptions): TWorker;
+export declare function livedev(options: IWatchOptions): Worker;
 export default livedev;

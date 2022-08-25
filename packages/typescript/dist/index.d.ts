@@ -1,4 +1,4 @@
-import { TWorker } from '@lollygag/core';
+import { Worker } from '@lollygag/core';
 import { ModuleKind, ScriptTarget } from 'typescript';
 export interface ICompilerOptions {
     module?: keyof typeof ModuleKind;
@@ -9,5 +9,5 @@ export interface ITypescriptOptions {
     targetExtnames?: string[];
     compilerOptions?: ICompilerOptions;
 }
-export declare function typescript(options?: ITypescriptOptions): TWorker;
+export declare function typescript(options?: ITypescriptOptions): Worker;
 export default typescript;

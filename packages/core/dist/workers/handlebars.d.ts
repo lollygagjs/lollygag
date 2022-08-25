@@ -1,5 +1,5 @@
 import Handlebars from 'handlebars';
-import { IConfig, IFile, TFileHandler, TWorker } from '..';
+import { IConfig, IFile, FileHandler, Worker } from '..';
 export { Handlebars };
 export interface IHandlebarsOptions {
     newExtname?: string | false;
@@ -7,11 +7,11 @@ export interface IHandlebarsOptions {
     compileOptions?: CompileOptions;
     runtimeOptions?: RuntimeOptions;
 }
-export declare type TTemplateData = IConfig & IFile;
+export declare type TemplateData = IConfig & IFile;
 export interface IHandleHandlebarsOptions {
     compileOptions?: CompileOptions;
     runtimeOptions?: RuntimeOptions;
 }
-export declare const handleHandlebars: TFileHandler;
-export declare function handlebars(options?: IHandlebarsOptions): TWorker;
+export declare const handleHandlebars: FileHandler;
+export declare function handlebars(options?: IHandlebarsOptions): Worker;
 export default handlebars;

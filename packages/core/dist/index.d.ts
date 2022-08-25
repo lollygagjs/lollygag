@@ -1,6 +1,7 @@
 /// <reference types="node" />
 import { Stats } from 'fs';
-export * from './helpers';
+import { IBuildOptions } from './helpers/build';
+export * from './helpers/general';
 export declare type RaggedyAny = any;
 export declare type RaggedyObject = Record<string, RaggedyAny>;
 export interface IFile {
@@ -18,30 +19,24 @@ export interface IMeta {
     year?: number;
     [prop: string]: RaggedyAny;
 }
-export declare type TFileHandler = (content: string, options?: unknown, data?: IMeta) => string;
+export declare type FileHandler = (content: string, options?: unknown, data?: IMeta) => string;
 export interface IConfig {
     generator?: string;
     prettyUrls?: boolean;
     generateTimestamp?: boolean;
     subdir?: string;
-    templatingHandler?: TFileHandler;
+    templatingHandler?: FileHandler;
     templatingHandlerOptions?: unknown;
 }
-export interface IBuildOptions {
-    fullBuild?: boolean;
-    allowExternalDirectories?: boolean;
-    allowWorkingDirectoryOutput?: boolean;
-    globPattern?: string | null;
-}
-export declare type TWorker = (files: IFile[], lollygag: Lollygag) => void | Promise<void>;
+export declare type Worker = (files: IFile[], lollygag: Lollygag) => void | Promise<void>;
 export declare class Lollygag {
-    private __config;
-    private __meta;
-    private __in;
-    private __out;
-    private __files;
-    private __workers;
-    constructor(__config?: IConfig, __meta?: IMeta, __in?: string, __out?: string, __files?: IFile[], __workers?: TWorker[]);
+    protected __config: IConfig;
+    protected __meta: IMeta;
+    protected __in: string;
+    protected __out: string;
+    protected __files: IFile[];
+    protected __workers: Worker[];
+    constructor(__config?: IConfig, __meta?: IMeta, __in?: string, __out?: string, __files?: IFile[], __workers?: Worker[]);
     config(config: IConfig): this;
     get _config(): IConfig;
     meta(meta: IMeta): this;
@@ -52,15 +47,9 @@ export declare class Lollygag {
     get _out(): string;
     files(files: IFile[]): this;
     get _files(): IFile[];
-    do(worker: TWorker): this;
-    get _workers(): TWorker[];
-    private getFileMimetype;
-    private getFiles;
-    private handleTemplating;
-    private parseFiles;
-    private generatePrettyUrls;
-    private write;
-    private validate;
-    build(options?: IBuildOptions): Promise<void>;
+    do(worker: Worker): this;
+    get _workers(): Worker[];
+    protected handleTemplating: FileHandler;
+    build: (options: IBuildOptions) => Promise<void>;
 }
 export default Lollygag;

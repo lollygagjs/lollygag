@@ -1,8 +1,8 @@
 import {promises as fsp, statSync} from 'fs';
 import {extname, basename, dirname, join} from 'path';
-import {RaggedyAny, RaggedyObject} from '.';
+import mmm from 'mmmagic';
 
-export * from './workers/handlebars';
+export * from '../workers/handlebars';
 
 export function fullExtname(filePath: string): string {
     const extensions = basename(filePath).split('.');
@@ -67,4 +67,15 @@ export function deleteFiles(files: string[]) {
 
 export function deepCopy<T>(original: T): T {
     return JSON.parse(JSON.stringify(original)) as T;
+}
+
+const magic = new mmm.Magic(mmm.MAGIC_MIME_TYPE);
+
+export function getFileMimetype(filePath: string): Promise<string> {
+    return new Promise((res, rej) => {
+        magic.detectFile(filePath, (err, result) => {
+            if(err) rej(err);
+            else res(typeof result === 'string' ? result : result[0]);
+        });
+    });
 }

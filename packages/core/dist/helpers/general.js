@@ -30,7 +30,7 @@ exports.getFileMimetype = exports.deepCopy = exports.deleteFiles = exports.delet
 const fs_1 = require("fs");
 const path_1 = require("path");
 const mmmagic_1 = __importDefault(require("mmmagic"));
-__exportStar(require("./workers/handlebars"), exports);
+__exportStar(require("../workers/handlebars"), exports);
 function fullExtname(filePath) {
     const extensions = (0, path_1.basename)(filePath).split('.');
     extensions.shift();

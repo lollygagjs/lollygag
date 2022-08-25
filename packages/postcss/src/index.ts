@@ -1,7 +1,7 @@
 /* eslint-disable no-continue */
 import {extname, join} from 'path';
 import pcss, {AcceptedPlugin, ProcessOptions} from 'postcss';
-import {changeExtname, deepCopy, fullExtname, TWorker} from '@lollygag/core';
+import {changeExtname, deepCopy, fullExtname,Worker} from '@lollygag/core';
 
 export interface IOptions {
     newExtname?: string | false;
@@ -11,8 +11,8 @@ export interface IOptions {
     processOptions?: ProcessOptions;
 }
 
-export function postcss(options?: IOptions): TWorker {
-    return async function postcssWorker(this: TWorker, files): Promise<void> {
+export function postcss(options?: IOptions):Worker {
+    return async function postcssWorker(this:Worker, files): Promise<void> {
         if(!files) return;
 
         const defaultExtname = '.css';

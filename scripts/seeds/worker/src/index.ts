@@ -1,6 +1,6 @@
 /* eslint-disable no-continue */
 import {extname} from 'path';
-import {changeExtname, TFileHandler, TWorker} from '@lollygag/core';
+import {changeExtname, FileHandler, Worker} from '@lollygag/core';
 
 export interface IOptions {
     newExtname?: string | false;
@@ -8,7 +8,7 @@ export interface IOptions {
     options?: any;
 }
 
-export const handle{{cap (lc workerName)}}: TFileHandler = (
+export const handle{{cap (lc workerName)}}: FileHandler = (
     content,
     options?,
     data?
@@ -20,8 +20,8 @@ export const handle{{cap (lc workerName)}}: TFileHandler = (
     return '';
 }
 
-export default function {{lc workerName}}(options?: IOptions): TWorker {
-    return function {{lc workerName}}Worker(this: TWorker, files, lollygag): void {
+export default function {{lc workerName}}(options?: IOptions): Worker {
+    return function {{lc workerName}}Worker(this:Worker, files, lollygag): void {
         if(!files) return;
 
         for(let i = 0; i < files.length; i++) {

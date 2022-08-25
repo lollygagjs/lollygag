@@ -1,5 +1,5 @@
 import { AcceptedPlugin, ProcessOptions } from 'postcss';
-import { TWorker } from '@lollygag/core';
+import { Worker } from '@lollygag/core';
 export interface IOptions {
     newExtname?: string | false;
     targetExtnames?: string[];
@@ -7,5 +7,5 @@ export interface IOptions {
     plugins?: AcceptedPlugin[];
     processOptions?: ProcessOptions;
 }
-export declare function postcss(options?: IOptions): TWorker;
+export declare function postcss(options?: IOptions): Worker;
 export default postcss;

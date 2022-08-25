@@ -1,7 +1,7 @@
 /* eslint-disable no-continue */
 import {basename, extname, join} from 'path';
 import {compile, Options} from 'sass';
-import {changeExtname, TWorker} from '@lollygag/core';
+import {changeExtname, Worker} from '@lollygag/core';
 
 export interface ISassOptions {
     newExtname?: string | false;
@@ -9,8 +9,8 @@ export interface ISassOptions {
     sassOptions?: Options<'sync'>;
 }
 
-export function sass(options?: ISassOptions): TWorker {
-    return function sassWorker(this: TWorker, files): void {
+export function sass(options?: ISassOptions):Worker {
+    return function sassWorker(this:Worker, files): void {
         if(!files) return;
 
         const {

@@ -8,22 +8,22 @@ import minimatch from 'minimatch';
 import handler from 'serve-handler';
 import livereload from 'livereload';
 import {parse} from 'node-html-parser';
-import Lollygag, {removeParentFromPath, TWorker} from '@lollygag/core';
+import Lollygag, {removeParentFromPath,Worker} from '@lollygag/core';
 
 /**
  * Glob path of files to watch.
  */
-export type TToWatch = string;
+export type ToWatch = string;
 
 /**
  * Boolean or glob path of files to rebuild. Glob path is
  * relative to the `Lollygag` instance's `__in` directory. When
  * set to true, only the edited/added file will get rebuilt.
  */
-export type TToRebuild = string | boolean;
+export type ToRebuild = string | boolean;
 
 export interface IWatchPatterns {
-    [prop: string]: TToRebuild;
+    [prop: string]:ToRebuild;
 }
 
 export interface IWatchOptions {
@@ -52,7 +52,7 @@ async function rebuild(options: IRebuildOptions): Promise<void> {
     let globPattern = null;
 
     if(!watchOptions.fullBuild) {
-        let toRebuild: TToRebuild = true;
+        let toRebuild:ToRebuild = true;
 
         Object.keys(watchOptions.patterns).forEach((patternKey) => {
             if(minimatch(triggeredPath, patternKey)) {
@@ -84,7 +84,7 @@ async function rebuild(options: IRebuildOptions): Promise<void> {
 
 let serverStarted = false;
 
-export function livedev(options: IWatchOptions): TWorker {
+export function livedev(options: IWatchOptions):Worker {
     return async function livedevWorker(files, lollygag): Promise<void> {
         const serverPort = options.serverPort ?? 3000;
         const livereloadPort = options.livereloadPort ?? 35729;
@@ -144,7 +144,7 @@ export function livedev(options: IWatchOptions): TWorker {
                 .watch([staticDir, resolve('.timestamp')]);
         });
 
-        const toWatch: TToWatch[] = [];
+        const toWatch:ToWatch[] = [];
 
         Object.keys(options.patterns).forEach((pattern) => {
             toWatch.push(pattern);

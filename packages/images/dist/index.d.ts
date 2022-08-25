@@ -1,4 +1,4 @@
-import { TWorker } from '@lollygag/core';
+import { Worker } from '@lollygag/core';
 import { GifOptions, PngOptions, JpegOptions } from 'sharp';
 export interface IImagesOptions {
     gifOptions?: GifOptions;
@@ -6,4 +6,4 @@ export interface IImagesOptions {
     jpegOptions?: JpegOptions;
     widths?: number[];
 }
-export default function images(options?: IImagesOptions): TWorker;
+export default function images(options?: IImagesOptions): Worker;

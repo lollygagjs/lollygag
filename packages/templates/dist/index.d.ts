@@ -1,13 +1,13 @@
-import { TFileHandler, TWorker } from '@lollygag/core';
+import { FileHandler, Worker } from '@lollygag/core';
 export interface ITemplatesOptions {
     newExtname?: string | false;
     targetExtnames?: string[];
     templatesDirectory?: string;
     partialsDirectory?: string;
     defaultTemplate?: string;
-    templatingHandler?: TFileHandler;
+    templatingHandler?: FileHandler;
     templatingHandlerOptions?: unknown;
 }
 export declare const registerPartials: (dir: string) => void;
-export declare function templates(options?: ITemplatesOptions): TWorker;
+export declare function templates(options?: ITemplatesOptions): Worker;
 export default templates;

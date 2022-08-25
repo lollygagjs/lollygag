@@ -1,4 +1,4 @@
-export * from './workers/handlebars';
+export * from '../workers/handlebars';
 export declare function fullExtname(filePath: string): string;
 export declare function changeExtname(filePath: string, newExtension: string): string;
 export declare function changeFullExtname(filePath: string, newExtension: string): string;

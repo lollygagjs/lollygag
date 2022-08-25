@@ -1,6 +1,6 @@
 /* eslint-disable no-continue */
 import {extname} from 'path';
-import {changeExtname, TWorker} from '@lollygag/core';
+import {changeExtname,Worker} from '@lollygag/core';
 import {ModuleKind, ScriptTarget, transpile} from 'typescript';
 
 export interface ICompilerOptions {
@@ -14,8 +14,8 @@ export interface ITypescriptOptions {
     compilerOptions?: ICompilerOptions;
 }
 
-export function typescript(options?: ITypescriptOptions): TWorker {
-    return function typescriptWorker(this: TWorker, files): void {
+export function typescript(options?: ITypescriptOptions):Worker {
+    return function typescriptWorker(this:Worker, files): void {
         if(!files) return;
 
         const {

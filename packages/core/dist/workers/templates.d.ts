@@ -1,11 +1,11 @@
-import { TFileHandler, TWorker } from '..';
+import {FileHandler, Worker} from '..';
 export interface ITemplatesOptions {
     newExtname?: string | false;
     targetExtnames?: string[];
     templatesDirectory?: string;
     defaultTemplate?: string;
-    templatingHandler?: TFileHandler;
+    templatingHandler?:FileHandler;
     templatingHandlerOptions?: unknown;
 }
-export declare function templates(options?: ITemplatesOptions): TWorker;
+export declare function templates(options?: ITemplatesOptions):Worker;
 export default templates;

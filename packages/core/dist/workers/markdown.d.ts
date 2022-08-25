@@ -1,12 +1,12 @@
-import { Options } from 'markdown-it';
-import { TFileHandler, TWorker } from '..';
+import {Options} from 'markdown-it';
+import {FileHandler, Worker} from '..';
 export interface IMarkdownOptions {
     newExtname?: string | false;
     targetExtnames?: string[];
     markdownOptions?: Options;
-    templatingHandler?: TFileHandler;
+    templatingHandler?:FileHandler;
     templatingHandlerOptions?: unknown;
 }
-export declare const handleMarkdown: TFileHandler;
-export declare function markdown(options?: IMarkdownOptions): TWorker;
+export declare const handleMarkdown:FileHandler;
+export declare function markdown(options?: IMarkdownOptions):Worker;
 export default markdown;
