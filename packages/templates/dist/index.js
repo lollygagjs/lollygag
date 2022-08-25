@@ -39,7 +39,7 @@ function templates(options) {
         else {
             // get built-in template
             template = (0, fs_1.readFileSync)((0, path_1.resolve)(__dirname, '../templates/index.hbs'), { encoding: 'utf-8' });
-            console.log(`NOTICE: File '${templatePath}' not found. Using built-in template as default.`);
+            console.warn(`NOTICE: File '${templatePath}' not found. Using built-in template as default.`);
         }
         (0, exports.registerPartials)(partialsDirectory);
         for (let i = 0; i < files.length; i++) {
@@ -53,7 +53,7 @@ function templates(options) {
                     template = (0, fs_1.readFileSync)(templatePath, { encoding: 'utf-8' });
                 }
                 else {
-                    console.log(`NOTICE: File '${templatePath}' missing. Using default template.`);
+                    console.warn(`NOTICE: File '${templatePath}' missing. Using default template.`);
                 }
             }
             file.content = templatingHandler(template, templatingHandlerOptions, Object.assign(Object.assign(Object.assign({}, lollygag._meta), lollygag._config), file));

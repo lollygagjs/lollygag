@@ -66,7 +66,7 @@ export function templates(options?: ITemplatesOptions): TWorker {
                 {encoding: 'utf-8'}
             );
 
-            console.log(
+            console.warn(
                 `NOTICE: File '${templatePath}' not found. Using built-in template as default.`
             );
         }
@@ -86,7 +86,7 @@ export function templates(options?: ITemplatesOptions): TWorker {
                 if(existsSync(templatePath)) {
                     template = readFileSync(templatePath, {encoding: 'utf-8'});
                 } else {
-                    console.log(
+                    console.warn(
                         `NOTICE: File '${templatePath}' missing. Using default template.`
                     );
                 }
