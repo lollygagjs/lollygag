@@ -1,7 +1,5 @@
 /* eslint-disable no-continue */
 import {extname} from 'path';
-import {readFileSync} from 'fs';
-import glob from 'glob';
 import Handlebars from 'handlebars';
 import {changeExtname, IConfig, IFile, TFileHandler, TWorker} from '..';
 
@@ -29,15 +27,6 @@ Handlebars.registerHelper('capWords', (words: string[]) =>
 Handlebars.registerHelper('orDefault', (prop, defaultValue) =>
     (prop ? prop : defaultValue));
 
-// Renders a registered partial
-Handlebars.registerHelper('partial', (path, context) => {
-    let partial = Handlebars.partials[path];
-
-    if(typeof partial !== 'function') partial = Handlebars.compile(partial);
-
-    return new Handlebars.SafeString(partial(context));
-});
-
 export {Handlebars};
 
 export interface IHandlebarsOptions {
@@ -53,15 +42,6 @@ export interface IHandleHandlebarsOptions {
     compileOptions?: CompileOptions;
     runtimeOptions?: RuntimeOptions;
 }
-
-export const registerPartials = (dir: string) => {
-    glob.sync(`${dir}/*.hbs`).forEach((file) => {
-        const name = (file.split('/').pop() ?? file).split('.')[0];
-        const partial = readFileSync(file, 'utf8');
-
-        Handlebars.registerPartial(name, partial);
-    });
-};
 
 export const handleHandlebars: TFileHandler = (
     content,

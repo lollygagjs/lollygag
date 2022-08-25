@@ -12,7 +12,6 @@ export interface IHandleHandlebarsOptions {
     compileOptions?: CompileOptions;
     runtimeOptions?: RuntimeOptions;
 }
-export declare const registerPartials: (dir: string) => void;
 export declare const handleHandlebars: TFileHandler;
 export declare function handlebars(options?: IHandlebarsOptions): TWorker;
 export default handlebars;
