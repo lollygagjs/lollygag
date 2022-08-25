@@ -16,8 +16,8 @@
     "do:upgrade": "bash scripts/do/upgrade.sh",
     "create:worker": "node scripts/create/worker.js",
     "eslint:panadero": "npx install-peerdeps --dev eslint-config-panadero",
-    "prettier": "prettier --write .",
-    "eslint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "prettier": "prettier --write **/packages/**/src/**/*",
+    "eslint": "eslint **/packages/**/src/**/* --ext .js,.jsx,.ts,.tsx --fix",
     "format": "yarn prettier && yarn eslint"
   },
   "devDependencies": {

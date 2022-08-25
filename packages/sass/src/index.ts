@@ -9,8 +9,8 @@ export interface ISassOptions {
     sassOptions?: Options<'sync'>;
 }
 
-export function sass(options?: ISassOptions):Worker {
-    return function sassWorker(this:Worker, files): void {
+export function sass(options?: ISassOptions): Worker {
+    return function sassWorker(this: Worker, files): void {
         if(!files) return;
 
         const {

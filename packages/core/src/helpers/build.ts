@@ -64,7 +64,7 @@ export default async function build(
     timeEnd('Files parsed');
 
     await this._workers.reduce(
-        async(possiblePromise, worker:Worker): Promise<void> => {
+        async(possiblePromise, worker: Worker): Promise<void> => {
             const workerName = worker.name ?? 'unknown worker';
 
             await Promise.resolve(possiblePromise);

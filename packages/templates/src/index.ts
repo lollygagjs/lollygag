@@ -7,8 +7,8 @@ import {
     changeExtname,
     handleHandlebars,
     Handlebars,
-   FileHandler,
-   Worker,
+    FileHandler,
+    Worker,
 } from '@lollygag/core';
 
 export interface ITemplatesOptions {
@@ -17,7 +17,7 @@ export interface ITemplatesOptions {
     templatesDirectory?: string;
     partialsDirectory?: string;
     defaultTemplate?: string;
-    templatingHandler?:FileHandler;
+    templatingHandler?: FileHandler;
     templatingHandlerOptions?: unknown;
 }
 
@@ -39,8 +39,8 @@ export const registerPartials = (dir: string) => {
     });
 };
 
-export function templates(options?: ITemplatesOptions):Worker {
-    return function templatesWorker(this:Worker, files, lollygag): void {
+export function templates(options?: ITemplatesOptions): Worker {
+    return function templatesWorker(this: Worker, files, lollygag): void {
         if(!files) return;
 
         const {

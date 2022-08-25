@@ -72,8 +72,8 @@ function paginateArchive(args: IPaginateArchivesArgs) {
     }
 }
 
-export function archives(options: IArchivesOptions):Worker {
-    return function archivesWorker(this:Worker, files, lollygag): void {
+export function archives(options: IArchivesOptions): Worker {
+    return function archivesWorker(this: Worker, files, lollygag): void {
         if(!files) return;
 
         const {dir, pageLimit = 10, renameToTitle = true} = options;

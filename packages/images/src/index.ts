@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import {fullExtname,Worker} from '@lollygag/core';
+import {fullExtname, Worker} from '@lollygag/core';
 import sharp, {GifOptions, PngOptions, JpegOptions} from 'sharp';
 import {existsSync, mkdirSync, readFileSync, Stats, writeFileSync} from 'fs';
 import {writeFile} from 'fs/promises';
@@ -25,8 +25,8 @@ function generateFilename(
     return `${fileName}-${id}${fileExt}`;
 }
 
-export default function images(options?: IImagesOptions):Worker {
-    return async function imagesWorker(this:Worker, files): Promise<void> {
+export default function images(options?: IImagesOptions): Worker {
+    return async function imagesWorker(this: Worker, files): Promise<void> {
         if(!files) return;
 
         const {gifOptions, pngOptions, jpegOptions, widths} = options ?? {};

@@ -1,7 +1,7 @@
 /* eslint-disable no-continue */
 import {extname} from 'path';
 import Handlebars from 'handlebars';
-import {changeExtname, IConfig, IFile,FileHandler,Worker} from '..';
+import {changeExtname, IConfig, IFile, FileHandler, Worker} from '..';
 
 // Return content as is
 Handlebars.registerHelper('raw', (any) => any.fn());
@@ -43,7 +43,7 @@ export interface IHandleHandlebarsOptions {
     runtimeOptions?: RuntimeOptions;
 }
 
-export const handleHandlebars:FileHandler = (
+export const handleHandlebars: FileHandler = (
     content,
     options?,
     data?
@@ -54,8 +54,8 @@ export const handleHandlebars:FileHandler = (
     return Handlebars.compile(content, compileOptions)(data, runtimeOptions);
 };
 
-export function handlebars(options?: IHandlebarsOptions):Worker {
-    return function handlebarsWorker(this:Worker, files, lollygag): void {
+export function handlebars(options?: IHandlebarsOptions): Worker {
+    return function handlebarsWorker(this: Worker, files, lollygag): void {
         if(!files) return;
 
         const {

@@ -1,7 +1,7 @@
 /* eslint-disable no-continue */
 import {extname} from 'path';
 import t from 'terser';
-import {changeExtname, deepCopy, fullExtname,Worker} from '@lollygag/core';
+import {changeExtname, deepCopy, fullExtname, Worker} from '@lollygag/core';
 
 export interface IOptions {
     newExtname?: string | false;
@@ -10,8 +10,8 @@ export interface IOptions {
     minifyOptions?: t.MinifyOptions;
 }
 
-export default function terser(options?: IOptions):Worker {
-    return async function terserWorker(this:Worker, files): Promise<void> {
+export default function terser(options?: IOptions): Worker {
+    return async function terserWorker(this: Worker, files): Promise<void> {
         if(!files) return;
 
         const defaultExtname = '.js';

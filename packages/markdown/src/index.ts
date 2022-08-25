@@ -4,26 +4,23 @@ import md, {Options} from 'markdown-it';
 import {
     changeExtname,
     handleHandlebars,
-   FileHandler,
-   Worker,
+    FileHandler,
+    Worker,
 } from '@lollygag/core';
 
 export interface IMarkdownOptions {
     newExtname?: string | false;
     targetExtnames?: string[];
     markdownOptions?: Options;
-    templatingHandler?:FileHandler;
+    templatingHandler?: FileHandler;
     templatingHandlerOptions?: unknown;
 }
 
-export const handleMarkdown:FileHandler = (
-    content,
-    options?,
-    data?
-): string => md((options as Options) ?? {}).render(content ?? '', data);
+export const handleMarkdown: FileHandler = (content, options?, data?): string =>
+    md((options as Options) ?? {}).render(content ?? '', data);
 
-export function markdown(options?: IMarkdownOptions):Worker {
-    return function markdownWorker(this:Worker, files, lollygag): void {
+export function markdown(options?: IMarkdownOptions): Worker {
+    return function markdownWorker(this: Worker, files, lollygag): void {
         if(!files) return;
 
         const {
