@@ -66,7 +66,7 @@ export function deleteFiles(files: string[]) {
 }
 
 export function deepCopy<T>(original: T): T {
-    return JSON.parse(JSON.stringify(original)) as T;
+    return JSON.parse(JSON.stringify(original));
 }
 
 const magic = new mmm.Magic(mmm.MAGIC_MIME_TYPE);

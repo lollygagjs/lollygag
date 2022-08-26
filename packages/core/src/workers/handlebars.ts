@@ -55,7 +55,7 @@ export const handleHandlebars: FileHandler = (
 };
 
 export function handlebars(options?: IHandlebarsOptions): Worker {
-    return function handlebarsWorker(this: Worker, files, lollygag): void {
+    return function handlebarsWorker(files, lollygag): void {
         if(!files) return;
 
         const {

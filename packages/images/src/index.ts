@@ -26,7 +26,7 @@ function generateFilename(
 }
 
 export default function images(options?: IImagesOptions): Worker {
-    return async function imagesWorker(this: Worker, files): Promise<void> {
+    return async function imagesWorker(files): Promise<void> {
         if(!files) return;
 
         const {gifOptions, pngOptions, jpegOptions, widths} = options ?? {};

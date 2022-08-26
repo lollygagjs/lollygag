@@ -27,34 +27,37 @@ export default async function build(
     this: Lollygag,
     options?: IBuildOptions
 ): Promise<void> {
-    const opts: IBuildOptions = {
-        fullBuild: false,
-        allowExternalDirectories: false,
-        allowWorkingDirectoryOutput: false,
-        ...options,
-    };
+    const {
+        fullBuild = false,
+        allowExternalDirectories = false,
+        allowWorkingDirectoryOutput = false,
+        globPattern,
+    } = options ?? {};
 
     validateBuild.call(this, {
-        allowExternalDirectories: opts.allowExternalDirectories,
-        allowWorkingDirectoryOutput: opts.allowWorkingDirectoryOutput,
+        allowExternalDirectories,
+        allowWorkingDirectoryOutput,
     });
 
     const defaultGlobPattern = '**/*';
 
-    opts.globPattern = join(this._in, opts.globPattern ?? defaultGlobPattern);
+    const normalizedGlobPattern = join(
+        this._in,
+        globPattern ?? defaultGlobPattern
+    );
 
     time('Total build time');
 
     time('Files collected');
 
-    const fileList = await getFiles.call(this, opts.globPattern);
+    const fileList = await getFiles.call(this, normalizedGlobPattern);
 
     timeEnd('Files collected');
 
     time('Files parsed');
 
     const fileObjects = this._files.filter((file) =>
-        minimatch(file.path, opts.globPattern || defaultGlobPattern));
+        minimatch(file.path, normalizedGlobPattern));
 
     const parsedFiles = [
         ...fileObjects,
@@ -95,7 +98,7 @@ export default async function build(
 
     timeEnd('Files written');
 
-    if(opts.fullBuild) {
+    if(fullBuild) {
         time(`Cleaned '${this._out}' directory`);
 
         const written = toWrite.map((file) =>

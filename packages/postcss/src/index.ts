@@ -12,7 +12,7 @@ export interface IOptions {
 }
 
 export function postcss(options?: IOptions): Worker {
-    return async function postcssWorker(this: Worker, files): Promise<void> {
+    return async function postcssWorker(files): Promise<void> {
         if(!files) return;
 
         const defaultExtname = '.css';

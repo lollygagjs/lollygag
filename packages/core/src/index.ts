@@ -49,7 +49,7 @@ export type Worker = (
     lollygag: Lollygag
 ) => void | Promise<void>;
 
-export class Lollygag {
+export default class Lollygag {
     constructor(
         private __config: IConfig = {
             generator: 'Lollygag',
@@ -133,8 +133,5 @@ export class Lollygag {
 process.on('unhandledRejection', (err) => {
     log(red('Build failed...'));
     error(err);
-
     process.exit(43);
 });
-
-export default Lollygag;

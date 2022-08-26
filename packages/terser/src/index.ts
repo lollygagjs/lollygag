@@ -11,7 +11,7 @@ export interface IOptions {
 }
 
 export default function terser(options?: IOptions): Worker {
-    return async function terserWorker(this: Worker, files): Promise<void> {
+    return async function terserWorker(files): Promise<void> {
         if(!files) return;
 
         const defaultExtname = '.js';

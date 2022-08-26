@@ -40,7 +40,7 @@ export const registerPartials = (dir: string) => {
 };
 
 export function templates(options?: ITemplatesOptions): Worker {
-    return function templatesWorker(this: Worker, files, lollygag): void {
+    return function templatesWorker(files, lollygag): void {
         if(!files) return;
 
         const {

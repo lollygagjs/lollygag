@@ -1,6 +1,7 @@
 /* eslint-disable no-continue */
 import {extname} from 'path';
 import md, {Options} from 'markdown-it';
+
 import {
     changeExtname,
     handleHandlebars,
@@ -20,7 +21,7 @@ export const handleMarkdown: FileHandler = (content, options?, data?): string =>
     md((options as Options) ?? {}).render(content ?? '', data);
 
 export function markdown(options?: IMarkdownOptions): Worker {
-    return function markdownWorker(this: Worker, files, lollygag): void {
+    return function markdownWorker(files, lollygag): void {
         if(!files) return;
 
         const {

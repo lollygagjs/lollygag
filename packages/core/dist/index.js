@@ -17,7 +17,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Lollygag = void 0;
 const console_1 = require("console");
 const path_1 = require("path");
 const chalk_1 = require("chalk");
@@ -90,10 +89,9 @@ class Lollygag {
         return this.__workers;
     }
 }
-exports.Lollygag = Lollygag;
+exports.default = Lollygag;
 process.on('unhandledRejection', (err) => {
     (0, console_1.log)((0, chalk_1.red)('Build failed...'));
     (0, console_1.error)(err);
     process.exit(43);
 });
-exports.default = Lollygag;

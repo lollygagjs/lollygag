@@ -1,5 +1,5 @@
-import { Worker } from '@lollygag/core';
 import { ModuleKind, ScriptTarget } from 'typescript';
+import { Worker } from '@lollygag/core';
 export interface ICompilerOptions {
     module?: keyof typeof ModuleKind;
     target?: keyof typeof ScriptTarget;

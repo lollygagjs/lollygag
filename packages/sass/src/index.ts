@@ -10,7 +10,7 @@ export interface ISassOptions {
 }
 
 export function sass(options?: ISassOptions): Worker {
-    return function sassWorker(this: Worker, files): void {
+    return function sassWorker(files): void {
         if(!files) return;
 
         const {

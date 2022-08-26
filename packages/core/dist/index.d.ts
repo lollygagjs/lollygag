@@ -29,7 +29,7 @@ export interface IConfig {
     templatingHandlerOptions?: unknown;
 }
 export declare type Worker = (files: IFile[], lollygag: Lollygag) => void | Promise<void>;
-export declare class Lollygag {
+export default class Lollygag {
     private __config;
     private __meta;
     private __in;
@@ -52,4 +52,3 @@ export declare class Lollygag {
     protected handleTemplating: FileHandler;
     build: (options: IBuildOptions) => Promise<void>;
 }
-export default Lollygag;
