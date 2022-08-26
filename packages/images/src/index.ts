@@ -1,9 +1,9 @@
 /* eslint-disable no-param-reassign */
-import {fullExtname, Worker} from '@lollygag/core';
-import sharp, {GifOptions, PngOptions, JpegOptions} from 'sharp';
+import {deepCopy, fullExtname, IFile, Worker} from '@lollygag/core';
+import sharp, {GifOptions, PngOptions, JpegOptions, Sharp} from 'sharp';
 import {existsSync, mkdirSync, readFileSync, Stats, writeFileSync} from 'fs';
 import {writeFile} from 'fs/promises';
-import {basename, join} from 'path';
+import {basename, dirname, join} from 'path';
 
 export interface IImagesOptions {
     gifOptions?: GifOptions;
@@ -18,11 +18,36 @@ function generateFilename(
     quality: number | false
 ) {
     const fileExt = fullExtname(path);
-    const fileName = basename(path, fileExt);
+    const fileBasename = basename(path, fileExt);
 
-    if(quality) return `${fileName}-${id}-q${quality}${fileExt}`;
+    let fileName: string;
 
-    return `${fileName}-${id}${fileExt}`;
+    if(quality) fileName = `${fileBasename}-${id}-q${quality}${fileExt}`;
+    else fileName = `${fileBasename}-${id}${fileExt}`;
+
+    const dir = join('.images', dirname(path));
+
+    if(!existsSync(dir)) mkdirSync(dir, {recursive: true});
+
+    return join(dir, fileName);
+}
+
+async function generateWidths(
+    img: Sharp,
+    widths: number[],
+    quality: number | false,
+    file: IFile,
+    files: IFile[]
+) {
+    await Promise.all(
+        widths.map(async(width) => {
+            const imgPath = generateFilename(file.path, width, quality);
+
+            await img.resize(width).toFile(imgPath);
+
+            files.push({...file, path: imgPath});
+        })
+    );
 }
 
 export default function images(options?: IImagesOptions): Worker {
@@ -42,7 +67,9 @@ export default function images(options?: IImagesOptions): Worker {
             };
         }
 
-        const promises = files.map(async(file) => {
+        const promises = files.map(async(f) => {
+            const file = f;
+
             if(!file.mimetype.startsWith('image')) return;
 
             const meta: IImagesMeta = JSON.parse(
@@ -79,15 +106,21 @@ export default function images(options?: IImagesOptions): Worker {
                 default:
             }
 
-            await img.toFile(
-                join('.images', generateFilename(file.path, 'full', quality))
-            );
+            const fullImgPath = generateFilename(file.path, 'full', quality);
 
-            widths?.forEach((width) => {
-                img.resize(width).toFile(
-                    join('.images', generateFilename(file.path, width, quality))
+            await img.toFile(fullImgPath);
+
+            if(widths) {
+                await generateWidths(
+                    img,
+                    widths,
+                    quality,
+                    deepCopy(file),
+                    files
                 );
-            });
+            }
+
+            file.path = fullImgPath;
 
             if(file.stats) {
                 meta[file.path] = {
@@ -101,5 +134,8 @@ export default function images(options?: IImagesOptions): Worker {
         });
 
         await Promise.all(promises);
+
+        // TODO: temp
+        console.log(files.filter((f) => !f.path.startsWith('files')));
     };
 }

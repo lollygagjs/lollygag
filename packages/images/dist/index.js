@@ -20,10 +20,25 @@ const promises_1 = require("fs/promises");
 const path_1 = require("path");
 function generateFilename(path, id, quality) {
     const fileExt = (0, core_1.fullExtname)(path);
-    const fileName = (0, path_1.basename)(path, fileExt);
+    const fileBasename = (0, path_1.basename)(path, fileExt);
+    let fileName;
     if (quality)
-        return `${fileName}-${id}-q${quality}${fileExt}`;
-    return `${fileName}-${id}${fileExt}`;
+        fileName = `${fileBasename}-${id}-q${quality}${fileExt}`;
+    else
+        fileName = `${fileBasename}-${id}${fileExt}`;
+    const dir = (0, path_1.join)('.images', (0, path_1.dirname)(path));
+    if (!(0, fs_1.existsSync)(dir))
+        (0, fs_1.mkdirSync)(dir, { recursive: true });
+    return (0, path_1.join)(dir, fileName);
+}
+function generateWidths(img, widths, quality, file, files) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield Promise.all(widths.map((width) => __awaiter(this, void 0, void 0, function* () {
+            const imgPath = generateFilename(file.path, width, quality);
+            yield img.resize(width).toFile(imgPath);
+            files.push(Object.assign(Object.assign({}, file), { path: imgPath }));
+        })));
+    });
 }
 function images(options) {
     return function imagesWorker(files) {
@@ -36,8 +51,9 @@ function images(options) {
                 (0, fs_1.mkdirSync)('.images');
             if (!(0, fs_1.existsSync)(metaFile))
                 (0, fs_1.writeFileSync)(metaFile, '{}');
-            const promises = files.map((file) => __awaiter(this, void 0, void 0, function* () {
+            const promises = files.map((f) => __awaiter(this, void 0, void 0, function* () {
                 var _a, _b, _c;
+                const file = f;
                 if (!file.mimetype.startsWith('image'))
                     return;
                 const meta = JSON.parse((_a = (0, fs_1.readFileSync)(metaFile, { encoding: 'utf-8' })) !== null && _a !== void 0 ? _a : '{}');
@@ -64,10 +80,12 @@ function images(options) {
                         break;
                     default:
                 }
-                yield img.toFile((0, path_1.join)('.images', generateFilename(file.path, 'full', quality)));
-                widths === null || widths === void 0 ? void 0 : widths.forEach((width) => {
-                    img.resize(width).toFile((0, path_1.join)('.images', generateFilename(file.path, width, quality)));
-                });
+                const fullImgPath = generateFilename(file.path, 'full', quality);
+                yield img.toFile(fullImgPath);
+                if (widths) {
+                    yield generateWidths(img, widths, quality, (0, core_1.deepCopy)(file), files);
+                }
+                file.path = fullImgPath;
                 if (file.stats) {
                     meta[file.path] = {
                         birthtimeMs: file.stats.birthtimeMs,
@@ -77,6 +95,8 @@ function images(options) {
                 yield (0, promises_1.writeFile)(metaFile, JSON.stringify(meta, null, 2));
             }));
             yield Promise.all(promises);
+            // TODO: temp
+            console.log(files.filter((f) => !f.path.startsWith('files')));
         });
     };
 }
