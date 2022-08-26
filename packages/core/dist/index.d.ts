@@ -30,12 +30,12 @@ export interface IConfig {
 }
 export declare type Worker = (files: IFile[], lollygag: Lollygag) => void | Promise<void>;
 export declare class Lollygag {
-    protected __config: IConfig;
-    protected __meta: IMeta;
-    protected __in: string;
-    protected __out: string;
-    protected __files: IFile[];
-    protected __workers: Worker[];
+    private __config;
+    private __meta;
+    private __in;
+    private __out;
+    private __files;
+    private __workers;
     constructor(__config?: IConfig, __meta?: IMeta, __in?: string, __out?: string, __files?: IFile[], __workers?: Worker[]);
     config(config: IConfig): this;
     get _config(): IConfig;

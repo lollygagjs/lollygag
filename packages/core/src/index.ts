@@ -51,18 +51,18 @@ export type Worker = (
 
 export class Lollygag {
     constructor(
-        protected __config: IConfig = {
+        private __config: IConfig = {
             generator: 'Lollygag',
             prettyUrls: true,
             generateTimestamp: true,
         },
-        protected __meta: IMeta = {
+        private __meta: IMeta = {
             year: new Date().getFullYear(),
         },
-        protected __in: string = 'files',
-        protected __out: string = 'public',
-        protected __files: IFile[] = [],
-        protected __workers: Worker[] = []
+        private __in: string = 'files',
+        private __out: string = 'public',
+        private __files: IFile[] = [],
+        private __workers: Worker[] = []
     ) {
         log('Hello from Lollygag!');
     }
