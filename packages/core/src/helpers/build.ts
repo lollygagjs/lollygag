@@ -56,6 +56,10 @@ export default async function build(
 
     time('Files parsed');
 
+    /**
+     * Get files added through `Lollygag.files()` with paths that
+     * match `normalizedGlobPattern`.
+     */
     const fileObjects = this._files.filter((file) =>
         minimatch(file.path, normalizedGlobPattern));
 
@@ -104,6 +108,7 @@ export default async function build(
         const written = toWrite.map((file) =>
             addParentToPath(
                 this._out,
+                // TODO: Ooooooooooh
                 removeParentFromPath(this._in, file.path)
             ));
 

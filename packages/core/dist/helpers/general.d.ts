@@ -4,6 +4,7 @@ export declare function changeExtname(filePath: string, newExtension: string): s
 export declare function changeFullExtname(filePath: string, newExtension: string): string;
 export declare function addParentToPath(parent: string, path: string): string;
 export declare function removeParentFromPath(parent: string, path: string): string;
+export declare function removeUpToParentFromPath(parent: string, path: string): string;
 export declare function deleteEmptyDirs(dir: string): Promise<void>;
 export declare function deleteFiles(files: string[]): Promise<void[]>;
 export declare function deepCopy<T>(original: T): T;

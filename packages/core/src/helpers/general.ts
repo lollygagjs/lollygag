@@ -43,6 +43,15 @@ export function removeParentFromPath(parent: string, path: string): string {
     return join(path.replace(`${cleanParent}/`, ''));
 }
 
+export function removeUpToParentFromPath(parent: string, path: string): string {
+    // remove leading and trailing slashes
+    const cleanParent = join(parent).replace(/^\/|\/$/g, '');
+
+    return join(
+        path.slice(path.indexOf(`${cleanParent}/`) + cleanParent.length)
+    );
+}
+
 export async function deleteEmptyDirs(dir: string) {
     if(!statSync(dir).isDirectory()) return;
 

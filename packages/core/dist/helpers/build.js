@@ -35,6 +35,10 @@ function build(options) {
         const fileList = yield getFiles_1.default.call(this, normalizedGlobPattern);
         (0, console_1.timeEnd)('Files collected');
         (0, console_1.time)('Files parsed');
+        /**
+         * Get files added through `Lollygag.files()` with paths that
+         * match `normalizedGlobPattern`.
+         */
         const fileObjects = this._files.filter((file) => (0, minimatch_1.default)(file.path, normalizedGlobPattern));
         const parsedFiles = [
             ...fileObjects,
@@ -61,7 +65,9 @@ function build(options) {
         (0, console_1.timeEnd)('Files written');
         if (fullBuild) {
             (0, console_1.time)(`Cleaned '${this._out}' directory`);
-            const written = toWrite.map((file) => (0, __1.addParentToPath)(this._out, (0, __1.removeParentFromPath)(this._in, file.path)));
+            const written = toWrite.map((file) => (0, __1.addParentToPath)(this._out, 
+            // TODO: Ooooooooooh
+            (0, __1.removeParentFromPath)(this._in, file.path)));
             const existing = yield getFiles_1.default.call(this, (0, path_1.join)(this._out, '/**/*'));
             const difference = existing.filter((ex) => !written.includes(ex));
             // Delete old files and leftover directories

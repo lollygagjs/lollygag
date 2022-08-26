@@ -1,16 +1,22 @@
 import fs, {promises as fsp} from 'fs';
 import {join, dirname} from 'path';
-import Lollygag, {IFile, removeParentFromPath} from '..';
+import Lollygag, {IFile, removeUpToParentFromPath} from '..';
 
 export default function writeFiles(
     this: Lollygag,
     files: IFile[]
 ): Promise<void[]> {
     const promises = files.map(async(file): Promise<void> => {
+        /**
+         * Change `file.path` to final output path.
+         */
         const filePath = join(
             this._out,
-            removeParentFromPath(this._in, file.path)
+            // TODO: Ooooooh
+            removeUpToParentFromPath(this._in, file.path)
         );
+
+        console.log(filePath);
 
         const fileDir = dirname(filePath);
 

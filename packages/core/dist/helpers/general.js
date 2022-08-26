@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getFileMimetype = exports.deepCopy = exports.deleteFiles = exports.deleteEmptyDirs = exports.removeParentFromPath = exports.addParentToPath = exports.changeFullExtname = exports.changeExtname = exports.fullExtname = void 0;
+exports.getFileMimetype = exports.deepCopy = exports.deleteFiles = exports.deleteEmptyDirs = exports.removeUpToParentFromPath = exports.removeParentFromPath = exports.addParentToPath = exports.changeFullExtname = exports.changeExtname = exports.fullExtname = void 0;
 const fs_1 = require("fs");
 const path_1 = require("path");
 const mmmagic_1 = __importDefault(require("mmmagic"));
@@ -59,6 +59,12 @@ function removeParentFromPath(parent, path) {
     return (0, path_1.join)(path.replace(`${cleanParent}/`, ''));
 }
 exports.removeParentFromPath = removeParentFromPath;
+function removeUpToParentFromPath(parent, path) {
+    // remove leading and trailing slashes
+    const cleanParent = (0, path_1.join)(parent).replace(/^\/|\/$/g, '');
+    return (0, path_1.join)(path.slice(path.indexOf(`${cleanParent}/`) + cleanParent.length));
+}
+exports.removeUpToParentFromPath = removeUpToParentFromPath;
 function deleteEmptyDirs(dir) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!(0, fs_1.statSync)(dir).isDirectory())
