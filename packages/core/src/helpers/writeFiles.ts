@@ -16,8 +16,6 @@ export default function writeFiles(
             removeUpToParentFromPath(this._in, file.path)
         );
 
-        console.log(filePath);
-
         const fileDir = dirname(filePath);
 
         if(!fs.existsSync(fileDir)) {
