@@ -15,12 +15,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const minimatch_1 = __importDefault(require("minimatch"));
 const path_1 = require("path");
 const console_1 = require("console");
-const __1 = require("..");
 const generatePrettyUrls_1 = __importDefault(require("./generatePrettyUrls"));
 const getFiles_1 = __importDefault(require("./getFiles"));
 const parseFiles_1 = __importDefault(require("./parseFiles"));
 const validateBuild_1 = __importDefault(require("./validateBuild"));
 const writeFiles_1 = __importDefault(require("./writeFiles"));
+const rimraf_1 = __importDefault(require("rimraf"));
 function build(options) {
     return __awaiter(this, void 0, void 0, function* () {
         const { fullBuild = false, allowExternalDirectories = false, allowWorkingDirectoryOutput = false, globPattern, } = options !== null && options !== void 0 ? options : {};
@@ -31,6 +31,18 @@ function build(options) {
         const defaultGlobPattern = '**/*';
         const normalizedGlobPattern = (0, path_1.join)(this._in, globPattern !== null && globPattern !== void 0 ? globPattern : defaultGlobPattern);
         (0, console_1.time)('Total build time');
+        if (fullBuild) {
+            (0, console_1.time)(`Cleaned '${this._out}' directory`);
+            yield new Promise((res, rej) => {
+                (0, rimraf_1.default)((0, path_1.join)(this._out, '**/*'), (err) => {
+                    if (err)
+                        rej(err);
+                    else
+                        res(null);
+                });
+            });
+            (0, console_1.timeEnd)(`Cleaned '${this._out}' directory`);
+        }
         (0, console_1.time)('Files collected');
         const fileList = yield getFiles_1.default.call(this, normalizedGlobPattern);
         (0, console_1.timeEnd)('Files collected');
@@ -63,18 +75,6 @@ function build(options) {
         (0, console_1.time)('Files written');
         yield writeFiles_1.default.call(this, toWrite);
         (0, console_1.timeEnd)('Files written');
-        if (fullBuild) {
-            (0, console_1.time)(`Cleaned '${this._out}' directory`);
-            const written = toWrite.map((file) => (0, __1.addParentToPath)(this._out, 
-            // TODO: Ooooooooooh
-            (0, __1.removeParentFromPath)(this._in, file.path)));
-            const existing = yield getFiles_1.default.call(this, (0, path_1.join)(this._out, '/**/*'));
-            const difference = existing.filter((ex) => !written.includes(ex));
-            // Delete old files and leftover directories
-            yield (0, __1.deleteFiles)(difference);
-            yield (0, __1.deleteEmptyDirs)(this._out);
-            (0, console_1.timeEnd)(`Cleaned '${this._out}' directory`);
-        }
         (0, console_1.timeEnd)('Total build time');
     });
 }

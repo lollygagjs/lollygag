@@ -1,20 +1,14 @@
 import minimatch from 'minimatch';
 import {join} from 'path';
 import {log, time, timeEnd} from 'console';
-
-import Lollygag, {
-    addParentToPath,
-    deleteEmptyDirs,
-    deleteFiles,
-    removeParentFromPath,
-    Worker,
-} from '..';
+import Lollygag, {Worker} from '..';
 
 import generatePrettyUrls from './generatePrettyUrls';
 import getFiles from './getFiles';
 import parseFiles from './parseFiles';
 import validateBuild from './validateBuild';
 import writeFiles from './writeFiles';
+import rimraf from 'rimraf';
 
 export interface IBuildOptions {
     fullBuild?: boolean;
@@ -47,6 +41,19 @@ export default async function build(
     );
 
     time('Total build time');
+
+    if(fullBuild) {
+        time(`Cleaned '${this._out}' directory`);
+
+        await new Promise((res, rej) => {
+            rimraf(join(this._out, '**/*'), (err) => {
+                if(err) rej(err);
+                else res(null);
+            });
+        });
+
+        timeEnd(`Cleaned '${this._out}' directory`);
+    }
 
     time('Files collected');
 
@@ -101,27 +108,6 @@ export default async function build(
     await writeFiles.call(this, toWrite);
 
     timeEnd('Files written');
-
-    if(fullBuild) {
-        time(`Cleaned '${this._out}' directory`);
-
-        const written = toWrite.map((file) =>
-            addParentToPath(
-                this._out,
-                // TODO: Ooooooooooh
-                removeParentFromPath(this._in, file.path)
-            ));
-
-        const existing = await getFiles.call(this, join(this._out, '/**/*'));
-
-        const difference = existing.filter((ex) => !written.includes(ex));
-
-        // Delete old files and leftover directories
-        await deleteFiles(difference);
-        await deleteEmptyDirs(this._out);
-
-        timeEnd(`Cleaned '${this._out}' directory`);
-    }
 
     timeEnd('Total build time');
 }
