@@ -6,4 +6,7 @@ export interface IImagesOptions {
     jpegOptions?: JpegOptions;
     widths?: number[];
 }
+declare const validMimetypes: readonly ["image/gif", "image/png", "image/jpeg"];
+export declare type ValidMimetypes = typeof validMimetypes[number];
 export default function images(options?: IImagesOptions): Worker;
+export {};

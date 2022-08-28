@@ -1,9 +1,10 @@
 /* eslint-disable no-param-reassign */
-import {deepCopy, fullExtname, IFile, Worker} from '@lollygag/core';
-import sharp, {GifOptions, PngOptions, JpegOptions, Sharp} from 'sharp';
+import {deepCopy, IFile, Worker} from '@lollygag/core';
+import {GifOptions, PngOptions, JpegOptions} from 'sharp';
 import {existsSync, mkdirSync, readFileSync, Stats, writeFileSync} from 'fs';
 import {writeFile} from 'fs/promises';
-import {basename, dirname, join} from 'path';
+import {generateFilename} from './helpers/generalFilename';
+import {processImages} from './helpers/processImages';
 
 export interface IImagesOptions {
     gifOptions?: GifOptions;
@@ -12,42 +13,15 @@ export interface IImagesOptions {
     widths?: number[];
 }
 
-function generateFilename(
-    path: string,
-    id: number | string,
-    quality: number | false
-) {
-    const fileExt = fullExtname(path);
-    const fileBasename = basename(path, fileExt);
+const validMimetypes = ['image/gif', 'image/png', 'image/jpeg'] as const;
 
-    let fileName: string;
+export type ValidMimetypes = typeof validMimetypes[number];
 
-    if(quality) fileName = `${fileBasename}-${id}-q${quality}${fileExt}`;
-    else fileName = `${fileBasename}-${id}${fileExt}`;
-
-    const dir = join('.images', dirname(path));
-
-    if(!existsSync(dir)) mkdirSync(dir, {recursive: true});
-
-    return join(dir, fileName);
-}
-
-async function generateWidths(
-    img: Sharp,
-    widths: number[],
-    quality: number | false,
-    file: IFile,
-    files: IFile[]
-) {
-    await Promise.all(
-        widths.map(async(width) => {
-            const imgPath = generateFilename(file.path, width, quality);
-
-            await img.resize(width).toFile(imgPath);
-
-            files.push({...file, path: imgPath});
-        })
-    );
+interface IImagesMeta {
+    [path: string]: {
+        birthtimeMs: Stats['birthtimeMs'];
+        generated?: string[];
+    };
 }
 
 export default function images(options?: IImagesOptions): Worker {
@@ -61,81 +35,88 @@ export default function images(options?: IImagesOptions): Worker {
         if(!existsSync('.images/')) mkdirSync('.images');
         if(!existsSync(metaFile)) writeFileSync(metaFile, '{}');
 
-        interface IImagesMeta {
-            [path: string]: {
-                birthtimeMs: Stats['birthtimeMs'];
-            };
-        }
+        const meta: IImagesMeta = {};
 
         const promises = files.map(async(f) => {
             const file = f;
 
-            if(!file.mimetype.startsWith('image')) return;
+            if(!file.stats) return;
 
-            const meta: IImagesMeta = JSON.parse(
-                readFileSync(metaFile, {encoding: 'utf-8'}) ?? '{}'
+            const fileMimetype = file.mimetype as ValidMimetypes;
+
+            if(!validMimetypes.includes(fileMimetype)) return;
+
+            const originalFilePath = file.path;
+
+            console.log(`Processing ${originalFilePath}...`);
+
+            let quality: number | undefined;
+
+            if(fileMimetype === 'image/png') {
+                quality = pngOptions?.quality ?? 80;
+            } else if(fileMimetype === 'image/jpeg') {
+                quality = jpegOptions?.quality ?? 80;
+            }
+
+            const fullImgPath = generateFilename(
+                originalFilePath,
+                'full',
+                quality
             );
 
-            if(meta[file.path] && file.stats) {
-                if(
-                    new Date(meta[file.path].birthtimeMs)
+            const widthsPaths
+                = widths?.map((width) =>
+                    generateFilename(originalFilePath, width, quality)) ?? [];
+
+            meta[originalFilePath] = {
+                birthtimeMs: file.stats.birthtimeMs,
+                generated: [fullImgPath, ...widthsPaths],
+            };
+
+            let newFiles: IFile[] = [];
+            const fileCopy = deepCopy(file);
+
+            const processImagesArgs = {
+                fileCopy,
+                originalFilePath,
+                fullImgPath,
+                fileMimetype,
+                widthsPaths,
+                quality,
+                handlerOptions: {gifOptions, pngOptions, jpegOptions},
+            };
+
+            const metaFileText = readFileSync(metaFile, {
+                encoding: 'utf-8',
+            });
+
+            const oldMeta: IImagesMeta = JSON.parse(
+                metaFileText.length
+                    ? readFileSync(metaFile, {encoding: 'utf-8'})
+                    : '{}'
+            );
+
+            if(
+                // file has been processed previously
+                oldMeta[originalFilePath]
+                && new Date(oldMeta[originalFilePath].birthtimeMs)
                     >= new Date(file.stats.birthtimeMs)
-                ) {
-                    return;
-                }
-            }
-
-            console.log(`Processing ${file.path}...`);
-
-            const img = sharp(file.path);
-
-            let quality: number | false = false;
-
-            switch(file.mimetype) {
-                case 'image/gif':
-                    img.gif(gifOptions);
-                    break;
-                case 'image/png':
-                    quality = pngOptions?.quality ?? 100;
-                    img.png({quality, ...pngOptions});
-                    break;
-                case 'image/jpeg':
-                    quality = jpegOptions?.quality ?? 80;
-                    img.jpeg({quality, ...jpegOptions});
-                    break;
-                default:
-            }
-
-            const fullImgPath = generateFilename(file.path, 'full', quality);
-
-            await img.toFile(fullImgPath);
-
-            if(widths) {
-                await generateWidths(
-                    img,
-                    widths,
-                    quality,
-                    deepCopy(file),
-                    files
-                );
+            ) {
+                newFiles = await processImages({
+                    ...processImagesArgs,
+                    previouslyProcessed: true,
+                });
+            } else {
+                newFiles = await processImages(processImagesArgs);
             }
 
             file.path = fullImgPath;
+            files.push(...newFiles);
 
-            if(file.stats) {
-                meta[file.path] = {
-                    birthtimeMs: file.stats.birthtimeMs,
-                };
-            }
-
-            console.log(`Processing ${file.path}... done!`);
-
-            await writeFile(metaFile, JSON.stringify(meta, null, 2));
+            console.log(`Processing ${originalFilePath}... done!`);
         });
 
         await Promise.all(promises);
-
-        // TODO: temp
-        console.log(files.filter((f) => !f.path.startsWith('files')));
+        await writeFile(metaFile, JSON.stringify(meta, null, 2));
     };
 }
