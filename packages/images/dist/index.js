@@ -8,28 +8,36 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-/* eslint-disable no-param-reassign */
 const core_1 = require("@lollygag/core");
 const fs_1 = require("fs");
 const promises_1 = require("fs/promises");
-const generalFilename_1 = require("./helpers/generalFilename");
-const processImages_1 = require("./helpers/processImages");
+const generalFilename_1 = __importDefault(require("./helpers/generalFilename"));
+const processImages_1 = __importDefault(require("./helpers/processImages"));
 const validMimetypes = ['image/gif', 'image/png', 'image/jpeg'];
 function images(options) {
     return function imagesWorker(files) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!files)
                 return;
-            const { gifOptions, pngOptions, jpegOptions, widths } = options !== null && options !== void 0 ? options : {};
+            const { gifOptions, pngOptions, jpegOptions, sizes } = options !== null && options !== void 0 ? options : {};
             const metaFile = '.images/meta.json';
             if (!(0, fs_1.existsSync)('.images/'))
                 (0, fs_1.mkdirSync)('.images');
             if (!(0, fs_1.existsSync)(metaFile))
                 (0, fs_1.writeFileSync)(metaFile, '{}');
+            const metaFileText = (0, fs_1.readFileSync)(metaFile, {
+                encoding: 'utf-8',
+            });
+            const oldMeta = JSON.parse(metaFileText.length
+                ? (0, fs_1.readFileSync)(metaFile, { encoding: 'utf-8' })
+                : '{}');
             const meta = {};
             const promises = files.map((f) => __awaiter(this, void 0, void 0, function* () {
-                var _a, _b, _c;
+                var _a, _b;
                 const file = f;
                 if (!file.stats)
                     return;
@@ -45,39 +53,42 @@ function images(options) {
                 else if (fileMimetype === 'image/jpeg') {
                     quality = (_b = jpegOptions === null || jpegOptions === void 0 ? void 0 : jpegOptions.quality) !== null && _b !== void 0 ? _b : 80;
                 }
-                const fullImgPath = (0, generalFilename_1.generateFilename)(originalFilePath, 'full', quality);
-                const widthsPaths = (_c = widths === null || widths === void 0 ? void 0 : widths.map((width) => (0, generalFilename_1.generateFilename)(originalFilePath, width, quality))) !== null && _c !== void 0 ? _c : [];
+                const fullImgPath = (0, generalFilename_1.default)(originalFilePath);
+                const fullImgObj = {
+                    full: {
+                        path: fullImgPath,
+                        quality,
+                    },
+                };
+                const sizesObj = Object.keys(sizes !== null && sizes !== void 0 ? sizes : {}).reduce((size, key) => {
+                    // eslint-disable-next-line no-param-reassign
+                    size[key] = {
+                        path: (0, generalFilename_1.default)(originalFilePath, key),
+                        width: (sizes !== null && sizes !== void 0 ? sizes : {})[key].width,
+                        height: (sizes !== null && sizes !== void 0 ? sizes : {})[key].height,
+                        options: (sizes !== null && sizes !== void 0 ? sizes : {})[key].options,
+                        quality,
+                    };
+                    return size;
+                }, {});
                 meta[originalFilePath] = {
                     birthtimeMs: file.stats.birthtimeMs,
-                    generated: [fullImgPath, ...widthsPaths],
+                    generated: Object.assign(Object.assign({}, fullImgObj), sizesObj),
                 };
-                let newFiles = [];
-                const fileCopy = (0, core_1.deepCopy)(file);
-                const processImagesArgs = {
-                    fileCopy,
+                const previouslyProcessed = oldMeta[originalFilePath]
+                    && new Date(oldMeta[originalFilePath].birthtimeMs)
+                        >= new Date(file.stats.birthtimeMs);
+                const newFiles = yield (0, processImages_1.default)({
+                    fileCopy: (0, core_1.deepCopy)(file),
                     originalFilePath,
                     fullImgPath,
                     fileMimetype,
-                    widthsPaths,
+                    sizesObj,
                     quality,
+                    oldMeta,
                     handlerOptions: { gifOptions, pngOptions, jpegOptions },
-                };
-                const metaFileText = (0, fs_1.readFileSync)(metaFile, {
-                    encoding: 'utf-8',
+                    previouslyProcessed,
                 });
-                const oldMeta = JSON.parse(metaFileText.length
-                    ? (0, fs_1.readFileSync)(metaFile, { encoding: 'utf-8' })
-                    : '{}');
-                if (
-                // file has been processed previously
-                oldMeta[originalFilePath]
-                    && new Date(oldMeta[originalFilePath].birthtimeMs)
-                        >= new Date(file.stats.birthtimeMs)) {
-                    newFiles = yield (0, processImages_1.processImages)(Object.assign(Object.assign({}, processImagesArgs), { previouslyProcessed: true }));
-                }
-                else {
-                    newFiles = yield (0, processImages_1.processImages)(processImagesArgs);
-                }
                 file.path = fullImgPath;
                 files.push(...newFiles);
                 console.log(`Processing ${originalFilePath}... done!`);

@@ -1,1 +1,1 @@
-export declare function generateFilename(path: string, id: number | string, quality?: number): string;
+export default function generateFilename(path: string, sizeId?: string): string;

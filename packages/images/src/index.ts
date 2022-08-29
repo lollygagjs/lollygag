@@ -1,39 +1,65 @@
-/* eslint-disable no-param-reassign */
-import {deepCopy, IFile, Worker} from '@lollygag/core';
-import {GifOptions, PngOptions, JpegOptions} from 'sharp';
+import {deepCopy, Worker} from '@lollygag/core';
+import {GifOptions, PngOptions, JpegOptions, ResizeOptions} from 'sharp';
 import {existsSync, mkdirSync, readFileSync, Stats, writeFileSync} from 'fs';
 import {writeFile} from 'fs/promises';
-import {generateFilename} from './helpers/generalFilename';
-import {processImages} from './helpers/processImages';
+import generateFilename from './helpers/generalFilename';
+import processImages from './helpers/processImages';
+
+export interface IResizeParams {
+    width?: number | null;
+    height?: number | null;
+    options?: ResizeOptions;
+}
+
+export interface ISizes {
+    [name: string]: IResizeParams;
+}
+
+export interface IGenerated {
+    [name: string]: {
+        path: string;
+        quality?: number;
+    } & IResizeParams;
+}
 
 export interface IImagesOptions {
     gifOptions?: GifOptions;
     pngOptions?: PngOptions;
     jpegOptions?: JpegOptions;
-    widths?: number[];
+    sizes?: ISizes;
+}
+
+export interface IImagesMeta {
+    [path: string]: {
+        birthtimeMs: Stats['birthtimeMs'];
+        generated?: IGenerated;
+    };
 }
 
 const validMimetypes = ['image/gif', 'image/png', 'image/jpeg'] as const;
 
 export type ValidMimetypes = typeof validMimetypes[number];
 
-interface IImagesMeta {
-    [path: string]: {
-        birthtimeMs: Stats['birthtimeMs'];
-        generated?: string[];
-    };
-}
-
 export default function images(options?: IImagesOptions): Worker {
     return async function imagesWorker(files): Promise<void> {
         if(!files) return;
 
-        const {gifOptions, pngOptions, jpegOptions, widths} = options ?? {};
+        const {gifOptions, pngOptions, jpegOptions, sizes} = options ?? {};
 
         const metaFile = '.images/meta.json';
 
         if(!existsSync('.images/')) mkdirSync('.images');
         if(!existsSync(metaFile)) writeFileSync(metaFile, '{}');
+
+        const metaFileText = readFileSync(metaFile, {
+            encoding: 'utf-8',
+        });
+
+        const oldMeta: IImagesMeta = JSON.parse(
+            metaFileText.length
+                ? readFileSync(metaFile, {encoding: 'utf-8'})
+                : '{}'
+        );
 
         const meta: IImagesMeta = {};
 
@@ -58,57 +84,52 @@ export default function images(options?: IImagesOptions): Worker {
                 quality = jpegOptions?.quality ?? 80;
             }
 
-            const fullImgPath = generateFilename(
-                originalFilePath,
-                'full',
-                quality
-            );
+            const fullImgPath = generateFilename(originalFilePath);
 
-            const widthsPaths
-                = widths?.map((width) =>
-                    generateFilename(originalFilePath, width, quality)) ?? [];
+            const fullImgObj: IGenerated = {
+                full: {
+                    path: fullImgPath,
+                    quality,
+                },
+            };
+
+            const sizesObj: IGenerated = Object.keys(sizes ?? {}).reduce(
+                (size, key) => {
+                    // eslint-disable-next-line no-param-reassign
+                    size[key] = {
+                        path: generateFilename(originalFilePath, key),
+                        width: (sizes ?? {})[key].width,
+                        height: (sizes ?? {})[key].height,
+                        options: (sizes ?? {})[key].options,
+                        quality,
+                    };
+
+                    return size;
+                },
+                {} as IGenerated
+            );
 
             meta[originalFilePath] = {
                 birthtimeMs: file.stats.birthtimeMs,
-                generated: [fullImgPath, ...widthsPaths],
+                generated: {...fullImgObj, ...sizesObj},
             };
 
-            let newFiles: IFile[] = [];
-            const fileCopy = deepCopy(file);
+            const previouslyProcessed
+                = oldMeta[originalFilePath]
+                && new Date(oldMeta[originalFilePath].birthtimeMs)
+                    >= new Date(file.stats.birthtimeMs);
 
-            const processImagesArgs = {
-                fileCopy,
+            const newFiles = await processImages({
+                fileCopy: deepCopy(file),
                 originalFilePath,
                 fullImgPath,
                 fileMimetype,
-                widthsPaths,
+                sizesObj,
                 quality,
+                oldMeta,
                 handlerOptions: {gifOptions, pngOptions, jpegOptions},
-            };
-
-            const metaFileText = readFileSync(metaFile, {
-                encoding: 'utf-8',
+                previouslyProcessed,
             });
-
-            const oldMeta: IImagesMeta = JSON.parse(
-                metaFileText.length
-                    ? readFileSync(metaFile, {encoding: 'utf-8'})
-                    : '{}'
-            );
-
-            if(
-                // file has been processed previously
-                oldMeta[originalFilePath]
-                && new Date(oldMeta[originalFilePath].birthtimeMs)
-                    >= new Date(file.stats.birthtimeMs)
-            ) {
-                newFiles = await processImages({
-                    ...processImagesArgs,
-                    previouslyProcessed: true,
-                });
-            } else {
-                newFiles = await processImages(processImagesArgs);
-            }
 
             file.path = fullImgPath;
             files.push(...newFiles);

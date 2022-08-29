@@ -1,5 +1,5 @@
 import sharp, {GifOptions, PngOptions, JpegOptions, Sharp} from 'sharp';
-import {ValidMimetypes} from '..';
+import {IResizeParams, ValidMimetypes} from '..';
 
 export interface IHandlerOptions {
     gifOptions?: GifOptions;
@@ -29,16 +29,23 @@ const handlers: Handlers = {
     },
 };
 
-export async function generateImage(
+export default async function generateImage(
     path: string,
     fullImgPath: string,
     mimetype: ValidMimetypes,
     options: IHandlerOptions,
-    quality?: number
+    quality?: number,
+    resizeParams?: IResizeParams
 ) {
     const img = sharp(path);
 
     handlers[mimetype](img, options, quality);
+
+    img.resize(
+        resizeParams?.width,
+        resizeParams?.height,
+        resizeParams?.options
+    );
 
     await img.toFile(fullImgPath);
 }

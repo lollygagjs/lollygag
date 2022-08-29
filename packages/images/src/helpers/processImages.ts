@@ -1,20 +1,21 @@
-import {IFile} from '@lollygag/core';
+import {deepEqual, IFile} from '@lollygag/core';
 import {existsSync} from 'fs';
-import {ValidMimetypes} from '..';
-import {generateImage, IHandlerOptions} from './generateImage';
+import {IGenerated, IImagesMeta, ValidMimetypes} from '..';
+import generateImage, {IHandlerOptions} from './generateImage';
 
-interface IXArgs {
+export interface IProcessImagesArgs {
     fileCopy: IFile;
     originalFilePath: string;
     fullImgPath: string;
     fileMimetype: ValidMimetypes;
-    widthsPaths: string[];
+    sizesObj: IGenerated;
     handlerOptions: IHandlerOptions;
+    oldMeta: IImagesMeta;
     previouslyProcessed?: boolean;
     quality?: number;
 }
 
-export async function processImages(args: IXArgs) {
+export default async function processImages(args: IProcessImagesArgs) {
     const newFiles: IFile[] = [];
 
     const {
@@ -22,13 +23,19 @@ export async function processImages(args: IXArgs) {
         originalFilePath,
         fullImgPath,
         fileMimetype,
-        widthsPaths,
+        sizesObj,
         quality,
         handlerOptions,
+        oldMeta,
         previouslyProcessed = false,
     } = args;
 
-    if(previouslyProcessed ? !existsSync(originalFilePath) : true) {
+    const oldSize = oldMeta[originalFilePath].generated;
+
+    const fullCondition
+        = !existsSync(fullImgPath) || quality !== (oldSize ?? {}).full.quality;
+
+    if(previouslyProcessed ? fullCondition : true) {
         await generateImage(
             originalFilePath,
             fullImgPath,
@@ -38,21 +45,38 @@ export async function processImages(args: IXArgs) {
         );
     }
 
-    if(widthsPaths.length) {
+    if(sizesObj) {
         await Promise.all(
-            widthsPaths.map(async(widthPath) => {
+            Object.keys(sizesObj).map(async(size) => {
+                const sizePath = sizesObj[size].path;
+                const sizeWidth = sizesObj[size].width;
+                const sizeHeight = sizesObj[size].height;
+                const sizeOptions = sizesObj[size].options;
+
                 newFiles.push({
                     ...fileCopy,
-                    path: widthPath,
+                    path: sizePath,
                 });
 
-                if(previouslyProcessed ? !existsSync(widthPath) : true) {
+                const sizesCondition
+                    = !existsSync(sizePath)
+                    || quality !== (oldSize ?? {})[size].quality
+                    || sizeWidth !== (oldSize ?? {})[size].width
+                    || sizeHeight !== (oldSize ?? {})[size].height
+                    || !deepEqual(sizeOptions, (oldSize ?? {})[size].options);
+
+                if(previouslyProcessed ? sizesCondition : true) {
                     await generateImage(
                         originalFilePath,
-                        widthPath,
+                        sizePath,
                         fileMimetype,
                         handlerOptions,
-                        quality
+                        quality,
+                        {
+                            width: sizeWidth,
+                            height: sizeHeight,
+                            options: sizeOptions,
+                        }
                     );
                 }
             })

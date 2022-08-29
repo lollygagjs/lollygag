@@ -12,7 +12,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateImage = void 0;
 const sharp_1 = __importDefault(require("sharp"));
 const handlers = {
     'image/gif': (img, { gifOptions }) => {
@@ -29,11 +28,12 @@ const handlers = {
         img.jpeg(Object.assign({ quality: q }, jpegOptions));
     },
 };
-function generateImage(path, fullImgPath, mimetype, options, quality) {
+function generateImage(path, fullImgPath, mimetype, options, quality, resizeParams) {
     return __awaiter(this, void 0, void 0, function* () {
         const img = (0, sharp_1.default)(path);
         handlers[mimetype](img, options, quality);
+        img.resize(resizeParams === null || resizeParams === void 0 ? void 0 : resizeParams.width, resizeParams === null || resizeParams === void 0 ? void 0 : resizeParams.height, resizeParams === null || resizeParams === void 0 ? void 0 : resizeParams.options);
         yield img.toFile(fullImgPath);
     });
 }
-exports.generateImage = generateImage;
+exports.default = generateImage;

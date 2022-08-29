@@ -1,15 +1,15 @@
 import { IFile } from '@lollygag/core';
-import { ValidMimetypes } from '..';
+import { IGenerated, IImagesMeta, ValidMimetypes } from '..';
 import { IHandlerOptions } from './generateImage';
-interface IXArgs {
+export interface IProcessImagesArgs {
     fileCopy: IFile;
     originalFilePath: string;
     fullImgPath: string;
     fileMimetype: ValidMimetypes;
-    widthsPaths: string[];
+    sizesObj: IGenerated;
     handlerOptions: IHandlerOptions;
+    oldMeta: IImagesMeta;
     previouslyProcessed?: boolean;
     quality?: number;
 }
-export declare function processImages(args: IXArgs): Promise<IFile[]>;
-export {};
+export default function processImages(args: IProcessImagesArgs): Promise<IFile[]>;
