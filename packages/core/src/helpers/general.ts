@@ -78,6 +78,21 @@ export function deepCopy<T>(original: T): T {
     return JSON.parse(JSON.stringify(original));
 }
 
+export function deepEqual<T>(a: T, b: T) {
+    if(a === b) return true;
+    if(typeof a !== 'object' || typeof b !== 'object') return false;
+    if(Object.keys(a).length !== Object.keys(b).length) return false;
+
+    for(const key in a) {
+        // eslint-disable-next-line no-continue
+        if(!Object.prototype.hasOwnProperty.call(a, key)) continue;
+        if(!Object.prototype.hasOwnProperty.call(b, key)) return false;
+        if(!deepEqual(a[key], b[key])) return false;
+    }
+
+    return true;
+}
+
 const magic = new mmm.Magic(mmm.MAGIC_MIME_TYPE);
 
 export function getFileMimetype(filePath: string): Promise<string> {

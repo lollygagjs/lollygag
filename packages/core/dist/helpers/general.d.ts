@@ -8,4 +8,5 @@ export declare function removeUpToParentFromPath(parent: string, path: string): 
 export declare function deleteEmptyDirs(dir: string): Promise<void>;
 export declare function deleteFiles(files: string[]): Promise<void[]>;
 export declare function deepCopy<T>(original: T): T;
+export declare function deepEqual<T>(a: T, b: T): boolean;
 export declare function getFileMimetype(filePath: string): Promise<string>;

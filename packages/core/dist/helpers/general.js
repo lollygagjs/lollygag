@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getFileMimetype = exports.deepCopy = exports.deleteFiles = exports.deleteEmptyDirs = exports.removeUpToParentFromPath = exports.removeParentFromPath = exports.addParentToPath = exports.changeFullExtname = exports.changeExtname = exports.fullExtname = void 0;
+exports.getFileMimetype = exports.deepEqual = exports.deepCopy = exports.deleteFiles = exports.deleteEmptyDirs = exports.removeUpToParentFromPath = exports.removeParentFromPath = exports.addParentToPath = exports.changeFullExtname = exports.changeExtname = exports.fullExtname = void 0;
 const fs_1 = require("fs");
 const path_1 = require("path");
 const mmmagic_1 = __importDefault(require("mmmagic"));
@@ -89,6 +89,25 @@ function deepCopy(original) {
     return JSON.parse(JSON.stringify(original));
 }
 exports.deepCopy = deepCopy;
+function deepEqual(a, b) {
+    if (a === b)
+        return true;
+    if (typeof a !== 'object' || typeof b !== 'object')
+        return false;
+    if (Object.keys(a).length !== Object.keys(b).length)
+        return false;
+    for (const key in a) {
+        // eslint-disable-next-line no-continue
+        if (!Object.prototype.hasOwnProperty.call(a, key))
+            continue;
+        if (!Object.prototype.hasOwnProperty.call(b, key))
+            return false;
+        if (!deepEqual(a[key], b[key]))
+            return false;
+    }
+    return true;
+}
+exports.deepEqual = deepEqual;
 const magic = new mmmagic_1.default.Magic(mmmagic_1.default.MAGIC_MIME_TYPE);
 function getFileMimetype(filePath) {
     return new Promise((res, rej) => {
