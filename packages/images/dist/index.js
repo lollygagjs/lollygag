@@ -17,6 +17,7 @@ const fs_1 = require("fs");
 const promises_1 = require("fs/promises");
 const generalFilename_1 = __importDefault(require("./helpers/generalFilename"));
 const processImages_1 = __importDefault(require("./helpers/processImages"));
+const deleteStaleImages_1 = __importDefault(require("./helpers/deleteStaleImages"));
 const validMimetypes = ['image/gif', 'image/png', 'image/jpeg'];
 function images(options) {
     return function imagesWorker(files) {
@@ -60,10 +61,13 @@ function images(options) {
                         quality,
                     },
                 };
+                const desired = [fullImgPath];
                 const sizesObj = Object.keys(sizes !== null && sizes !== void 0 ? sizes : {}).reduce((size, key) => {
+                    const sizePath = (0, generalFilename_1.default)(originalFilePath, key);
+                    desired.push(sizePath);
                     // eslint-disable-next-line no-param-reassign
                     size[key] = {
-                        path: (0, generalFilename_1.default)(originalFilePath, key),
+                        path: sizePath,
                         width: (sizes !== null && sizes !== void 0 ? sizes : {})[key].width,
                         height: (sizes !== null && sizes !== void 0 ? sizes : {})[key].height,
                         options: (sizes !== null && sizes !== void 0 ? sizes : {})[key].options,
@@ -73,9 +77,11 @@ function images(options) {
                 }, {});
                 meta[originalFilePath] = {
                     birthtimeMs: file.stats.birthtimeMs,
+                    desired,
                     generated: Object.assign(Object.assign({}, fullImgObj), sizesObj),
                 };
-                const previouslyProcessed = oldMeta[originalFilePath]
+                const oldFileMeta = oldMeta[originalFilePath];
+                const previouslyProcessed = oldFileMeta
                     && new Date(oldMeta[originalFilePath].birthtimeMs)
                         >= new Date(file.stats.birthtimeMs);
                 const newFiles = yield (0, processImages_1.default)({
@@ -85,7 +91,7 @@ function images(options) {
                     fileMimetype,
                     sizesObj,
                     quality,
-                    oldMeta,
+                    oldFileMeta,
                     handlerOptions: { gifOptions, pngOptions, jpegOptions },
                     previouslyProcessed,
                 });
@@ -94,6 +100,7 @@ function images(options) {
                 console.log(`Processing ${originalFilePath}... done!`);
             }));
             yield Promise.all(promises);
+            (0, deleteStaleImages_1.default)(meta, oldMeta);
             yield (0, promises_1.writeFile)(metaFile, JSON.stringify(meta, null, 2));
         });
     };

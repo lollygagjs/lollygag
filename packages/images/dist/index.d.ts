@@ -22,11 +22,13 @@ export interface IImagesOptions {
     jpegOptions?: JpegOptions;
     sizes?: ISizes;
 }
+export interface IImagesMetaProps {
+    birthtimeMs: Stats['birthtimeMs'];
+    desired: string[];
+    generated: IGenerated;
+}
 export interface IImagesMeta {
-    [path: string]: {
-        birthtimeMs: Stats['birthtimeMs'];
-        generated?: IGenerated;
-    };
+    [path: string]: IImagesMetaProps;
 }
 declare const validMimetypes: readonly ["image/gif", "image/png", "image/jpeg"];
 export declare type ValidMimetypes = typeof validMimetypes[number];

@@ -1,6 +1,6 @@
 import {deepEqual, IFile} from '@lollygag/core';
 import {existsSync} from 'fs';
-import {IGenerated, IImagesMeta, ValidMimetypes} from '..';
+import {IGenerated, IImagesMetaProps, ValidMimetypes} from '..';
 import generateImage, {IHandlerOptions} from './generateImage';
 
 export interface IProcessImagesArgs {
@@ -10,7 +10,7 @@ export interface IProcessImagesArgs {
     fileMimetype: ValidMimetypes;
     sizesObj: IGenerated;
     handlerOptions: IHandlerOptions;
-    oldMeta: IImagesMeta;
+    oldFileMeta?: IImagesMetaProps;
     previouslyProcessed?: boolean;
     quality?: number;
 }
@@ -26,16 +26,20 @@ export default async function processImages(args: IProcessImagesArgs) {
         sizesObj,
         quality,
         handlerOptions,
-        oldMeta,
+        oldFileMeta,
         previouslyProcessed = false,
     } = args;
 
-    const oldSize = oldMeta[originalFilePath].generated;
+    const oldSizes = oldFileMeta?.generated;
 
-    const fullCondition
-        = !existsSync(fullImgPath) || quality !== (oldSize ?? {}).full.quality;
+    let fullCondition = true;
 
-    if(previouslyProcessed ? fullCondition : true) {
+    if(previouslyProcessed) {
+        fullCondition
+            = !existsSync(fullImgPath) || quality !== oldSizes?.full?.quality;
+    }
+
+    if(fullCondition) {
         await generateImage(
             originalFilePath,
             fullImgPath,
@@ -60,10 +64,10 @@ export default async function processImages(args: IProcessImagesArgs) {
 
                 const sizesCondition
                     = !existsSync(sizePath)
-                    || quality !== (oldSize ?? {})[size].quality
-                    || sizeWidth !== (oldSize ?? {})[size].width
-                    || sizeHeight !== (oldSize ?? {})[size].height
-                    || !deepEqual(sizeOptions, (oldSize ?? {})[size].options);
+                    || quality !== oldSizes?.[size]?.quality
+                    || sizeWidth !== oldSizes?.[size]?.width
+                    || sizeHeight !== oldSizes?.[size]?.height
+                    || !deepEqual(sizeOptions, oldSizes?.[size]?.options);
 
                 if(previouslyProcessed ? sizesCondition : true) {
                     await generateImage(

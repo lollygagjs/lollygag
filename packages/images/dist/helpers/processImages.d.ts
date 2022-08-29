@@ -1,5 +1,5 @@
 import { IFile } from '@lollygag/core';
-import { IGenerated, IImagesMeta, ValidMimetypes } from '..';
+import { IGenerated, IImagesMetaProps, ValidMimetypes } from '..';
 import { IHandlerOptions } from './generateImage';
 export interface IProcessImagesArgs {
     fileCopy: IFile;
@@ -8,7 +8,7 @@ export interface IProcessImagesArgs {
     fileMimetype: ValidMimetypes;
     sizesObj: IGenerated;
     handlerOptions: IHandlerOptions;
-    oldMeta: IImagesMeta;
+    oldFileMeta?: IImagesMetaProps;
     previouslyProcessed?: boolean;
     quality?: number;
 }

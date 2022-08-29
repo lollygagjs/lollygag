@@ -4,6 +4,7 @@ import {existsSync, mkdirSync, readFileSync, Stats, writeFileSync} from 'fs';
 import {writeFile} from 'fs/promises';
 import generateFilename from './helpers/generalFilename';
 import processImages from './helpers/processImages';
+import deleteStaleImages from './helpers/deleteStaleImages';
 
 export interface IResizeParams {
     width?: number | null;
@@ -29,11 +30,14 @@ export interface IImagesOptions {
     sizes?: ISizes;
 }
 
+export interface IImagesMetaProps {
+    birthtimeMs: Stats['birthtimeMs'];
+    desired: string[];
+    generated: IGenerated;
+}
+
 export interface IImagesMeta {
-    [path: string]: {
-        birthtimeMs: Stats['birthtimeMs'];
-        generated?: IGenerated;
-    };
+    [path: string]: IImagesMetaProps;
 }
 
 const validMimetypes = ['image/gif', 'image/png', 'image/jpeg'] as const;
@@ -93,11 +97,17 @@ export default function images(options?: IImagesOptions): Worker {
                 },
             };
 
+            const desired: string[] = [fullImgPath];
+
             const sizesObj: IGenerated = Object.keys(sizes ?? {}).reduce(
                 (size, key) => {
+                    const sizePath = generateFilename(originalFilePath, key);
+
+                    desired.push(sizePath);
+
                     // eslint-disable-next-line no-param-reassign
                     size[key] = {
-                        path: generateFilename(originalFilePath, key),
+                        path: sizePath,
                         width: (sizes ?? {})[key].width,
                         height: (sizes ?? {})[key].height,
                         options: (sizes ?? {})[key].options,
@@ -111,11 +121,15 @@ export default function images(options?: IImagesOptions): Worker {
 
             meta[originalFilePath] = {
                 birthtimeMs: file.stats.birthtimeMs,
+                desired,
                 generated: {...fullImgObj, ...sizesObj},
             };
 
+            const oldFileMeta: IImagesMetaProps | undefined
+                = oldMeta[originalFilePath];
+
             const previouslyProcessed
-                = oldMeta[originalFilePath]
+                = oldFileMeta
                 && new Date(oldMeta[originalFilePath].birthtimeMs)
                     >= new Date(file.stats.birthtimeMs);
 
@@ -126,7 +140,7 @@ export default function images(options?: IImagesOptions): Worker {
                 fileMimetype,
                 sizesObj,
                 quality,
-                oldMeta,
+                oldFileMeta,
                 handlerOptions: {gifOptions, pngOptions, jpegOptions},
                 previouslyProcessed,
             });
@@ -138,6 +152,9 @@ export default function images(options?: IImagesOptions): Worker {
         });
 
         await Promise.all(promises);
+
+        deleteStaleImages(meta, oldMeta);
+
         await writeFile(metaFile, JSON.stringify(meta, null, 2));
     };
 }
