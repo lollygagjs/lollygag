@@ -1,6 +1,6 @@
 {
   "name": "@lollygag/postcss",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "PostCSS worker for Lollygag.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

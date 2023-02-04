@@ -1,6 +1,6 @@
 {
   "name": "@lollygag/livedev",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Live development server worker for Lollygag.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
