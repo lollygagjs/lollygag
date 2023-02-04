@@ -70,7 +70,7 @@ for dir in packages/*/; do
         else
             yarn version "$1" --no-git-tag-version
             newver=$(cat <package.json | jq -r .version) # New version from package.json
-            git add "${dir}package.json" && git commit -m "v$newver"
+            git add package.json && git commit -m "v$newver"
             yarn publish --new-version "$newver"
         fi
 
