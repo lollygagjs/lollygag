@@ -1,10 +1,9 @@
-/* eslint-disable no-continue */
 import {extname, join, resolve} from 'path';
 import http from 'http';
 import {log} from 'console';
 import {watch as watcher} from 'chokidar';
 import {green} from 'chalk';
-import minimatch from 'minimatch';
+import {minimatch} from 'minimatch';
 import handler from 'serve-handler';
 import livereload from 'livereload';
 import {parse} from 'node-html-parser';

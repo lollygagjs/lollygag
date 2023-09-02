@@ -1,4 +1,3 @@
-/* eslint-disable no-continue */
 import {extname} from 'path';
 import {ModuleKind, ScriptTarget, transpile} from 'typescript';
 import {changeExtname, Worker} from '@lollygag/core';

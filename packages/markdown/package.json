@@ -18,12 +18,10 @@
     "build": "rimraf dist && tsc -d",
     "start": "tsc -d -w"
   },
-  "dependencies": {
-    "@types/node": "^17.0.31",
-    "markdown-it": "^13.0.1"
-  },
   "devDependencies": {
     "@lollygag/core": "*",
+    "@types/node": "^17.0.31",
+    "markdown-it": "^13.0.1",
     "typescript": "^4.6.4"
   },
   "peerDependencies": {

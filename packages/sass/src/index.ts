@@ -1,4 +1,3 @@
-/* eslint-disable no-continue */
 import {basename, extname, join} from 'path';
 import {compile, Options} from 'sass';
 import {changeExtname, Worker} from '@lollygag/core';

@@ -1,4 +1,3 @@
-/* eslint-disable no-continue */
 import {extname, join} from 'path';
 import pcss, {AcceptedPlugin, ProcessOptions} from 'postcss';
 import {changeExtname, deepCopy, fullExtname, Worker} from '@lollygag/core';

@@ -1,6 +1,5 @@
-/* eslint-disable no-continue */
 import {basename, extname, join} from 'path';
-import minimatch from 'minimatch';
+import {minimatch} from 'minimatch';
 
 import {
     addParentToPath,
@@ -50,7 +49,6 @@ function paginateArchive(args: IPaginateArchivesArgs) {
         return join(relativeDir, pretty ? `${num}` : uglyNum);
     };
 
-    // eslint-disable-next-line no-mixed-operators
     for(let i = 1; i <= pageCount; i++) {
         const items = deepCopy(
             // eslint-disable-next-line no-mixed-operators
@@ -105,9 +103,9 @@ export function archives(options: IArchivesOptions): Worker {
             archive.push(file);
         }
 
+        // Sort descending based on file creation time
         archive.sort(
             (a, b) =>
-                // Sort descending based on file creation time
                 ((b.stats ?? {}).birthtimeMs ?? 0)
                 - ((a.stats ?? {}).birthtimeMs ?? 0)
         );

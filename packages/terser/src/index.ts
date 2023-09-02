@@ -1,4 +1,3 @@
-/* eslint-disable no-continue */
 import {extname} from 'path';
 import t from 'terser';
 import {changeExtname, deepCopy, fullExtname, Worker} from '@lollygag/core';

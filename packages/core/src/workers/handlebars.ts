@@ -1,4 +1,3 @@
-/* eslint-disable no-continue */
 import {extname} from 'path';
 import Handlebars from 'handlebars';
 import {changeExtname, IConfig, IFile, FileHandler, Worker} from '..';

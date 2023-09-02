@@ -1,4 +1,3 @@
-/* eslint-disable no-continue */
 import {extname} from 'path';
 import md, {Options} from 'markdown-it';
 

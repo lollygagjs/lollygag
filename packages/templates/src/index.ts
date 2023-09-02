@@ -1,4 +1,3 @@
-/* eslint-disable no-continue */
 import glob from 'glob';
 import {extname, join, resolve} from 'path';
 import {existsSync, readFileSync} from 'fs';
