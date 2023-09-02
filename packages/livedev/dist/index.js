@@ -58,20 +58,21 @@ function rebuild(options) {
 let serverStarted = false;
 function livedev(options) {
     return function livedevWorker(files, lollygag) {
-        var _a, _b, _c;
+        var _a, _b, _c, _d;
         return __awaiter(this, void 0, void 0, function* () {
             const serverPort = (_a = options.serverPort) !== null && _a !== void 0 ? _a : 3000;
-            const livereloadPort = (_b = options.livereloadPort) !== null && _b !== void 0 ? _b : 35729;
+            const livereloadHost = (_b = options.livereloadHost) !== null && _b !== void 0 ? _b : '0.0.0.0';
+            const livereloadPort = (_c = options.livereloadPort) !== null && _c !== void 0 ? _c : 35729;
             if (options.injectLivereloadScript) {
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i];
                     if ((0, path_1.extname)(file.path) !== '.html')
                         continue;
-                    const doc = (0, node_html_parser_1.parse)((_c = file.content) !== null && _c !== void 0 ? _c : '');
+                    const doc = (0, node_html_parser_1.parse)((_d = file.content) !== null && _d !== void 0 ? _d : '');
                     const body = doc.querySelector('body');
                     if (!body)
                         continue;
-                    const script = (0, node_html_parser_1.parse)(`<script src='http://localhost:${livereloadPort}/livereload.js'></script>`);
+                    const script = (0, node_html_parser_1.parse)(`<script src='http://${livereloadHost}:${livereloadPort}/livereload.js'></script>`);
                     body.appendChild(script);
                     file.content = doc.toString();
                 }

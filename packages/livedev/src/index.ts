@@ -28,6 +28,7 @@ export interface IWatchPatterns {
 
 export interface IWatchOptions {
     serverPort?: number;
+    livereloadHost?: string;
     livereloadPort?: number;
     injectLivereloadScript?: boolean;
     patterns: IWatchPatterns;
@@ -87,6 +88,7 @@ let serverStarted = false;
 export function livedev(options: IWatchOptions): Worker {
     return async function livedevWorker(files, lollygag): Promise<void> {
         const serverPort = options.serverPort ?? 3000;
+        const livereloadHost = options.livereloadHost ?? '0.0.0.0';
         const livereloadPort = options.livereloadPort ?? 35729;
 
         if(options.injectLivereloadScript) {
@@ -101,7 +103,7 @@ export function livedev(options: IWatchOptions): Worker {
                 if(!body) continue;
 
                 const script = parse(
-                    `<script src='http://localhost:${livereloadPort}/livereload.js'></script>`
+                    `<script src='http://${livereloadHost}:${livereloadPort}/livereload.js'></script>`
                 );
 
                 body.appendChild(script);
