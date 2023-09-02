@@ -1,6 +1,6 @@
 module.exports = {
   extends: ['panadero'],
-  rules: {'no-console': 'off'},
+  rules: {'no-console': 'off', 'no-continue': 'off'},
   settings: {
     'import/resolver': {
       node: {
