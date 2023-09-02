@@ -87,7 +87,7 @@ let serverStarted = false;
 export function livedev(options: IWatchOptions): Worker {
     return async function livedevWorker(files, lollygag): Promise<void> {
         const serverPort = options.serverPort ?? 3000;
-        const livereloadHost = options.livereloadHost ?? '0.0.0.0';
+        const livereloadHost = options.livereloadHost ?? 'localhost';
         const livereloadPort = options.livereloadPort ?? 35729;
 
         if(options.injectLivereloadScript) {
