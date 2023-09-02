@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 pkgs=
 
@@ -6,7 +6,7 @@ for dir in packages/*/; do
     pkgs+="$(basename "$dir") "
 done
 
-pkgsarray=($(echo "$pkgs"))
+mapfile -t pkgsarray < <(echo "$pkgs")
 
 isvalidarg() {
     [[ " ${pkgsarray[*]} " = *" $1 "* ]]

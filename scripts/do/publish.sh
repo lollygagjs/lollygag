@@ -1,11 +1,11 @@
-#! /bin/sh
+#! /bin/bash
 
-# Install jq if not already installed
+# Check if 'jq' is installed, and if not, install it
 if ! command -v jq >/dev/null; then
     sudo apt install -y jq
 fi
 
-# Array of valid arguments
+# Define a list of valid arguments
 valid=(
     --major
     --minor
@@ -16,12 +16,12 @@ valid=(
     --prerelease
 )
 
-# Checks if `$1` (string literal) is found in `$valid`
+# Function to check if an argument is valid
 isvalidarg() {
     [[ " ${valid[*]} " = *" $1 "* ]]
 }
 
-# Exit if argument is empty or invalid
+# Check if the first argument is a valid argument
 if ! isvalidarg "$1"; then
     echo "Invalid argument: ${1-<none>}"
     echo "Accepted: ${valid[*]}"
@@ -30,46 +30,52 @@ if ! isvalidarg "$1"; then
     exit 0
 fi
 
-# Array of uncommitted and untracked files in git
-gitdirt=($(git ls-files -o -m --exclude-standard))
+# Get a list of uncommitted changes in the git repository
+mapfile -t gitdirt < <(git ls-files -o -m --exclude-standard)
 
-# Checks if `$1` (pattern or string literal) is found in `$gitdirt`
+# Function to check if a directory is dirty (has uncommitted changes)
 isdirty() {
     [[ " ${gitdirt[*]} " =~ $1 ]]
 }
 
-# Check if `$1` is a valid `v` preceded semver
+# Function to check if a string is a semantic version
 issemver() {
     [[ $1 =~ ^v[0-9]+\.+[0-9]+\.+[0-9]+(\-[0-9A-Za-z]+)?$ ]]
 }
 
-# Run build before attempting to bump and publish
+# Perform a 'yarn do:build' command
 yarn do:build
 
 sep="----------------------------"
 
 echo "$sep"
 
+# Iterate over directories in the 'packages' folder
 for dir in packages/*/; do
     (
+        # Enter the directory
         cd "$dir" || exit
-        # Last commit message for current `$dir`
+
+        # Get the last commit message in the directory
         lastmsg=$(git log -1 --pretty=%B .)
         echo "$dir $lastmsg"
 
-        # Skip if current `$dir` has uncommitted changes
+        # Check if the directory is dirty (has uncommitted changes)
         if isdirty "$dir"*; then
             echo "Uncommitted changes found. Skipping..."
             echo "$sep"
             exit
         fi
 
-        # Skip if `$lastmsg` is a semver
+        # Check if the last commit message is a semantic version
         if issemver "$lastmsg"; then
             echo "No changes since last publish. Skipping..."
         else
+            # Update the version using the specified argument
             yarn version "$1" --no-git-tag-version
             newver=$(cat <package.json | jq -r .version) # New version from package.json
+
+            # Commit the updated version and publish the package
             git add package.json && git commit -m "v$newver"
             yarn publish --new-version "$newver"
         fi
