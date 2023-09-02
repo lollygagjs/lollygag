@@ -1,4 +1,3 @@
-/* eslint-disable no-continue */
 import {extname} from 'path';
 import {changeExtname, FileHandler, Worker} from '@lollygag/core';
 
