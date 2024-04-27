@@ -1,5 +1,5 @@
 import {extname} from 'path';
-import {changeExtname, FileHandler, Worker} from '@lollygag/core';
+import {changeExtname, FileHandler, Worker} from '../../..';
 
 export interface IOptions {
     newExtname?: string | false;
