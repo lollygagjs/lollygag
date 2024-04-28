@@ -70,7 +70,7 @@ export function worker(options: IArchivesOptions) {
         const {dir, pageLimit = 10, renameToTitle = true} = options;
 
         const relativeDir = dir.replace(/^\/|\/$/g, '');
-        const prewriteDir = addParentToPath(lollygag._in, relativeDir);
+        const prewriteDir = addParentToPath(lollygag._contentDir, relativeDir);
 
         const archive: IFile[] = [];
 

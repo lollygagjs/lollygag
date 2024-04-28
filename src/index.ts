@@ -20,6 +20,7 @@ export interface IFile {
     content?: string;
     template?: string;
     status?: 'published' | 'draft' | string;
+    exclude?: boolean;
     [prop: string]: RaggedyAny;
 }
 
@@ -59,11 +60,9 @@ export default class Lollygag {
         private __sitemeta: ISitemeta = {
             year: new Date().getFullYear(),
         },
-        private __in: string = 'files',
         private __contentDir: string = 'content',
         private __staticDir: string = 'static',
-        private __out: string = 'public',
-        private __files: IFile[] = [],
+        private __outputDir: string = 'public',
         private __workers: Worker[] = []
     ) {
         log('Hello from Lollygag!');
@@ -90,15 +89,6 @@ export default class Lollygag {
         return this.__sitemeta;
     }
 
-    in(dir: string): this {
-        this.__in = join(dir);
-        return this;
-    }
-
-    get _in(): string {
-        return this.__in;
-    }
-
     contentDir(dir: string): this {
         this.__contentDir = join(dir);
         return this;
@@ -117,22 +107,13 @@ export default class Lollygag {
         return this.__staticDir;
     }
 
-    out(dir: string): this {
-        this.__out = join(dir);
+    outputDir(dir: string): this {
+        this.__outputDir = join(dir);
         return this;
     }
 
-    get _out(): string {
-        return this.__out;
-    }
-
-    files(files: IFile[]): this {
-        this.__files = files;
-        return this;
-    }
-
-    get _files(): IFile[] {
-        return this.__files;
+    get _outputDir(): string {
+        return this.__outputDir;
     }
 
     do(worker: Worker): this {

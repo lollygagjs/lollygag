@@ -30,15 +30,13 @@ class Lollygag {
         generateTimestamp: true,
     }, __sitemeta = {
         year: new Date().getFullYear(),
-    }, __in = 'files', __contentDir = 'content', __staticDir = 'static', __out = 'public', __files = [], __workers = []) {
+    }, __contentDir = 'content', __staticDir = 'static', __outputDir = 'public', __workers = []) {
         var _a;
         this.__config = __config;
         this.__sitemeta = __sitemeta;
-        this.__in = __in;
         this.__contentDir = __contentDir;
         this.__staticDir = __staticDir;
-        this.__out = __out;
-        this.__files = __files;
+        this.__outputDir = __outputDir;
         this.__workers = __workers;
         this.handleTemplating = (_a = this._config.templatingHandler) !== null && _a !== void 0 ? _a : general_1.handlebars.handler;
         this.build = (options) => build_1.default.call(this, options);
@@ -62,13 +60,6 @@ class Lollygag {
     get _sitemeta() {
         return this.__sitemeta;
     }
-    in(dir) {
-        this.__in = (0, path_1.join)(dir);
-        return this;
-    }
-    get _in() {
-        return this.__in;
-    }
     contentDir(dir) {
         this.__contentDir = (0, path_1.join)(dir);
         return this;
@@ -83,19 +74,12 @@ class Lollygag {
     get _staticDir() {
         return this.__staticDir;
     }
-    out(dir) {
-        this.__out = (0, path_1.join)(dir);
+    outputDir(dir) {
+        this.__outputDir = (0, path_1.join)(dir);
         return this;
     }
-    get _out() {
-        return this.__out;
-    }
-    files(files) {
-        this.__files = files;
-        return this;
-    }
-    get _files() {
-        return this.__files;
+    get _outputDir() {
+        return this.__outputDir;
     }
     do(worker) {
         this.__workers.push(worker);

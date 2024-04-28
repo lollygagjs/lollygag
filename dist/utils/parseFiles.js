@@ -20,11 +20,23 @@ function parseFiles(files) {
         var _a, _b;
         const fileMimetype = yield (0, general_1.getFileMimetype)(file);
         const fileStats = yield fs_1.promises.stat(file);
+        // if file size is 0, return immediately
+        if (fileStats.size === 0) {
+            return { path: file, mimetype: fileMimetype, exclude: true };
+        }
         if (fileMimetype.startsWith('text/')
             || fileMimetype === 'inode/x-empty') {
             let rawFileContent = yield fs_1.promises.readFile(file, {
                 encoding: 'utf-8',
             });
+            // if file is empty return immediately
+            if (!rawFileContent.trim()) {
+                return {
+                    path: file,
+                    mimetype: fileMimetype,
+                    exclude: true,
+                };
+            }
             rawFileContent = this.handleTemplating(rawFileContent, (_a = this._config.templatingHandlerOptions) !== null && _a !== void 0 ? _a : null, Object.assign(Object.assign({}, this._config), this._sitemeta));
             const grayMatterResult = (0, gray_matter_1.default)(rawFileContent);
             grayMatterResult.content = this.handleTemplating(grayMatterResult.content, (_b = this._config.templatingHandlerOptions) !== null && _b !== void 0 ? _b : null, grayMatterResult.data);

@@ -38,12 +38,6 @@ function rebuild(options) {
                 }
             });
             let validTriggeredPath = '';
-            // if(minimatch(triggeredPath, join(lollygag._in, '**/*'))) {
-            //     validTriggeredPath = removeParentFromPath(
-            //         lollygag._in,
-            //         triggeredPath
-            //     );
-            // }
             const inDirs = [lollygag._contentDir, lollygag._staticDir];
             if (inDirs.some((dir) => (0, minimatch_1.minimatch)(triggeredPath, (0, path_1.join)(dir, '**/*')))) {
                 validTriggeredPath = (0, __1.removeUpToParentsFromPath)(inDirs, triggeredPath);
@@ -86,9 +80,9 @@ function worker(options) {
             if (serverStarted)
                 return;
             serverStarted = true;
-            const staticDir = (0, path_1.resolve)(lollygag._out);
+            const outputDir = (0, path_1.resolve)(lollygag._outputDir);
             const server = http_1.default.createServer((req, res) => (0, serve_handler_1.default)(req, res, {
-                public: staticDir,
+                public: outputDir,
                 cleanUrls: true,
             }));
             yield new Promise((ok) => {
@@ -99,11 +93,11 @@ function worker(options) {
             });
             yield new Promise((ok) => {
                 livereload_1.default
-                    .createServer({ port: livereloadPort }, () => {
+                    .createServer({ port: livereloadPort, usePolling: true }, () => {
                     (0, console_1.log)((0, chalk_1.green)(`Livereload server running at port ${livereloadPort}`));
                     ok(null);
                 })
-                    .watch([staticDir, (0, path_1.resolve)('.timestamp')]);
+                    .watch([outputDir, (0, path_1.resolve)('.timestamp')]);
             });
             const toWatch = [];
             Object.keys(options.patterns).forEach((pattern) => {

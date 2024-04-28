@@ -42,8 +42,7 @@ interface IRebuildOptions {
 }
 
 async function rebuild(options: IRebuildOptions): Promise<void> {
-    const {triggeredPath, eventSuffix, lollygag, watchOptions}
-        = options;
+    const {triggeredPath, eventSuffix, lollygag, watchOptions} = options;
 
     const msg = `File \`${triggeredPath}\` ${eventSuffix}.\nRebuilding...`;
     const dashes = '----------------------------------------';
@@ -63,19 +62,9 @@ async function rebuild(options: IRebuildOptions): Promise<void> {
 
         let validTriggeredPath = '';
 
-        // if(minimatch(triggeredPath, join(lollygag._in, '**/*'))) {
-        //     validTriggeredPath = removeParentFromPath(
-        //         lollygag._in,
-        //         triggeredPath
-        //     );
-        // }
-
         const inDirs = [lollygag._contentDir, lollygag._staticDir];
 
-        if(
-            inDirs.some((dir) =>
-                minimatch(triggeredPath, join(dir, '**/*')))
-        ) {
+        if(inDirs.some((dir) => minimatch(triggeredPath, join(dir, '**/*')))) {
             validTriggeredPath = removeUpToParentsFromPath(
                 inDirs,
                 triggeredPath
@@ -98,10 +87,7 @@ async function rebuild(options: IRebuildOptions): Promise<void> {
 let serverStarted = false;
 
 export function worker(options: IWatchOptions): Worker {
-    return async function livedevWorker(
-        files,
-        lollygag
-    ): Promise<void> {
+    return async function livedevWorker(files, lollygag): Promise<void> {
         const serverPort = options.serverPort ?? 3000;
         const livereloadHost = options.livereloadHost ?? 'localhost';
         const livereloadPort = options.livereloadPort ?? 35729;
@@ -131,11 +117,11 @@ export function worker(options: IWatchOptions): Worker {
 
         serverStarted = true;
 
-        const staticDir = resolve(lollygag._out);
+        const outputDir = resolve(lollygag._outputDir);
 
         const server = http.createServer((req, res) =>
             handler(req, res, {
-                public: staticDir,
+                public: outputDir,
                 cleanUrls: true,
             }));
 
@@ -149,7 +135,7 @@ export function worker(options: IWatchOptions): Worker {
 
         await new Promise((ok) => {
             livereload
-                .createServer({port: livereloadPort}, () => {
+                .createServer({port: livereloadPort, usePolling: true}, () => {
                     log(
                         green(
                             `Livereload server running at port ${livereloadPort}`
@@ -158,7 +144,7 @@ export function worker(options: IWatchOptions): Worker {
 
                     ok(null);
                 })
-                .watch([staticDir, resolve('.timestamp')]);
+                .watch([outputDir, resolve('.timestamp')]);
         });
 
         const toWatch: ToWatch[] = [];

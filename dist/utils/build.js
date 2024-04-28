@@ -12,7 +12,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const minimatch_1 = require("minimatch");
 const path_1 = require("path");
 const console_1 = require("console");
 const generatePrettyUrls_1 = __importDefault(require("./generatePrettyUrls"));
@@ -29,34 +28,21 @@ function build(options) {
             allowWorkingDirectoryOutput,
         });
         const defaultGlobPattern = '**/*';
-        // const normalizedGlobPattern = join(
-        //     this._in,
-        //     globPattern ?? defaultGlobPattern
-        // );
-        const normalizedGlobPatterns = [
+        const globPatterns = [
             (0, path_1.join)(this._contentDir, globPattern !== null && globPattern !== void 0 ? globPattern : defaultGlobPattern),
             (0, path_1.join)(this._staticDir, globPattern !== null && globPattern !== void 0 ? globPattern : defaultGlobPattern),
         ];
         (0, console_1.time)('Total build time');
         if (fullBuild) {
-            (0, console_1.time)(`Cleaned '${this._out}' directory`);
-            yield (0, rimraf_1.rimraf)((0, path_1.join)(this._out, '**/*'));
-            (0, console_1.timeEnd)(`Cleaned '${this._out}' directory`);
+            (0, console_1.time)(`Cleaned '${this._outputDir}' directory`);
+            yield (0, rimraf_1.rimraf)((0, path_1.join)(this._outputDir, '**/*'));
+            (0, console_1.timeEnd)(`Cleaned '${this._outputDir}' directory`);
         }
         (0, console_1.time)('Files collected');
-        const fileList = yield getFiles_1.default.call(this, normalizedGlobPatterns);
-        (0, console_1.log)(`Found ${fileList.length} files`, fileList);
+        const fileList = yield getFiles_1.default.call(this, globPatterns);
         (0, console_1.timeEnd)('Files collected');
         (0, console_1.time)('Files parsed');
-        /**
-         * Get files added through `Lollygag.files()` with paths that
-         * match `normalizedGlobPattern`.
-         */
-        const fileObjects = this._files.filter((file) => normalizedGlobPatterns.some((pattern) => (0, minimatch_1.minimatch)(file.path, pattern)));
-        const parsedFiles = [
-            ...fileObjects,
-            ...(yield parseFiles_1.default.call(this, fileList)),
-        ];
+        const parsedFiles = (yield parseFiles_1.default.call(this, fileList)).filter((file) => !file.exclude);
         (0, console_1.timeEnd)('Files parsed');
         yield this._workers.reduce((possiblePromise, worker) => __awaiter(this, void 0, void 0, function* () {
             var _a;

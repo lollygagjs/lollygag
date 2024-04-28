@@ -3,13 +3,15 @@ import grayMatter from 'gray-matter';
 import Lollygag, {IFile} from '..';
 import {getFileMimetype} from './general';
 
-export default function parseFiles(
-    this: Lollygag,
-    files: string[]
-): Promise<IFile[]> {
+export default function parseFiles(this: Lollygag, files: string[]) {
     const promises = files.map(async(file): Promise<IFile> => {
         const fileMimetype = await getFileMimetype(file);
         const fileStats = await fsp.stat(file);
+
+        // if file size is 0, return immediately
+        if(fileStats.size === 0) {
+            return {path: file, mimetype: fileMimetype, exclude: true};
+        }
 
         if(
             fileMimetype.startsWith('text/')
@@ -18,6 +20,15 @@ export default function parseFiles(
             let rawFileContent = await fsp.readFile(file, {
                 encoding: 'utf-8',
             });
+
+            // if file is empty return immediately
+            if(!rawFileContent.trim()) {
+                return {
+                    path: file,
+                    mimetype: fileMimetype,
+                    exclude: true,
+                };
+            }
 
             rawFileContent = this.handleTemplating(
                 rawFileContent,

@@ -13,6 +13,7 @@ export interface IFile {
     content?: string;
     template?: string;
     status?: 'published' | 'draft' | string;
+    exclude?: boolean;
     [prop: string]: RaggedyAny;
 }
 export interface ISitemeta {
@@ -32,27 +33,21 @@ export type Worker = (files: IFile[], lollygag: Lollygag) => void | Promise<void
 export default class Lollygag {
     private __config;
     private __sitemeta;
-    private __in;
     private __contentDir;
     private __staticDir;
-    private __out;
-    private __files;
+    private __outputDir;
     private __workers;
-    constructor(__config?: IConfig, __sitemeta?: ISitemeta, __in?: string, __contentDir?: string, __staticDir?: string, __out?: string, __files?: IFile[], __workers?: Worker[]);
+    constructor(__config?: IConfig, __sitemeta?: ISitemeta, __contentDir?: string, __staticDir?: string, __outputDir?: string, __workers?: Worker[]);
     config(config: IConfig): this;
     get _config(): IConfig;
     sitemeta(sitemeta: ISitemeta): this;
     get _sitemeta(): ISitemeta;
-    in(dir: string): this;
-    get _in(): string;
     contentDir(dir: string): this;
     get _contentDir(): string;
     staticDir(dir: string): this;
     get _staticDir(): string;
-    out(dir: string): this;
-    get _out(): string;
-    files(files: IFile[]): this;
-    get _files(): IFile[];
+    outputDir(dir: string): this;
+    get _outputDir(): string;
     do(worker: Worker): this;
     get _workers(): Worker[];
     protected handleTemplating: FileHandler;

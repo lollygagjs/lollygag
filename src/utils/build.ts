@@ -1,4 +1,3 @@
-import {minimatch} from 'minimatch';
 import {join} from 'path';
 import {log, time, timeEnd} from 'console';
 import Lollygag, {Worker} from '..';
@@ -17,10 +16,7 @@ export interface IBuildOptions {
     globPattern?: string | null;
 }
 
-export default async function build(
-    this: Lollygag,
-    options?: IBuildOptions
-): Promise<void> {
+export default async function build(this: Lollygag, options?: IBuildOptions) {
     const {
         fullBuild = false,
         allowExternalDirectories = false,
@@ -35,12 +31,7 @@ export default async function build(
 
     const defaultGlobPattern = '**/*';
 
-    // const normalizedGlobPattern = join(
-    //     this._in,
-    //     globPattern ?? defaultGlobPattern
-    // );
-
-    const normalizedGlobPatterns = [
+    const globPatterns = [
         join(this._contentDir, globPattern ?? defaultGlobPattern),
         join(this._staticDir, globPattern ?? defaultGlobPattern),
     ];
@@ -48,38 +39,24 @@ export default async function build(
     time('Total build time');
 
     if(fullBuild) {
-        time(`Cleaned '${this._out}' directory`);
+        time(`Cleaned '${this._outputDir}' directory`);
 
-        await rimraf(join(this._out, '**/*'));
+        await rimraf(join(this._outputDir, '**/*'));
 
-        timeEnd(`Cleaned '${this._out}' directory`);
+        timeEnd(`Cleaned '${this._outputDir}' directory`);
     }
 
     time('Files collected');
 
-    const fileList = await getFiles.call(
-        this,
-        normalizedGlobPatterns
-    );
-
-    log(`Found ${fileList.length} files`, fileList);
+    const fileList = await getFiles.call(this, globPatterns);
 
     timeEnd('Files collected');
 
     time('Files parsed');
 
-    /**
-     * Get files added through `Lollygag.files()` with paths that
-     * match `normalizedGlobPattern`.
-     */
-    const fileObjects = this._files.filter((file) =>
-        normalizedGlobPatterns.some((pattern) =>
-            minimatch(file.path, pattern)));
-
-    const parsedFiles = [
-        ...fileObjects,
-        ...(await parseFiles.call(this, fileList)),
-    ];
+    const parsedFiles = (await parseFiles.call(this, fileList)).filter(
+        (file) => !file.exclude
+    );
 
     timeEnd('Files parsed');
 
@@ -96,6 +73,7 @@ export default async function build(
 
             timeEnd(`Finished running ${workerName}`);
         },
+
         Promise.resolve()
     );
 

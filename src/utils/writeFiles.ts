@@ -11,7 +11,7 @@ export default function writeFiles(
          * Change `file.path` to final output path.
          */
         const filePath = join(
-            this._out,
+            this._outputDir,
             // TODO: Ooooooh
             removeUpToParentsFromPath(
                 [this._contentDir, this._staticDir],

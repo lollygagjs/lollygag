@@ -41,7 +41,7 @@ function writeFiles(files) {
         /**
          * Change `file.path` to final output path.
          */
-        const filePath = (0, path_1.join)(this._out, 
+        const filePath = (0, path_1.join)(this._outputDir, 
         // TODO: Ooooooh
         (0, __1.removeUpToParentsFromPath)([this._contentDir, this._staticDir], file.path));
         const fileDir = (0, path_1.dirname)(filePath);
