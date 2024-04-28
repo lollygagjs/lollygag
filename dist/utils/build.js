@@ -29,7 +29,14 @@ function build(options) {
             allowWorkingDirectoryOutput,
         });
         const defaultGlobPattern = '**/*';
-        const normalizedGlobPattern = (0, path_1.join)(this._in, globPattern !== null && globPattern !== void 0 ? globPattern : defaultGlobPattern);
+        // const normalizedGlobPattern = join(
+        //     this._in,
+        //     globPattern ?? defaultGlobPattern
+        // );
+        const normalizedGlobPatterns = [
+            (0, path_1.join)(this._contentDir, globPattern !== null && globPattern !== void 0 ? globPattern : defaultGlobPattern),
+            (0, path_1.join)(this._staticDir, globPattern !== null && globPattern !== void 0 ? globPattern : defaultGlobPattern),
+        ];
         (0, console_1.time)('Total build time');
         if (fullBuild) {
             (0, console_1.time)(`Cleaned '${this._out}' directory`);
@@ -37,14 +44,15 @@ function build(options) {
             (0, console_1.timeEnd)(`Cleaned '${this._out}' directory`);
         }
         (0, console_1.time)('Files collected');
-        const fileList = yield getFiles_1.default.call(this, normalizedGlobPattern);
+        const fileList = yield getFiles_1.default.call(this, normalizedGlobPatterns);
+        (0, console_1.log)(`Found ${fileList.length} files`, fileList);
         (0, console_1.timeEnd)('Files collected');
         (0, console_1.time)('Files parsed');
         /**
          * Get files added through `Lollygag.files()` with paths that
          * match `normalizedGlobPattern`.
          */
-        const fileObjects = this._files.filter((file) => (0, minimatch_1.minimatch)(file.path, normalizedGlobPattern));
+        const fileObjects = this._files.filter((file) => normalizedGlobPatterns.some((pattern) => (0, minimatch_1.minimatch)(file.path, pattern)));
         const parsedFiles = [
             ...fileObjects,
             ...(yield parseFiles_1.default.call(this, fileList)),

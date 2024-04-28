@@ -5,10 +5,15 @@ import Lollygag from '..';
 
 export default function validateBuild(
     this: Lollygag,
-    {allowExternalDirectories = false, allowWorkingDirectoryOutput = false}
+    {
+        allowExternalDirectories = false,
+        allowWorkingDirectoryOutput = false,
+    }
 ) {
     const cwd = resolve(process.cwd());
     const inDir = resolve(this._in);
+    const contentDir = resolve(this._contentDir);
+    const staticDir = resolve(this._staticDir);
     const outDir = resolve(this._out);
 
     if(!this._files && !existsSync(inDir)) {
@@ -24,6 +29,18 @@ export default function validateBuild(
     if(inDir === cwd) {
         throw new Error(
             `Input directory '${inDir}' is the same as the current working directory.`
+        );
+    }
+
+    if(contentDir === outDir) {
+        throw new Error(
+            'Content directory cannot be the same as the output directory.'
+        );
+    }
+
+    if(staticDir === outDir) {
+        throw new Error(
+            'Static directory cannot be the same as the output directory.'
         );
     }
 

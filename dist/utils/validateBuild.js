@@ -3,9 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = require("fs");
 const path_1 = require("path");
 const minimatch_1 = require("minimatch");
-function validateBuild({ allowExternalDirectories = false, allowWorkingDirectoryOutput = false }) {
+function validateBuild({ allowExternalDirectories = false, allowWorkingDirectoryOutput = false, }) {
     const cwd = (0, path_1.resolve)(process.cwd());
     const inDir = (0, path_1.resolve)(this._in);
+    const contentDir = (0, path_1.resolve)(this._contentDir);
+    const staticDir = (0, path_1.resolve)(this._staticDir);
     const outDir = (0, path_1.resolve)(this._out);
     if (!this._files && !(0, fs_1.existsSync)(inDir)) {
         throw new Error(`Input directory '${inDir}' does not exist.`);
@@ -15,6 +17,12 @@ function validateBuild({ allowExternalDirectories = false, allowWorkingDirectory
     }
     if (inDir === cwd) {
         throw new Error(`Input directory '${inDir}' is the same as the current working directory.`);
+    }
+    if (contentDir === outDir) {
+        throw new Error('Content directory cannot be the same as the output directory.');
+    }
+    if (staticDir === outDir) {
+        throw new Error('Static directory cannot be the same as the output directory.');
     }
     if (!allowWorkingDirectoryOutput) {
         if (outDir === cwd) {

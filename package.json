@@ -8,21 +8,12 @@
   "author": "John Romeral",
   "license": "MIT",
   "scripts": {
-    "do:tsc": "bash scripts/do/tsc.sh",
-    "do:build": "bash scripts/do/build.sh",
-    "do:watch": "bash scripts/do/watch.sh",
-    "do:publish": "bash scripts/do/publish.sh",
-    "do:makelinks": "bash scripts/do/makelinks.sh",
-    "do:linkcore": "bash scripts/do/linkcore.sh",
-    "do:installpackages": "bash scripts/do/installpackages.sh",
-    "do:upgradecore": "bash scripts/do/upgradecore.sh",
-    "create:worker": "node scripts/create/worker.js",
+    "build": "rimraf dist && tsc -d",
+    "start": "tsc -d -w",
     "eslint:panadero": "npx install-peerdeps --dev eslint-config-panadero",
     "prettier": "prettier --write src/**/*",
     "eslint": "eslint src/**/* --fix",
-    "format": "pnpm prettier && pnpm eslint",
-    "build": "rimraf dist && tsc -d",
-    "start": "tsc -d -w"
+    "format": "pnpm prettier && pnpm eslint"
   },
   "dependencies": {
     "chalk": "^4.1.2",

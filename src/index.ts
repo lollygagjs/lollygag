@@ -31,7 +31,7 @@ export interface ISitemeta {
 export type FileHandler = (
     content: string,
     options?: unknown,
-    data?: ISitemeta
+    sitemeta?: ISitemeta
 ) => string;
 
 export interface IConfig {
@@ -60,6 +60,8 @@ export default class Lollygag {
             year: new Date().getFullYear(),
         },
         private __in: string = 'files',
+        private __contentDir: string = 'content',
+        private __staticDir: string = 'static',
         private __out: string = 'public',
         private __files: IFile[] = [],
         private __workers: Worker[] = []
@@ -95,6 +97,24 @@ export default class Lollygag {
 
     get _in(): string {
         return this.__in;
+    }
+
+    contentDir(dir: string): this {
+        this.__contentDir = join(dir);
+        return this;
+    }
+
+    get _contentDir(): string {
+        return this.__contentDir;
+    }
+
+    staticDir(dir: string): this {
+        this.__staticDir = join(dir);
+        return this;
+    }
+
+    get _staticDir(): string {
+        return this.__staticDir;
     }
 
     out(dir: string): this {

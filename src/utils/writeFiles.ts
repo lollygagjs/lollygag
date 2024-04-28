@@ -1,6 +1,6 @@
 import fs, {promises as fsp} from 'fs';
 import {join, dirname} from 'path';
-import Lollygag, {IFile, removeUpToParentFromPath} from '..';
+import Lollygag, {IFile, removeUpToParentsFromPath} from '..';
 
 export default function writeFiles(
     this: Lollygag,
@@ -13,7 +13,10 @@ export default function writeFiles(
         const filePath = join(
             this._out,
             // TODO: Ooooooh
-            removeUpToParentFromPath(this._in, file.path)
+            removeUpToParentsFromPath(
+                [this._contentDir, this._staticDir],
+                file.path
+            )
         );
 
         const fileDir = dirname(filePath);

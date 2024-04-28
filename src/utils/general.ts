@@ -36,7 +36,10 @@ export function fullExtname(filePath: string): string {
  * changeExtname('path/to/file.ext1.ext2', '.new') // 'path/to/file.ext1.new'
  * @returns The modified file path with the new extension.
  */
-export function changeExtname(filePath: string, newExtension: string): string {
+export function changeExtname(
+    filePath: string,
+    newExtension: string
+): string {
     return join(
         dirname(filePath),
         `${basename(filePath, extname(filePath))}${newExtension}`
@@ -62,7 +65,10 @@ export function changeFullExtname(
     );
 }
 
-export function addParentToPath(parent: string, path: string): string {
+export function addParentToPath(
+    parent: string,
+    path: string
+): string {
     // remove leading and trailing slashes
     let cleanParent = join(parent).replace(/^\/|\/$/g, '');
 
@@ -71,20 +77,50 @@ export function addParentToPath(parent: string, path: string): string {
     return join(cleanParent, path);
 }
 
-export function removeParentFromPath(parent: string, path: string): string {
+export function removeParentFromPath(
+    parent: string,
+    path: string
+): string {
     // remove leading and trailing slashes
     const cleanParent = join(parent).replace(/^\/|\/$/g, '');
 
     return join(path.replace(`${cleanParent}/`, ''));
 }
 
-export function removeUpToParentFromPath(parent: string, path: string): string {
+export function removeUpToParentFromPath(
+    parent: string,
+    path: string
+): string {
     // remove leading and trailing slashes
     const cleanParent = join(parent).replace(/^\/|\/$/g, '');
 
     return join(
-        path.slice(path.indexOf(`${cleanParent}/`) + cleanParent.length)
+        path.slice(
+            path.indexOf(`${cleanParent}/`) + cleanParent.length
+        )
     );
+}
+
+export function removeUpToParentsFromPath(
+    parents: string[],
+    path: string
+): string {
+    // remove leading and trailing slashes
+    const cleanParents = parents.map((parent) =>
+        join(parent).replace(/^\/|\/$/g, ''));
+
+    for(const cleanParent of cleanParents) {
+        if(path.includes(`${cleanParent}/`)) {
+            return join(
+                path.slice(
+                    path.indexOf(`${cleanParent}/`)
+                        + cleanParent.length
+                )
+            );
+        }
+    }
+
+    return path;
 }
 
 export async function deleteEmptyDirs(dir: string) {

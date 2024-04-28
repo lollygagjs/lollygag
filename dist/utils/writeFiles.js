@@ -43,7 +43,7 @@ function writeFiles(files) {
          */
         const filePath = (0, path_1.join)(this._out, 
         // TODO: Ooooooh
-        (0, __1.removeUpToParentFromPath)(this._in, file.path));
+        (0, __1.removeUpToParentsFromPath)([this._contentDir, this._staticDir], file.path));
         const fileDir = (0, path_1.dirname)(filePath);
         if (!fs_1.default.existsSync(fileDir)) {
             yield fs_1.promises.mkdir(fileDir, { recursive: true });

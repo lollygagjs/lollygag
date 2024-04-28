@@ -35,10 +35,15 @@ export default async function build(
 
     const defaultGlobPattern = '**/*';
 
-    const normalizedGlobPattern = join(
-        this._in,
-        globPattern ?? defaultGlobPattern
-    );
+    // const normalizedGlobPattern = join(
+    //     this._in,
+    //     globPattern ?? defaultGlobPattern
+    // );
+
+    const normalizedGlobPatterns = [
+        join(this._contentDir, globPattern ?? defaultGlobPattern),
+        join(this._staticDir, globPattern ?? defaultGlobPattern),
+    ];
 
     time('Total build time');
 
@@ -52,7 +57,12 @@ export default async function build(
 
     time('Files collected');
 
-    const fileList = await getFiles.call(this, normalizedGlobPattern);
+    const fileList = await getFiles.call(
+        this,
+        normalizedGlobPatterns
+    );
+
+    log(`Found ${fileList.length} files`, fileList);
 
     timeEnd('Files collected');
 
@@ -63,7 +73,8 @@ export default async function build(
      * match `normalizedGlobPattern`.
      */
     const fileObjects = this._files.filter((file) =>
-        minimatch(file.path, normalizedGlobPattern));
+        normalizedGlobPatterns.some((pattern) =>
+            minimatch(file.path, pattern)));
 
     const parsedFiles = [
         ...fileObjects,

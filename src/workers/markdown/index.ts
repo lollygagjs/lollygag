@@ -3,7 +3,7 @@ import md, {Options} from 'markdown-it';
 
 import {changeExtname, handlebars, FileHandler, Worker} from '../..';
 
-export interface IMarkdownOptions {
+export interface IMarkdownWorkerOptions {
     newExtname?: string | false;
     targetExtnames?: string[];
     markdownOptions?: Options;
@@ -14,7 +14,7 @@ export interface IMarkdownOptions {
 export const handler: FileHandler = (content, options?, data?): string =>
     md(options ?? {}).render(content ?? '', data);
 
-export function worker(options?: IMarkdownOptions): Worker {
+export function worker(options?: IMarkdownWorkerOptions): Worker {
     return function markdownWorker(files, lollygag): void {
         if(!files) return;
 

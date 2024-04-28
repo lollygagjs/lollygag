@@ -38,8 +38,15 @@ function rebuild(options) {
                 }
             });
             let validTriggeredPath = '';
-            if ((0, minimatch_1.minimatch)(triggeredPath, (0, path_1.join)(lollygag._in, '**/*'))) {
-                validTriggeredPath = (0, __1.removeParentFromPath)(lollygag._in, triggeredPath);
+            // if(minimatch(triggeredPath, join(lollygag._in, '**/*'))) {
+            //     validTriggeredPath = removeParentFromPath(
+            //         lollygag._in,
+            //         triggeredPath
+            //     );
+            // }
+            const inDirs = [lollygag._contentDir, lollygag._staticDir];
+            if (inDirs.some((dir) => (0, minimatch_1.minimatch)(triggeredPath, (0, path_1.join)(dir, '**/*')))) {
+                validTriggeredPath = (0, __1.removeUpToParentsFromPath)(inDirs, triggeredPath);
             }
             if (typeof toRebuild === 'boolean') {
                 globPattern = validTriggeredPath;

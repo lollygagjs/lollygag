@@ -19,7 +19,7 @@ export interface ISitemeta {
     year?: number;
     [prop: string]: RaggedyAny;
 }
-export type FileHandler = (content: string, options?: unknown, data?: ISitemeta) => string;
+export type FileHandler = (content: string, options?: unknown, sitemeta?: ISitemeta) => string;
 export interface IConfig {
     generator?: string;
     prettyUrls?: boolean;
@@ -33,16 +33,22 @@ export default class Lollygag {
     private __config;
     private __sitemeta;
     private __in;
+    private __contentDir;
+    private __staticDir;
     private __out;
     private __files;
     private __workers;
-    constructor(__config?: IConfig, __sitemeta?: ISitemeta, __in?: string, __out?: string, __files?: IFile[], __workers?: Worker[]);
+    constructor(__config?: IConfig, __sitemeta?: ISitemeta, __in?: string, __contentDir?: string, __staticDir?: string, __out?: string, __files?: IFile[], __workers?: Worker[]);
     config(config: IConfig): this;
     get _config(): IConfig;
     sitemeta(sitemeta: ISitemeta): this;
     get _sitemeta(): ISitemeta;
     in(dir: string): this;
     get _in(): string;
+    contentDir(dir: string): this;
+    get _contentDir(): string;
+    staticDir(dir: string): this;
+    get _staticDir(): string;
     out(dir: string): this;
     get _out(): string;
     files(files: IFile[]): this;
