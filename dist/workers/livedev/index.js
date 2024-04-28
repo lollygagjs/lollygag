@@ -56,6 +56,8 @@ function rebuild(options) {
     });
 }
 let serverStarted = false;
+let server = null;
+let watcher = null;
 function worker(options) {
     return function livedevWorker(files, lollygag) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -81,15 +83,17 @@ function worker(options) {
                 return;
             serverStarted = true;
             const outputDir = (0, path_1.resolve)(lollygag._outputDir);
-            const server = http_1.default.createServer((req, res) => (0, serve_handler_1.default)(req, res, {
+            server = http_1.default.createServer((req, res) => (0, serve_handler_1.default)(req, res, {
                 public: outputDir,
                 cleanUrls: true,
             }));
             yield new Promise((ok) => {
-                server.listen(serverPort, () => {
-                    (0, console_1.log)((0, chalk_1.green)(`Server running at port ${serverPort}`));
-                    ok(null);
-                });
+                if (server) {
+                    server.listen(serverPort, () => {
+                        (0, console_1.log)((0, chalk_1.green)(`Server running at port ${serverPort}`));
+                        ok(null);
+                    });
+                }
             });
             yield new Promise((ok) => {
                 livereload_1.default
@@ -103,25 +107,35 @@ function worker(options) {
             Object.keys(options.patterns).forEach((pattern) => {
                 toWatch.push(pattern);
             });
-            const watched = (0, chokidar_1.watch)(toWatch, { ignoreInitial: true });
+            watcher = (0, chokidar_1.watch)(toWatch, { ignoreInitial: true });
             function onAddOrChange(path) {
                 return __awaiter(this, void 0, void 0, function* () {
-                    watched.off('add', onAddOrChange);
-                    watched.off('change', onAddOrChange);
-                    yield rebuild({
-                        eventSuffix: 'changed',
-                        triggeredPath: path,
-                        watchOptions: options,
-                        lollygag,
-                    });
-                    watched.on('add', onAddOrChange);
-                    watched.on('change', onAddOrChange);
+                    if (watcher) {
+                        watcher.off('add', onAddOrChange);
+                        watcher.off('change', onAddOrChange);
+                        yield rebuild({
+                            eventSuffix: 'changed',
+                            triggeredPath: path,
+                            watchOptions: options,
+                            lollygag,
+                        });
+                        watcher.on('add', onAddOrChange);
+                        watcher.on('change', onAddOrChange);
+                    }
                 });
             }
-            watched.on('add', onAddOrChange);
-            watched.on('change', onAddOrChange);
+            watcher.on('add', onAddOrChange);
+            watcher.on('change', onAddOrChange);
         });
     };
 }
 exports.worker = worker;
 exports.default = worker;
+process.on('SIGINT', () => {
+    (0, console_1.log)('\nInterrupted. Shutting down livedevWorker...');
+    if (server)
+        server.close();
+    if (watcher)
+        watcher.close();
+    process.exit(0);
+});

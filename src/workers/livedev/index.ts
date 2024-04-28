@@ -1,7 +1,7 @@
 import {extname, join, resolve} from 'path';
 import http from 'http';
 import {log} from 'console';
-import {watch as watcher} from 'chokidar';
+import {FSWatcher, watch} from 'chokidar';
 import {green} from 'chalk';
 import {minimatch} from 'minimatch';
 import handler from 'serve-handler';
@@ -85,6 +85,8 @@ async function rebuild(options: IRebuildOptions): Promise<void> {
 }
 
 let serverStarted = false;
+let server: http.Server | null = null;
+let watcher: FSWatcher | null = null;
 
 export function worker(options: IWatchOptions): Worker {
     return async function livedevWorker(files, lollygag): Promise<void> {
@@ -119,18 +121,20 @@ export function worker(options: IWatchOptions): Worker {
 
         const outputDir = resolve(lollygag._outputDir);
 
-        const server = http.createServer((req, res) =>
+        server = http.createServer((req, res) =>
             handler(req, res, {
                 public: outputDir,
                 cleanUrls: true,
             }));
 
         await new Promise((ok) => {
-            server.listen(serverPort, () => {
-                log(green(`Server running at port ${serverPort}`));
+            if(server) {
+                server.listen(serverPort, () => {
+                    log(green(`Server running at port ${serverPort}`));
 
-                ok(null);
-            });
+                    ok(null);
+                });
+            }
         });
 
         await new Promise((ok) => {
@@ -153,26 +157,35 @@ export function worker(options: IWatchOptions): Worker {
             toWatch.push(pattern);
         });
 
-        const watched = watcher(toWatch, {ignoreInitial: true});
+        watcher = watch(toWatch, {ignoreInitial: true});
 
         async function onAddOrChange(path: string) {
-            watched.off('add', onAddOrChange);
-            watched.off('change', onAddOrChange);
+            if(watcher) {
+                watcher.off('add', onAddOrChange);
+                watcher.off('change', onAddOrChange);
 
-            await rebuild({
-                eventSuffix: 'changed',
-                triggeredPath: path,
-                watchOptions: options,
-                lollygag,
-            });
+                await rebuild({
+                    eventSuffix: 'changed',
+                    triggeredPath: path,
+                    watchOptions: options,
+                    lollygag,
+                });
 
-            watched.on('add', onAddOrChange);
-            watched.on('change', onAddOrChange);
+                watcher.on('add', onAddOrChange);
+                watcher.on('change', onAddOrChange);
+            }
         }
 
-        watched.on('add', onAddOrChange);
-        watched.on('change', onAddOrChange);
+        watcher.on('add', onAddOrChange);
+        watcher.on('change', onAddOrChange);
     };
 }
 
 export default worker;
+
+process.on('SIGINT', () => {
+    log('\nInterrupted. Shutting down livedevWorker...');
+    if(server) server.close();
+    if(watcher) watcher.close();
+    process.exit(0);
+});
