@@ -4,42 +4,7 @@
             "path": "."
         },
         {
-            "path": "packages/core"
-        },
-        {
-            "name": "helpers",
-            "path": "packages/core/src/helpers"
-        },
-        {
-            "name": "built-ins",
-            "path": "packages/core/src/workers"
-        },
-        {
-            "path": "packages/archives"
-        },
-        {
-            "path": "packages/images"
-        },
-        {
-            "path": "packages/livedev"
-        },
-        {
-            "path": "packages/markdown"
-        },
-        {
-            "path": "packages/postcss"
-        },
-        {
-            "path": "packages/sass"
-        },
-        {
-            "path": "packages/templates"
-        },
-        {
-            "path": "packages/terser"
-        },
-        {
-            "path": "packages/typescript"
+            "path": "src"
         }
     ],
     "settings": {}
