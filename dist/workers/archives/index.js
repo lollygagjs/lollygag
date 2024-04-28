@@ -44,7 +44,7 @@ function worker(options) {
     return function archivesWorker(files, lollygag) {
         if (!files)
             return;
-        const { dir, pageLimit = 10, renameToTitle = true } = options;
+        const { collection: dir, pageLimit = 10, renameToTitle = true } = options;
         const relativeDir = dir.replace(/^\/|\/$/g, '');
         const prewriteDir = (0, __1.addParentToPath)(lollygag._contentDir, relativeDir);
         const archive = [];

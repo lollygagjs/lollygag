@@ -1,6 +1,6 @@
 import Lollygag, { IFile } from '../..';
 export interface IArchivesOptions {
-    dir: string;
+    collection: string;
     pageLimit?: number;
     renameToTitle?: boolean;
 }

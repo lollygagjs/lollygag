@@ -3,7 +3,7 @@ import {minimatch} from 'minimatch';
 import Lollygag, {IFile, addParentToPath, deepCopy, fullExtname} from '../..';
 
 export interface IArchivesOptions {
-    dir: string;
+    collection: string;
     pageLimit?: number;
     renameToTitle?: boolean;
 }
@@ -67,7 +67,7 @@ export function worker(options: IArchivesOptions) {
     return function archivesWorker(files: IFile[], lollygag: Lollygag) {
         if(!files) return;
 
-        const {dir, pageLimit = 10, renameToTitle = true} = options;
+        const {collection: dir, pageLimit = 10, renameToTitle = true} = options;
 
         const relativeDir = dir.replace(/^\/|\/$/g, '');
         const prewriteDir = addParentToPath(lollygag._contentDir, relativeDir);
