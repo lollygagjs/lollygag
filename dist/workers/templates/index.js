@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.templates = exports.registerPartials = void 0;
+exports.worker = exports.registerPartials = void 0;
 const glob_1 = require("glob");
 const path_1 = require("path");
 const fs_1 = require("fs");
@@ -25,12 +25,12 @@ const registerPartials = (dir) => {
     });
 };
 exports.registerPartials = registerPartials;
-function templates(options) {
+function worker(options) {
     return function templatesWorker(files, lollygag) {
         var _a;
         if (!files)
             return;
-        const { newExtname = '.html', targetExtnames = ['.hbs', '.html'], templatesDirectory = 'templates', partialsDirectory = (0, path_1.join)(templatesDirectory, 'partials'), defaultTemplate = 'index.hbs', templatingHandler = (_a = lollygag._config.templatingHandler) !== null && _a !== void 0 ? _a : __1.handlebarsWorker.handleHandlebars, templatingHandlerOptions, } = options !== null && options !== void 0 ? options : {};
+        const { newExtname = '.html', targetExtnames = ['.hbs', '.html'], templatesDirectory = 'templates', partialsDirectory = (0, path_1.join)(templatesDirectory, 'partials'), defaultTemplate = 'index.hbs', templatingHandler = (_a = lollygag._config.templatingHandler) !== null && _a !== void 0 ? _a : __1.handlebars.handler, templatingHandlerOptions, } = options !== null && options !== void 0 ? options : {};
         let template = '';
         let templatePath = (0, path_1.join)(templatesDirectory, defaultTemplate);
         if ((0, fs_1.existsSync)(templatePath)) {
@@ -56,12 +56,12 @@ function templates(options) {
                     console.warn(`NOTICE: File '${templatePath}' missing. Using default template.`);
                 }
             }
-            file.content = templatingHandler(template, templatingHandlerOptions, Object.assign(Object.assign(Object.assign({}, lollygag._meta), lollygag._config), file));
+            file.content = templatingHandler(template, templatingHandlerOptions, Object.assign(Object.assign(Object.assign({}, lollygag._sitemeta), lollygag._config), file));
             if (newExtname !== false) {
                 file.path = (0, __1.changeExtname)(file.path, newExtname);
             }
         }
     };
 }
-exports.templates = templates;
-exports.default = templates;
+exports.worker = worker;
+exports.default = worker;

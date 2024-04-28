@@ -5,5 +5,5 @@ export interface IArchivesOptions {
     renameToTitle?: boolean;
 }
 export declare const slugify: (s: string) => string;
-export declare function archives(options: IArchivesOptions): (files: IFile[], lollygag: Lollygag) => void;
-export default archives;
+export declare function worker(options: IArchivesOptions): (files: IFile[], lollygag: Lollygag) => void;
+export default worker;

@@ -5,7 +5,7 @@ import Handlebars from 'handlebars';
 
 import Lollygag, {
     changeExtname,
-    handlebarsWorker,
+    handlebars,
     FileHandler,
     Worker,
     IFile,
@@ -39,7 +39,7 @@ export const registerPartials = (dir: string) => {
     });
 };
 
-export function templates(options?: ITemplatesOptions): Worker {
+export function worker(options?: ITemplatesOptions): Worker {
     return function templatesWorker(files: IFile[], lollygag: Lollygag): void {
         if(!files) return;
 
@@ -50,7 +50,7 @@ export function templates(options?: ITemplatesOptions): Worker {
             partialsDirectory = join(templatesDirectory, 'partials'),
             defaultTemplate = 'index.hbs',
             templatingHandler = lollygag._config.templatingHandler
-                ?? handlebarsWorker.handleHandlebars,
+                ?? handlebars.handler,
             templatingHandlerOptions,
         } = options ?? {};
 
@@ -95,7 +95,7 @@ export function templates(options?: ITemplatesOptions): Worker {
             file.content = templatingHandler(
                 template,
                 templatingHandlerOptions,
-                {...lollygag._meta, ...lollygag._config, ...file}
+                {...lollygag._sitemeta, ...lollygag._config, ...file}
             );
 
             if(newExtname !== false) {
@@ -105,4 +105,4 @@ export function templates(options?: ITemplatesOptions): Worker {
     };
 }
 
-export default templates;
+export default worker;

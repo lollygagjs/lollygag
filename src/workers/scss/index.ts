@@ -8,7 +8,7 @@ export interface ISassOptions {
     sassOptions?: Options<'sync'>;
 }
 
-export function sass(options?: ISassOptions): Worker {
+export function worker(options?: ISassOptions): Worker {
     return function sassWorker(files: IFile[]): void {
         if(!files) return;
 
@@ -80,4 +80,4 @@ export function sass(options?: ISassOptions): Worker {
     };
 }
 
-export default sass;
+export default worker;

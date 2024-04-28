@@ -9,7 +9,7 @@ export interface ITerserWorkerOptions {
     minifyOptions?: t.MinifyOptions;
 }
 
-export default function terser(options?: ITerserWorkerOptions): Worker {
+export function worker(options?: ITerserWorkerOptions): Worker {
     return async function terserWorker(files): Promise<void> {
         if(!files) return;
 
@@ -53,3 +53,5 @@ export default function terser(options?: ITerserWorkerOptions): Worker {
         await Promise.all(promises);
     };
 }
+
+export default worker;

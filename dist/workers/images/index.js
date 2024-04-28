@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.images = void 0;
+exports.worker = void 0;
 const __1 = require("../..");
 const fs_1 = require("fs");
 const promises_1 = require("fs/promises");
@@ -20,7 +20,7 @@ const generalFilename_1 = __importDefault(require("./helpers/generalFilename"));
 const processImages_1 = __importDefault(require("./helpers/processImages"));
 const deleteStaleImages_1 = __importDefault(require("./helpers/deleteStaleImages"));
 const validMimetypes = ['image/gif', 'image/png', 'image/jpeg'];
-function images(options) {
+function worker(options) {
     return function imagesWorker(files) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!files)
@@ -106,5 +106,5 @@ function images(options) {
         });
     };
 }
-exports.images = images;
-exports.default = images;
+exports.worker = worker;
+exports.default = worker;

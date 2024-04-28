@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.typescript = void 0;
+exports.worker = void 0;
 const path_1 = require("path");
 const typescript_1 = require("typescript");
 const __1 = require("../..");
-function typescript(options) {
+function worker(options) {
     return function typescriptWorker(files) {
         var _a;
         if (!files)
@@ -26,5 +26,5 @@ function typescript(options) {
         }
     };
 }
-exports.typescript = typescript;
-exports.default = typescript;
+exports.worker = worker;
+exports.default = worker;

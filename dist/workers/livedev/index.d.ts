@@ -20,5 +20,5 @@ export interface IWatchOptions {
     patterns: IWatchPatterns;
     fullBuild?: boolean;
 }
-export declare function livedev(options: IWatchOptions): Worker;
-export default livedev;
+export declare function worker(options: IWatchOptions): Worker;
+export default worker;

@@ -40,18 +40,14 @@ export interface IHandleHandlebarsOptions {
     runtimeOptions?: RuntimeOptions;
 }
 
-export const handleHandlebars: FileHandler = (
-    content,
-    options?,
-    data?
-): string => {
+export const handler: FileHandler = (content, options?, data?): string => {
     const {compileOptions, runtimeOptions}
         = (options as IHandleHandlebarsOptions | undefined) ?? {};
 
     return Handlebars.compile(content, compileOptions)(data, runtimeOptions);
 };
 
-export function handlebars(options?: IHandlebarsOptions): Worker {
+export function worker(options?: IHandlebarsOptions): Worker {
     return function handlebarsWorker(files, lollygag): void {
         if(!files) return;
 
@@ -69,10 +65,10 @@ export function handlebars(options?: IHandlebarsOptions): Worker {
                 continue;
             }
 
-            file.content = handleHandlebars(
+            file.content = handler(
                 file.content ?? '',
                 {compileOptions, runtimeOptions},
-                {...lollygag._meta, ...lollygag._config, ...file}
+                {...lollygag._sitemeta, ...lollygag._config, ...file}
             );
 
             if(newExtname !== false) {
@@ -82,4 +78,4 @@ export function handlebars(options?: IHandlebarsOptions): Worker {
     };
 }
 
-export default handlebars;
+export default worker;

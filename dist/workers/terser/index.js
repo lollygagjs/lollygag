@@ -12,10 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.worker = void 0;
 const path_1 = require("path");
 const terser_1 = __importDefault(require("terser"));
 const __1 = require("../..");
-function terser(options) {
+function worker(options) {
     return function terserWorker(files) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!files)
@@ -46,4 +47,5 @@ function terser(options) {
         });
     };
 }
-exports.default = terser;
+exports.worker = worker;
+exports.default = worker;

@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sass = void 0;
+exports.worker = void 0;
 const path_1 = require("path");
 const sass_1 = require("sass");
 const __1 = require("../..");
-function sass(options) {
+function worker(options) {
     return function sassWorker(files) {
         if (!files)
             return;
@@ -47,5 +47,5 @@ function sass(options) {
         }
     };
 }
-exports.sass = sass;
-exports.default = sass;
+exports.worker = worker;
+exports.default = worker;

@@ -25,7 +25,7 @@ function parseFiles(files) {
             let rawFileContent = yield fs_1.promises.readFile(file, {
                 encoding: 'utf-8',
             });
-            rawFileContent = this.handleTemplating(rawFileContent, (_a = this._config.templatingHandlerOptions) !== null && _a !== void 0 ? _a : null, Object.assign(Object.assign({}, this._config), this._meta));
+            rawFileContent = this.handleTemplating(rawFileContent, (_a = this._config.templatingHandlerOptions) !== null && _a !== void 0 ? _a : null, Object.assign(Object.assign({}, this._config), this._sitemeta));
             const grayMatterResult = (0, gray_matter_1.default)(rawFileContent);
             grayMatterResult.content = this.handleTemplating(grayMatterResult.content, (_b = this._config.templatingHandlerOptions) !== null && _b !== void 0 ? _b : null, grayMatterResult.data);
             return Object.assign(Object.assign({ path: file, content: grayMatterResult.content, mimetype: fileMimetype }, grayMatterResult.data), { stats: fileStats });

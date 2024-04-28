@@ -7,6 +7,6 @@ export interface IMarkdownOptions {
     templatingHandler?: FileHandler;
     templatingHandlerOptions?: unknown;
 }
-export declare const handleMarkdown: FileHandler;
-export declare function markdown(options?: IMarkdownOptions): Worker;
-export default markdown;
+export declare const handler: FileHandler;
+export declare function worker(options?: IMarkdownOptions): Worker;
+export default worker;

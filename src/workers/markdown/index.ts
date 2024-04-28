@@ -1,7 +1,7 @@
 import {extname} from 'path';
 import md, {Options} from 'markdown-it';
 
-import {changeExtname, handlebarsWorker, FileHandler, Worker} from '../..';
+import {changeExtname, handlebars, FileHandler, Worker} from '../..';
 
 export interface IMarkdownOptions {
     newExtname?: string | false;
@@ -11,10 +11,10 @@ export interface IMarkdownOptions {
     templatingHandlerOptions?: unknown;
 }
 
-export const handleMarkdown: FileHandler = (content, options?, data?): string =>
+export const handler: FileHandler = (content, options?, data?): string =>
     md(options ?? {}).render(content ?? '', data);
 
-export function markdown(options?: IMarkdownOptions): Worker {
+export function worker(options?: IMarkdownOptions): Worker {
     return function markdownWorker(files, lollygag): void {
         if(!files) return;
 
@@ -22,7 +22,7 @@ export function markdown(options?: IMarkdownOptions): Worker {
             newExtname = '.html',
             targetExtnames = ['.md', '.html'],
             templatingHandler = lollygag._config.templatingHandler
-                ?? handlebarsWorker.handleHandlebars,
+                ?? handlebars.handler,
             markdownOptions,
             templatingHandlerOptions,
         } = options ?? {};
@@ -39,7 +39,7 @@ export function markdown(options?: IMarkdownOptions): Worker {
                 continue;
             }
 
-            const data = {...lollygag._meta, ...lollygag._config, ...file};
+            const data = {...lollygag._sitemeta, ...lollygag._config, ...file};
 
             file.content = templatingHandler(
                 file.content ?? '',
@@ -47,7 +47,7 @@ export function markdown(options?: IMarkdownOptions): Worker {
                 data
             );
 
-            file.content = handleMarkdown(
+            file.content = handler(
                 file.content ?? '',
                 mergedMarkdownOptions,
                 data
@@ -60,4 +60,4 @@ export function markdown(options?: IMarkdownOptions): Worker {
     };
 }
 
-export default markdown;
+export default worker;

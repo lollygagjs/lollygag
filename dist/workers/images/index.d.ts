@@ -32,5 +32,5 @@ export interface IImagesMeta {
 }
 declare const validMimetypes: readonly ["image/gif", "image/png", "image/jpeg"];
 export type ValidMimetypes = (typeof validMimetypes)[number];
-export declare function images(options?: IImagesOptions): Worker;
-export default images;
+export declare function worker(options?: IImagesOptions): Worker;
+export default worker;

@@ -35,30 +35,56 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getFileMimetype = exports.deepEqual = exports.deepCopy = exports.deleteFiles = exports.deleteEmptyDirs = exports.removeUpToParentFromPath = exports.removeParentFromPath = exports.addParentToPath = exports.changeFullExtname = exports.changeExtname = exports.fullExtname = exports.typescriptWorker = exports.terserWorker = exports.templatesWorker = exports.scssWorker = exports.postcssWorker = exports.markdownWorker = exports.livedevWorker = exports.imagesWorker = exports.handlebarsWorker = exports.archivesWorker = void 0;
+exports.getFileMimetype = exports.deepEqual = exports.deepCopy = exports.deleteFiles = exports.deleteEmptyDirs = exports.removeUpToParentFromPath = exports.removeParentFromPath = exports.addParentToPath = exports.changeFullExtname = exports.changeExtname = exports.fullExtname = exports.typescript = exports.terser = exports.templates = exports.scss = exports.postcss = exports.markdown = exports.livedev = exports.images = exports.handlebars = exports.archives = void 0;
 const fs_1 = require("fs");
 const path_1 = require("path");
 const mmmagic_1 = __importDefault(require("mmmagic"));
-exports.archivesWorker = __importStar(require("../workers/archives"));
-exports.handlebarsWorker = __importStar(require("../workers/handlebars"));
-exports.imagesWorker = __importStar(require("../workers/images"));
-exports.livedevWorker = __importStar(require("../workers/livedev"));
-exports.markdownWorker = __importStar(require("../workers/markdown"));
-exports.postcssWorker = __importStar(require("../workers/postcss"));
-exports.scssWorker = __importStar(require("../workers/scss"));
-exports.templatesWorker = __importStar(require("../workers/templates"));
-exports.terserWorker = __importStar(require("../workers/terser"));
-exports.typescriptWorker = __importStar(require("../workers/typescript"));
+exports.archives = __importStar(require("../workers/archives"));
+exports.handlebars = __importStar(require("../workers/handlebars"));
+exports.images = __importStar(require("../workers/images"));
+exports.livedev = __importStar(require("../workers/livedev"));
+exports.markdown = __importStar(require("../workers/markdown"));
+exports.postcss = __importStar(require("../workers/postcss"));
+exports.scss = __importStar(require("../workers/scss"));
+exports.templates = __importStar(require("../workers/templates"));
+exports.terser = __importStar(require("../workers/terser"));
+exports.typescript = __importStar(require("../workers/typescript"));
+/**
+ * Returns the full extension of a file path.
+ *
+ * @param filePath - The file path.
+ * @example
+ * fullExtname('path/to/file.ext1.ext2') // '.ext1.ext2'
+ * @returns The full extension of the file path.
+ */
 function fullExtname(filePath) {
     const extensions = (0, path_1.basename)(filePath).split('.');
     extensions.shift();
     return `.${extensions.join('.')}`;
 }
 exports.fullExtname = fullExtname;
+/**
+ * Changes the extension of a file path to a new extension.
+ *
+ * @param filePath - The original file path.
+ * @param newExtension - The new extension to replace the current extension.
+ * @example
+ * changeExtname('path/to/file.ext1.ext2', '.new') // 'path/to/file.ext1.new'
+ * @returns The modified file path with the new extension.
+ */
 function changeExtname(filePath, newExtension) {
     return (0, path_1.join)((0, path_1.dirname)(filePath), `${(0, path_1.basename)(filePath, (0, path_1.extname)(filePath))}${newExtension}`);
 }
 exports.changeExtname = changeExtname;
+/**
+ * Changes the full extension of a file path to a new extension.
+ *
+ * @param filePath - The original file path.
+ * @param newExtension - The new extension to replace the existing extension.
+ * @example
+ * changeFullExtname('path/to/file.ext1.ext2', '.new') // 'path/to/file.new'
+ * @returns The modified file path with the new extension.
+ */
 function changeFullExtname(filePath, newExtension) {
     return (0, path_1.join)((0, path_1.dirname)(filePath), `${(0, path_1.basename)(filePath, fullExtname(filePath))}${newExtension}`);
 }

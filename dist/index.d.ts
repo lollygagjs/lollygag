@@ -15,11 +15,11 @@ export interface IFile {
     status?: 'published' | 'draft' | string;
     [prop: string]: RaggedyAny;
 }
-export interface IMeta {
+export interface ISitemeta {
     year?: number;
     [prop: string]: RaggedyAny;
 }
-export type FileHandler = (content: string, options?: unknown, data?: IMeta) => string;
+export type FileHandler = (content: string, options?: unknown, data?: ISitemeta) => string;
 export interface IConfig {
     generator?: string;
     prettyUrls?: boolean;
@@ -31,16 +31,16 @@ export interface IConfig {
 export type Worker = (files: IFile[], lollygag: Lollygag) => void | Promise<void>;
 export default class Lollygag {
     private __config;
-    private __meta;
+    private __sitemeta;
     private __in;
     private __out;
     private __files;
     private __workers;
-    constructor(__config?: IConfig, __meta?: IMeta, __in?: string, __out?: string, __files?: IFile[], __workers?: Worker[]);
+    constructor(__config?: IConfig, __sitemeta?: ISitemeta, __in?: string, __out?: string, __files?: IFile[], __workers?: Worker[]);
     config(config: IConfig): this;
     get _config(): IConfig;
-    meta(meta: IMeta): this;
-    get _meta(): IMeta;
+    sitemeta(sitemeta: ISitemeta): this;
+    get _sitemeta(): ISitemeta;
     in(dir: string): this;
     get _in(): string;
     out(dir: string): this;

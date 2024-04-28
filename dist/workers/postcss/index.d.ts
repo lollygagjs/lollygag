@@ -7,5 +7,5 @@ export interface IPostCSSWorkerOptions {
     plugins?: AcceptedPlugin[];
     processOptions?: ProcessOptions;
 }
-export declare function postcss(options?: IPostCSSWorkerOptions): Worker;
-export default postcss;
+export declare function worker(options?: IPostCSSWorkerOptions): Worker;
+export default worker;

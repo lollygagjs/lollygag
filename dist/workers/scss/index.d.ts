@@ -5,5 +5,5 @@ export interface ISassOptions {
     targetExtnames?: string[];
     sassOptions?: Options<'sync'>;
 }
-export declare function sass(options?: ISassOptions): Worker;
-export default sass;
+export declare function worker(options?: ISassOptions): Worker;
+export default worker;

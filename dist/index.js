@@ -28,17 +28,17 @@ class Lollygag {
         generator: 'Lollygag',
         prettyUrls: true,
         generateTimestamp: true,
-    }, __meta = {
+    }, __sitemeta = {
         year: new Date().getFullYear(),
     }, __in = 'files', __out = 'public', __files = [], __workers = []) {
         var _a;
         this.__config = __config;
-        this.__meta = __meta;
+        this.__sitemeta = __sitemeta;
         this.__in = __in;
         this.__out = __out;
         this.__files = __files;
         this.__workers = __workers;
-        this.handleTemplating = (_a = this._config.templatingHandler) !== null && _a !== void 0 ? _a : general_1.handlebarsWorker.handleHandlebars;
+        this.handleTemplating = (_a = this._config.templatingHandler) !== null && _a !== void 0 ? _a : general_1.handlebars.handler;
         this.build = (options) => build_1.default.call(this, options);
         (0, console_1.log)('Hello from Lollygag!');
     }
@@ -53,12 +53,12 @@ class Lollygag {
     get _config() {
         return this.__config;
     }
-    meta(meta) {
-        this.__meta = Object.assign(Object.assign({}, this._meta), meta);
+    sitemeta(sitemeta) {
+        this.__sitemeta = Object.assign(Object.assign({}, this._sitemeta), sitemeta);
         return this;
     }
-    get _meta() {
-        return this.__meta;
+    get _sitemeta() {
+        return this.__sitemeta;
     }
     in(dir) {
         this.__in = (0, path_1.join)(dir);

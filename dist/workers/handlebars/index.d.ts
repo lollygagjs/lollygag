@@ -10,6 +10,6 @@ export interface IHandleHandlebarsOptions {
     compileOptions?: CompileOptions;
     runtimeOptions?: RuntimeOptions;
 }
-export declare const handleHandlebars: FileHandler;
-export declare function handlebars(options?: IHandlebarsOptions): Worker;
-export default handlebars;
+export declare const handler: FileHandler;
+export declare function worker(options?: IHandlebarsOptions): Worker;
+export default worker;

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.livedev = void 0;
+exports.worker = void 0;
 const path_1 = require("path");
 const http_1 = __importDefault(require("http"));
 const console_1 = require("console");
@@ -55,7 +55,7 @@ function rebuild(options) {
     });
 }
 let serverStarted = false;
-function livedev(options) {
+function worker(options) {
     return function livedevWorker(files, lollygag) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b, _c, _d;
@@ -122,5 +122,5 @@ function livedev(options) {
         });
     };
 }
-exports.livedev = livedev;
-exports.default = livedev;
+exports.worker = worker;
+exports.default = worker;

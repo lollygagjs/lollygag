@@ -22,7 +22,7 @@ export default function parseFiles(
             rawFileContent = this.handleTemplating(
                 rawFileContent,
                 this._config.templatingHandlerOptions ?? null,
-                {...this._config, ...this._meta}
+                {...this._config, ...this._sitemeta}
             );
 
             const grayMatterResult = grayMatter(rawFileContent);

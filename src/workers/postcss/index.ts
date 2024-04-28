@@ -10,7 +10,7 @@ export interface IPostCSSWorkerOptions {
     processOptions?: ProcessOptions;
 }
 
-export function postcss(options?: IPostCSSWorkerOptions): Worker {
+export function worker(options?: IPostCSSWorkerOptions): Worker {
     return async function postcssWorker(files: IFile[]): Promise<void> {
         if(!files) return;
 
@@ -91,4 +91,4 @@ export function postcss(options?: IPostCSSWorkerOptions): Worker {
     };
 }
 
-export default postcss;
+export default worker;

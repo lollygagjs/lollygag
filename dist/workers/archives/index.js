@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.archives = exports.slugify = void 0;
+exports.worker = exports.slugify = void 0;
 const path_1 = require("path");
 const minimatch_1 = require("minimatch");
 const __1 = require("../..");
@@ -40,7 +40,7 @@ function paginateArchive(args) {
         });
     }
 }
-function archives(options) {
+function worker(options) {
     return function archivesWorker(files, lollygag) {
         if (!files)
             return;
@@ -78,5 +78,5 @@ function archives(options) {
         });
     };
 }
-exports.archives = archives;
-exports.default = archives;
+exports.worker = worker;
+exports.default = worker;

@@ -2,7 +2,7 @@ import {Stats} from 'fs';
 import {log, error} from 'console';
 import {join} from 'path';
 import {red} from 'chalk';
-import {handlebarsWorker} from './utils/general';
+import {handlebars} from './utils/general';
 import build, {IBuildOptions} from './utils/build';
 
 export * from './utils/general';
@@ -23,7 +23,7 @@ export interface IFile {
     [prop: string]: RaggedyAny;
 }
 
-export interface IMeta {
+export interface ISitemeta {
     year?: number;
     [prop: string]: RaggedyAny;
 }
@@ -31,7 +31,7 @@ export interface IMeta {
 export type FileHandler = (
     content: string,
     options?: unknown,
-    data?: IMeta
+    data?: ISitemeta
 ) => string;
 
 export interface IConfig {
@@ -56,7 +56,7 @@ export default class Lollygag {
             prettyUrls: true,
             generateTimestamp: true,
         },
-        private __meta: IMeta = {
+        private __sitemeta: ISitemeta = {
             year: new Date().getFullYear(),
         },
         private __in: string = 'files',
@@ -79,13 +79,13 @@ export default class Lollygag {
         return this.__config;
     }
 
-    meta(meta: IMeta): this {
-        this.__meta = {...this._meta, ...meta};
+    sitemeta(sitemeta: ISitemeta): this {
+        this.__sitemeta = {...this._sitemeta, ...sitemeta};
         return this;
     }
 
-    get _meta(): IMeta {
-        return this.__meta;
+    get _sitemeta(): ISitemeta {
+        return this.__sitemeta;
     }
 
     in(dir: string): this {
@@ -125,7 +125,7 @@ export default class Lollygag {
     }
 
     protected handleTemplating
-        = this._config.templatingHandler ?? handlebarsWorker.handleHandlebars;
+        = this._config.templatingHandler ?? handlebars.handler;
 
     build = (options: IBuildOptions) => build.call(this, options);
 }

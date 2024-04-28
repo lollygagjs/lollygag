@@ -63,7 +63,7 @@ function paginateArchive(args: IPaginateArchivesArgs) {
     }
 }
 
-export function archives(options: IArchivesOptions) {
+export function worker(options: IArchivesOptions) {
     return function archivesWorker(files: IFile[], lollygag: Lollygag) {
         if(!files) return;
 
@@ -114,4 +114,4 @@ export function archives(options: IArchivesOptions) {
     };
 }
 
-export default archives;
+export default worker;

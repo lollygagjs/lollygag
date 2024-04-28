@@ -44,7 +44,7 @@ const validMimetypes = ['image/gif', 'image/png', 'image/jpeg'] as const;
 
 export type ValidMimetypes = (typeof validMimetypes)[number];
 
-export function images(options?: IImagesOptions): Worker {
+export function worker(options?: IImagesOptions): Worker {
     return async function imagesWorker(files): Promise<void> {
         if(!files) return;
 
@@ -159,4 +159,4 @@ export function images(options?: IImagesOptions): Worker {
     };
 }
 
-export default images;
+export default worker;

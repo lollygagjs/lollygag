@@ -6,4 +6,5 @@ export interface ITerserWorkerOptions {
     keepOriginal?: boolean;
     minifyOptions?: t.MinifyOptions;
 }
-export default function terser(options?: ITerserWorkerOptions): Worker;
+export declare function worker(options?: ITerserWorkerOptions): Worker;
+export default worker;

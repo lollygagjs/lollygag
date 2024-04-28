@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handlebars = exports.handleHandlebars = void 0;
+exports.worker = exports.handler = void 0;
 const path_1 = require("path");
 const handlebars_1 = __importDefault(require("handlebars"));
 const __1 = require("../..");
@@ -20,13 +20,13 @@ handlebars_1.default.registerHelper('cap', (word) => word.charAt(0).toUpperCase(
 handlebars_1.default.registerHelper('capWords', (words) => words.map((word) => word.charAt(0).toUpperCase() + word.substring(1)));
 // Return prop if it `exists`, `defaultValue` otherwise
 handlebars_1.default.registerHelper('orDefault', (prop, defaultValue) => (prop ? prop : defaultValue));
-const handleHandlebars = (content, options, data) => {
+const handler = (content, options, data) => {
     var _a;
     const { compileOptions, runtimeOptions } = (_a = options) !== null && _a !== void 0 ? _a : {};
     return handlebars_1.default.compile(content, compileOptions)(data, runtimeOptions);
 };
-exports.handleHandlebars = handleHandlebars;
-function handlebars(options) {
+exports.handler = handler;
+function worker(options) {
     return function handlebarsWorker(files, lollygag) {
         var _a;
         if (!files)
@@ -37,12 +37,12 @@ function handlebars(options) {
             if (!targetExtnames.includes((0, path_1.extname)(file.path))) {
                 continue;
             }
-            file.content = (0, exports.handleHandlebars)((_a = file.content) !== null && _a !== void 0 ? _a : '', { compileOptions, runtimeOptions }, Object.assign(Object.assign(Object.assign({}, lollygag._meta), lollygag._config), file));
+            file.content = (0, exports.handler)((_a = file.content) !== null && _a !== void 0 ? _a : '', { compileOptions, runtimeOptions }, Object.assign(Object.assign(Object.assign({}, lollygag._sitemeta), lollygag._config), file));
             if (newExtname !== false) {
                 file.path = (0, __1.changeExtname)(file.path, newExtname);
             }
         }
     };
 }
-exports.handlebars = handlebars;
-exports.default = handlebars;
+exports.worker = worker;
+exports.default = worker;

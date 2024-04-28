@@ -2,23 +2,40 @@ import {promises as fsp, statSync} from 'fs';
 import {extname, basename, dirname, join} from 'path';
 import mmm from 'mmmagic';
 
-export * as archivesWorker from '../workers/archives';
-export * as handlebarsWorker from '../workers/handlebars';
-export * as imagesWorker from '../workers/images';
-export * as livedevWorker from '../workers/livedev';
-export * as markdownWorker from '../workers/markdown';
-export * as postcssWorker from '../workers/postcss';
-export * as scssWorker from '../workers/scss';
-export * as templatesWorker from '../workers/templates';
-export * as terserWorker from '../workers/terser';
-export * as typescriptWorker from '../workers/typescript';
+export * as archives from '../workers/archives';
+export * as handlebars from '../workers/handlebars';
+export * as images from '../workers/images';
+export * as livedev from '../workers/livedev';
+export * as markdown from '../workers/markdown';
+export * as postcss from '../workers/postcss';
+export * as scss from '../workers/scss';
+export * as templates from '../workers/templates';
+export * as terser from '../workers/terser';
+export * as typescript from '../workers/typescript';
 
+/**
+ * Returns the full extension of a file path.
+ *
+ * @param filePath - The file path.
+ * @example
+ * fullExtname('path/to/file.ext1.ext2') // '.ext1.ext2'
+ * @returns The full extension of the file path.
+ */
 export function fullExtname(filePath: string): string {
     const extensions = basename(filePath).split('.');
     extensions.shift();
     return `.${extensions.join('.')}`;
 }
 
+/**
+ * Changes the extension of a file path to a new extension.
+ *
+ * @param filePath - The original file path.
+ * @param newExtension - The new extension to replace the current extension.
+ * @example
+ * changeExtname('path/to/file.ext1.ext2', '.new') // 'path/to/file.ext1.new'
+ * @returns The modified file path with the new extension.
+ */
 export function changeExtname(filePath: string, newExtension: string): string {
     return join(
         dirname(filePath),
@@ -26,6 +43,15 @@ export function changeExtname(filePath: string, newExtension: string): string {
     );
 }
 
+/**
+ * Changes the full extension of a file path to a new extension.
+ *
+ * @param filePath - The original file path.
+ * @param newExtension - The new extension to replace the existing extension.
+ * @example
+ * changeFullExtname('path/to/file.ext1.ext2', '.new') // 'path/to/file.new'
+ * @returns The modified file path with the new extension.
+ */
 export function changeFullExtname(
     filePath: string,
     newExtension: string
