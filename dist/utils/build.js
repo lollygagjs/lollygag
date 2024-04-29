@@ -8,22 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = require("path");
 const console_1 = require("console");
-const generatePrettyUrls_1 = __importDefault(require("./generatePrettyUrls"));
-const getFiles_1 = __importDefault(require("./getFiles"));
-const parseFiles_1 = __importDefault(require("./parseFiles"));
-const validateBuild_1 = __importDefault(require("./validateBuild"));
-const writeFiles_1 = __importDefault(require("./writeFiles"));
 const rimraf_1 = require("rimraf");
+const helpers_1 = require("./helpers");
 function build(options) {
     return __awaiter(this, void 0, void 0, function* () {
         const { fullBuild = false, allowExternalDirectories = false, allowWorkingDirectoryOutput = false, globPattern, } = options !== null && options !== void 0 ? options : {};
-        validateBuild_1.default.call(this, {
+        helpers_1.validateBuild.call(this, {
             allowExternalDirectories,
             allowWorkingDirectoryOutput,
         });
@@ -39,10 +32,10 @@ function build(options) {
             (0, console_1.timeEnd)(`Cleaned '${this._outputDir}' directory`);
         }
         (0, console_1.time)('Files collected');
-        const fileList = yield getFiles_1.default.call(this, globPatterns);
+        const fileList = yield helpers_1.getFiles.call(this, globPatterns);
         (0, console_1.timeEnd)('Files collected');
         (0, console_1.time)('Files parsed');
-        const parsedFiles = (yield parseFiles_1.default.call(this, fileList)).filter((file) => !file.exclude);
+        const parsedFiles = (yield helpers_1.parseFiles.call(this, fileList)).filter((file) => !file.exclude);
         (0, console_1.timeEnd)('Files parsed');
         yield this._workers.reduce((possiblePromise, worker) => __awaiter(this, void 0, void 0, function* () {
             var _a;
@@ -56,11 +49,11 @@ function build(options) {
         let toWrite = parsedFiles;
         if (this._config.prettyUrls) {
             (0, console_1.time)('Generated pretty URLs');
-            toWrite = (0, generatePrettyUrls_1.default)(parsedFiles);
+            toWrite = (0, helpers_1.generatePrettyUrls)(parsedFiles);
             (0, console_1.timeEnd)('Generated pretty URLs');
         }
         (0, console_1.time)('Files written');
-        yield writeFiles_1.default.call(this, toWrite);
+        yield helpers_1.writeFiles.call(this, toWrite);
         (0, console_1.timeEnd)('Files written');
         (0, console_1.timeEnd)('Total build time');
     });

@@ -44,17 +44,21 @@ function worker(options) {
     return function archivesWorker(files, lollygag) {
         if (!files)
             return;
-        const { collection: dir, pageLimit = 10, renameToTitle = true } = options;
-        const relativeDir = dir.replace(/^\/|\/$/g, '');
+        const { collection, pageLimit = 10, renameToTitle = true } = options;
+        const relativeDir = collection.replace(/^\/|\/$/g, '');
         const prewriteDir = (0, __1.addParentToPath)(lollygag._contentDir, relativeDir);
         const archive = [];
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
+            // only process html files in the collection
             if ((0, path_1.extname)(file.path) !== '.html'
                 || !(0, minimatch_1.minimatch)(file.path, (0, path_1.join)(prewriteDir, '/**/*'))) {
                 continue;
             }
-            if (file.title && renameToTitle) {
+            if (file.slug) {
+                file.path = (0, path_1.join)(prewriteDir, file.slug + (0, __1.fullExtname)(file.path));
+            }
+            else if (file.title && renameToTitle) {
                 file.path = (0, path_1.join)(prewriteDir, (0, exports.slugify)(file.title) + (0, __1.fullExtname)(file.path));
             }
             else {

@@ -1,13 +1,15 @@
+import Lollygag, {Worker} from '..';
 import {join} from 'path';
 import {log, time, timeEnd} from 'console';
-import Lollygag, {Worker} from '..';
-
-import generatePrettyUrls from './generatePrettyUrls';
-import getFiles from './getFiles';
-import parseFiles from './parseFiles';
-import validateBuild from './validateBuild';
-import writeFiles from './writeFiles';
 import {rimraf} from 'rimraf';
+
+import {
+    getFiles,
+    parseFiles,
+    generatePrettyUrls,
+    validateBuild,
+    writeFiles,
+} from './helpers';
 
 export interface IBuildOptions {
     fullBuild?: boolean;

@@ -67,9 +67,9 @@ export function worker(options: IArchivesOptions) {
     return function archivesWorker(files: IFile[], lollygag: Lollygag) {
         if(!files) return;
 
-        const {collection: dir, pageLimit = 10, renameToTitle = true} = options;
+        const {collection, pageLimit = 10, renameToTitle = true} = options;
 
-        const relativeDir = dir.replace(/^\/|\/$/g, '');
+        const relativeDir = collection.replace(/^\/|\/$/g, '');
         const prewriteDir = addParentToPath(lollygag._contentDir, relativeDir);
 
         const archive: IFile[] = [];
@@ -77,6 +77,7 @@ export function worker(options: IArchivesOptions) {
         for(let i = 0; i < files.length; i++) {
             const file = files[i];
 
+            // only process html files in the collection
             if(
                 extname(file.path) !== '.html'
                 || !minimatch(file.path, join(prewriteDir, '/**/*'))
@@ -84,7 +85,12 @@ export function worker(options: IArchivesOptions) {
                 continue;
             }
 
-            if(file.title && renameToTitle) {
+            if(file.slug) {
+                file.path = join(
+                    prewriteDir,
+                    file.slug + fullExtname(file.path)
+                );
+            } else if(file.title && renameToTitle) {
                 file.path = join(
                     prewriteDir,
                     slugify(file.title) + fullExtname(file.path)
