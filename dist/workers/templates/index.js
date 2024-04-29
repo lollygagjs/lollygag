@@ -9,12 +9,35 @@ const path_1 = require("path");
 const fs_1 = require("fs");
 const handlebars_1 = __importDefault(require("handlebars"));
 const __1 = require("../..");
-// renders a registered partial
-handlebars_1.default.registerHelper('partial', (path, context) => {
+handlebars_1.default.registerHelper('json', (context) => JSON.stringify(context, null, 2));
+handlebars_1.default.registerHelper('log', (value) => {
+    console.log(value);
+});
+handlebars_1.default.registerHelper('partial', function x(path, context, options) {
     let partial = handlebars_1.default.partials[path];
-    if (typeof partial !== 'function')
+    if (typeof partial !== 'function') {
         partial = handlebars_1.default.compile(partial);
-    return new handlebars_1.default.SafeString(partial(context));
+    }
+    let ctx = {};
+    if (typeof context !== 'object') {
+        ctx = { value: context };
+    }
+    else if (context.hash && Object.keys(context.hash).length > 0) {
+        ctx = context.hash;
+    }
+    else if (context.data && context.data.root) {
+        ctx = context.data.root;
+    }
+    else {
+        ctx = context;
+    }
+    if (context.fn) {
+        ctx = Object.assign(Object.assign({}, ctx), { body: context.fn(this) });
+    }
+    else if (options && options.fn) {
+        ctx = Object.assign(Object.assign({}, ctx), { body: options.fn(this) });
+    }
+    return new handlebars_1.default.SafeString(partial(ctx));
 });
 const registerPartials = (dir) => {
     glob_1.glob.sync(`${dir}/*.hbs`).forEach((file) => {

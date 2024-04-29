@@ -5,10 +5,11 @@ import Handlebars from 'handlebars';
 
 import Lollygag, {
     changeExtname,
-    handlebars,
     FileHandler,
-    Worker,
+    handlebars,
     IFile,
+    RaggedyAny,
+    Worker,
 } from '../..';
 
 export interface ITemplatesOptions {
@@ -21,14 +22,43 @@ export interface ITemplatesOptions {
     templatingHandlerOptions?: unknown;
 }
 
-// renders a registered partial
-Handlebars.registerHelper('partial', (path, context) => {
-    let partial = Handlebars.partials[path];
+Handlebars.registerHelper('json', (context) =>
+    JSON.stringify(context, null, 2));
 
-    if(typeof partial !== 'function') partial = Handlebars.compile(partial);
-
-    return new Handlebars.SafeString(partial(context));
+Handlebars.registerHelper('log', (value) => {
+    console.log(value);
 });
+
+Handlebars.registerHelper(
+    'partial',
+    function x(this: RaggedyAny, path, context, options) {
+        let partial = Handlebars.partials[path];
+
+        if(typeof partial !== 'function') {
+            partial = Handlebars.compile(partial);
+        }
+
+        let ctx = {};
+
+        if(typeof context !== 'object') {
+            ctx = {value: context};
+        } else if(context.hash && Object.keys(context.hash).length > 0) {
+            ctx = context.hash;
+        } else if(context.data && context.data.root) {
+            ctx = context.data.root;
+        } else {
+            ctx = context;
+        }
+
+        if(context.fn) {
+            ctx = {...ctx, body: context.fn(this)};
+        } else if(options && options.fn) {
+            ctx = {...ctx, body: options.fn(this)};
+        }
+
+        return new Handlebars.SafeString(partial(ctx));
+    }
+);
 
 export const registerPartials = (dir: string) => {
     glob.sync(`${dir}/*.hbs`).forEach((file) => {
