@@ -1,10 +1,10 @@
-import {deepCopy, Worker} from '../..';
-import {GifOptions, PngOptions, JpegOptions, ResizeOptions} from 'sharp';
 import {existsSync, mkdirSync, readFileSync, Stats, writeFileSync} from 'fs';
 import {writeFile} from 'fs/promises';
+import {GifOptions, JpegOptions, PngOptions, ResizeOptions} from 'sharp';
+import {deepCopy, Worker} from '../..';
+import deleteStaleImages from './helpers/deleteStaleImages';
 import generateFilename from './helpers/generalFilename';
 import processImages from './helpers/processImages';
-import deleteStaleImages from './helpers/deleteStaleImages';
 
 export interface IResizeParams {
     width?: number | null;
@@ -46,14 +46,14 @@ export type ValidMimetypes = (typeof validMimetypes)[number];
 
 export function worker(options?: IImagesOptions): Worker {
     return async function imagesWorker(files): Promise<void> {
-        if(!files) return;
+        if (!files) return;
 
         const {gifOptions, pngOptions, jpegOptions, sizes} = options ?? {};
 
         const metaFile = '.images/meta.json';
 
-        if(!existsSync('.images/')) mkdirSync('.images');
-        if(!existsSync(metaFile)) writeFileSync(metaFile, '{}');
+        if (!existsSync('.images/')) mkdirSync('.images');
+        if (!existsSync(metaFile)) writeFileSync(metaFile, '{}');
 
         const metaFileText = readFileSync(metaFile, {
             encoding: 'utf-8',
@@ -67,14 +67,14 @@ export function worker(options?: IImagesOptions): Worker {
 
         const meta: IImagesMeta = {};
 
-        const promises = files.map(async(f) => {
+        const promises = files.map(async (f) => {
             const file = f;
 
-            if(!file.stats) return;
+            if (!file.stats) return;
 
             const fileMimetype = file.mimetype as ValidMimetypes;
 
-            if(!validMimetypes.includes(fileMimetype)) return;
+            if (!validMimetypes.includes(fileMimetype)) return;
 
             const originalFilePath = file.path;
 
@@ -82,9 +82,9 @@ export function worker(options?: IImagesOptions): Worker {
 
             let quality: number | undefined;
 
-            if(fileMimetype === 'image/png') {
+            if (fileMimetype === 'image/png') {
                 quality = pngOptions?.quality ?? 80;
-            } else if(fileMimetype === 'image/jpeg') {
+            } else if (fileMimetype === 'image/jpeg') {
                 quality = jpegOptions?.quality ?? 80;
             }
 
@@ -105,7 +105,6 @@ export function worker(options?: IImagesOptions): Worker {
 
                     desired.push(sizePath);
 
-                    // eslint-disable-next-line no-param-reassign
                     size[key] = {
                         path: sizePath,
                         width: (sizes ?? {})[key].width,
@@ -125,13 +124,13 @@ export function worker(options?: IImagesOptions): Worker {
                 generated: {...fullImgObj, ...sizesObj},
             };
 
-            const oldFileMeta: IImagesMetaProps | undefined
-                = oldMeta[originalFilePath];
+            const oldFileMeta: IImagesMetaProps | undefined =
+                oldMeta[originalFilePath];
 
-            const previouslyProcessed
-                = oldFileMeta
-                && new Date(oldMeta[originalFilePath].birthtimeMs)
-                    >= new Date(file.stats.birthtimeMs);
+            const previouslyProcessed =
+                oldFileMeta &&
+                new Date(oldMeta[originalFilePath].birthtimeMs) >=
+                    new Date(file.stats.birthtimeMs);
 
             const newFiles = await processImages({
                 fileCopy: deepCopy(file),
